@@ -1,12 +1,13 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type { PlanRequest, DatePlan } from "./types";
 import { occasionLabels, moodLabels, budgetLabels } from "./types";
+import { env } from "./env";
 
 let client: Anthropic | null = null;
 
 function getClient(): Anthropic {
   if (!client) {
-    client = new Anthropic();
+    client = new Anthropic({ apiKey: env().ANTHROPIC_API_KEY });
   }
   return client;
 }
@@ -62,7 +63,7 @@ function generateId(): string {
 }
 
 export async function generateAIPlan(request: PlanRequest): Promise<DatePlan> {
-  const model = process.env.ANTHROPIC_MODEL || "claude-sonnet-4-6";
+  const model = env().ANTHROPIC_MODEL;
 
   const message = await getClient().messages.create({
     model,
