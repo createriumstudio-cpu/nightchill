@@ -30,7 +30,7 @@ export function env(): EnvConfig {
     ANTHROPIC_MODEL: getEnvVar("ANTHROPIC_MODEL", "claude-sonnet-4-6"),
     NEXT_PUBLIC_SITE_URL: getEnvVar(
       "NEXT_PUBLIC_SITE_URL",
-      "http://localhost:3000"
+      "https://nightchill.app"
     ),
   };
 
