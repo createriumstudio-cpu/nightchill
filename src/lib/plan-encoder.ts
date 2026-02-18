@@ -29,6 +29,7 @@ interface ShareableData {
   p: CompactPlan;  // plan
   l?: string;      // location (optional)
 }
+
 function toCompact(plan: DatePlan): CompactPlan {
   return {
     i: plan.id,
@@ -64,21 +65,13 @@ function fromCompact(compact: CompactPlan): DatePlan {
     warnings: compact.w,
   };
 }
-
 // ============================================================
 // deflate 圧縮 / 解凍（ブラウザ組み込み CompressionStream API）
 // ============================================================
 
-async function compressBytes(input: Uint8Array): Promise<Uint8Array> {
-  if (typeof CompressionStream === "undefined") {
-    return input;
-  }
-  const cs = new CompressionStream("deflate-raw");
-  const writer = cs.writable.getWriter();
-  writer.write(input);
-  writer.close();
+async function streamToBytes(stream: ReadableStream<Uint8Array>): Promise<Uint8Array> {
   const chunks: Uint8Array[] = [];
-  const reader = cs.readable.getReader();
+  const reader = stream.getReader();
   for (;;) {
     const { done, value } = await reader.read();
     if (done) break;
@@ -94,29 +87,28 @@ async function compressBytes(input: Uint8Array): Promise<Uint8Array> {
   return result;
 }
 
+async function compressBytes(input: Uint8Array): Promise<Uint8Array> {
+  // CompressionStream が使えない環境ではフォールバック
+  if (typeof CompressionStream === "undefined") {
+    return input;
+  }
+  // Blob.stream() → pipeThrough で型の互換性問題を回避
+  const blob = new Blob([input]);
+  const compressed = blob
+    .stream()
+    .pipeThrough(new CompressionStream("deflate-raw"));
+  return streamToBytes(compressed);
+}
+
 async function decompressBytes(input: Uint8Array): Promise<Uint8Array> {
   if (typeof DecompressionStream === "undefined") {
     return input;
   }
-  const ds = new DecompressionStream("deflate-raw");
-  const writer = ds.writable.getWriter();
-  writer.write(input);
-  writer.close();
-  const chunks: Uint8Array[] = [];
-  const reader = ds.readable.getReader();
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    chunks.push(value);
-  }
-  const totalLength = chunks.reduce((sum, c) => sum + c.length, 0);
-  const result = new Uint8Array(totalLength);
-  let offset = 0;
-  for (const chunk of chunks) {
-    result.set(chunk, offset);
-    offset += chunk.length;
-  }
-  return result;
+  const blob = new Blob([input]);
+  const decompressed = blob
+    .stream()
+    .pipeThrough(new DecompressionStream("deflate-raw"));
+  return streamToBytes(decompressed);
 }
 // ============================================================
 // base64url エンコード / デコード
