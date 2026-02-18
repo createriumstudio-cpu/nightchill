@@ -1,3 +1,6 @@
+import type { VenueFactData } from "./google-places";
+import type { WalkingRoute } from "./google-maps";
+
 export type Occasion =
   | "first-date"
   | "anniversary"
@@ -35,6 +38,9 @@ export interface DatePlan {
   fashionAdvice: string;
   conversationTopics: string[];
   warnings: string[];
+  // Phase 1: ファクトデータ & ルート情報
+  venues?: VenueFactData[];
+  walkingRoute?: WalkingRoute;
 }
 
 export const occasionLabels: Record<Occasion, string> = {
