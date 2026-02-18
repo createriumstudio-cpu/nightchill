@@ -1,6 +1,6 @@
 # nightchill 引き継ぎドキュメント (HANDOFF.md)
 
-> 最終更新: 2026-02-19
+> 最終更新: 2026-02-19 (Phase 1 マージ完了)
 > このドキュメントは、プロジェクトの引き継ぎを円滑にするための包括的ガイドです。
 
 ## 1. プロジェクト概要
@@ -109,10 +109,11 @@ nightchill/
 | #1 | Vercel デプロイ修正 + CI | 2026-02-18 |
 | #4 | UGC合法埋め込み | 2026-02-19 |
 | #5 | URL永続化 + SNSシェア | 2026-02-19 |
+| #7 | Phase 1: Google API統合・ファクトデータ注入・Contextual PR基盤 | 2026-02-19 |
 
 ## 9. 開発フェーズ進捗
 
-### Phase 1: MVP検証（進行中）
+### Phase 1: MVP検証（✅ 完了・マージ済み PR #7）
 - [x] Google Places API サービス
 - [x] Google Maps API サービス
 - [x] Contextual PR フレームワーク
@@ -131,7 +132,18 @@ nightchill/
 
 ## 10. 次にやるべきこと
 
-1. Google Cloud Console で Places API / Maps API 有効化
-2. APIキーを Vercel 環境変数に設定
-3. Phase 2 の CMS 統合設計
-4. 記事テンプレートと自動生成パイプライン構築
+### 即座に必要（運用開始に必須）
+1. Google Cloud Console で Places API / Maps API を有効化
+2. APIキーを取得し、Vercel 環境変数に設定:
+   - `GOOGLE_PLACES_API_KEY` → 店舗情報取得用
+   - `GOOGLE_MAPS_API_KEY` → 徒歩ルート・地図埋め込み用
+3. Google Cloud Console でAPIキーにリファラ制限を設定
+
+### Codex Review Bot 指摘事項（改善推奨）
+4. plan-encoder.ts に venues/walkingRoute のシリアライズ追加（共有URL対応）
+5. Google Maps Embed APIキーのクライアント露出対策の検討
+
+### Phase 2 開発
+6. CMS 統合設計（記事テンプレート・自動生成パイプライン）
+7. 逆引き検索UI実装
+8. タグ・カテゴリシステム構築
