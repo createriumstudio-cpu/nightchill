@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { generateDatePlan } from "@/lib/planner";
+import { generateAIPlan } from "@/lib/ai-planner";
 import type { PlanRequest, Occasion, Mood, Budget } from "@/lib/types";
 
 const validOccasions: Occasion[] = [
@@ -42,8 +43,17 @@ export async function POST(request: Request) {
       );
     }
 
-    const plan = generateDatePlan(body);
+    // Use AI if API key is configured, otherwise fall back to templates
+    if (process.env.ANTHROPIC_API_KEY) {
+      try {
+        const plan = await generateAIPlan(body);
+        return NextResponse.json(plan);
+      } catch (aiError) {
+        console.error("AI plan generation failed, falling back to template:", aiError);
+      }
+    }
 
+    const plan = generateDatePlan(body);
     return NextResponse.json(plan);
   } catch {
     return NextResponse.json(
