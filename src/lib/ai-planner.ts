@@ -62,7 +62,7 @@ function generateId(): string {
 }
 
 export async function generateAIPlan(request: PlanRequest): Promise<DatePlan> {
-  const model = process.env.ANTHROPIC_MODEL || "claude-sonnet-4-5-20250929";
+  const model = process.env.ANTHROPIC_MODEL || "claude-sonnet-4-6";
 
   const message = await getClient().messages.create({
     model,
