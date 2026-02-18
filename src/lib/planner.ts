@@ -250,11 +250,39 @@ function getTitleForPlan(occasion: string, mood: string): string {
       luxurious: "極上の記念日デートプラン",
       adventurous: "アクティブ記念日プラン",
     },
+    birthday: {
+      romantic: "ロマンチック誕生日デートプラン",
+      fun: "サプライズ満載の誕生日プラン",
+      relaxed: "まったり誕生日デートプラン",
+      luxurious: "贅沢な誕生日デートプラン",
+      adventurous: "冒険誕生日プラン",
+    },
+    proposal: {
+      romantic: "感動のプロポーズプラン",
+      fun: "二人らしいプロポーズプラン",
+      relaxed: "自然体のプロポーズプラン",
+      luxurious: "極上のプロポーズプラン",
+      adventurous: "サプライズプロポーズプラン",
+    },
+    casual: {
+      romantic: "さりげなくロマンチックなデート",
+      fun: "気軽に楽しむデートプラン",
+      relaxed: "ゆったりカジュアルデート",
+      luxurious: "ちょっと贅沢なカジュアルデート",
+      adventurous: "新発見カジュアルデート",
+    },
+    makeup: {
+      romantic: "心を込めた仲直りプラン",
+      fun: "笑顔を取り戻す仲直りプラン",
+      relaxed: "ゆっくり向き合う仲直りプラン",
+      luxurious: "特別な仲直りプラン",
+      adventurous: "新しい一歩の仲直りプラン",
+    },
   };
 
   return (
     titles[occasion]?.[mood] ??
-    `nightchill ${mood}デートプラン`
+    `nightchill デートプラン`
   );
 }
 

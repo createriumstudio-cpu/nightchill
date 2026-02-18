@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Header from "@/components/Header";
@@ -14,10 +14,41 @@ function loadPlanFromStorage(): DatePlan | null {
   return JSON.parse(stored) as DatePlan;
 }
 
+function planToText(plan: DatePlan): string {
+  const lines: string[] = [];
+  lines.push(`【${plan.title}】`);
+  lines.push(`${occasionLabels[plan.occasion]} / ${moodLabels[plan.mood]}`);
+  lines.push("");
+  lines.push(plan.summary);
+  lines.push("");
+  lines.push("--- タイムライン ---");
+  for (const item of plan.timeline) {
+    lines.push(`${item.time} ${item.activity}`);
+    lines.push(`  → ${item.tip}`);
+  }
+  lines.push("");
+  lines.push("--- 服装アドバイス ---");
+  lines.push(plan.fashionAdvice);
+  lines.push("");
+  lines.push("--- 会話のネタ ---");
+  for (const [i, topic] of plan.conversationTopics.entries()) {
+    lines.push(`${i + 1}. ${topic}`);
+  }
+  lines.push("");
+  lines.push("--- 注意ポイント ---");
+  for (const warning of plan.warnings) {
+    lines.push(`⚠ ${warning}`);
+  }
+  lines.push("");
+  lines.push("nightchill - 成功確約型デートコンシェルジュ");
+  return lines.join("\n");
+}
+
 export default function ResultsPage() {
   const router = useRouter();
   const [plan] = useState<DatePlan | null>(loadPlanFromStorage);
   const redirected = useRef(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (!plan && !redirected.current) {
@@ -25,6 +56,41 @@ export default function ResultsPage() {
       router.push("/plan");
     }
   }, [plan, router]);
+
+  const handleCopyText = useCallback(async () => {
+    if (!plan) return;
+    try {
+      await navigator.clipboard.writeText(planToText(plan));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      const textarea = document.createElement("textarea");
+      textarea.value = planToText(plan);
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textarea);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  }, [plan]);
+
+  const handleShareLine = useCallback(() => {
+    if (!plan) return;
+    const text = `${plan.title}\n\nnightchillでデートプランを作成しました！`;
+    const url = `https://social-plugins.line.me/lineit/share?text=${encodeURIComponent(text)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  }, [plan]);
+
+  const handleShareX = useCallback(() => {
+    if (!plan) return;
+    const text = `${plan.title}\n\nAIにデートプランを作ってもらった！\n#nightchill #デートプラン`;
+    const siteUrl = typeof window !== "undefined" ? window.location.origin : "";
+    const url = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(siteUrl)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  }, [plan]);
 
   if (!plan) {
     return (
@@ -122,6 +188,33 @@ export default function ResultsPage() {
               </li>
             ))}
           </ul>
+        </section>
+
+        {/* Share */}
+        <section className="mt-12 rounded-2xl border border-border bg-surface p-6">
+          <h2 className="mb-4 text-lg font-bold text-center">
+            プランを保存・共有
+          </h2>
+          <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            <button
+              onClick={handleCopyText}
+              className="flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-medium transition-all hover:border-primary/50 hover:bg-primary/5"
+            >
+              {copied ? "コピーしました！" : "テキストをコピー"}
+            </button>
+            <button
+              onClick={handleShareLine}
+              className="flex items-center gap-2 rounded-full bg-[#06C755] px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+            >
+              LINEで共有
+            </button>
+            <button
+              onClick={handleShareX}
+              className="flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-opacity hover:opacity-90"
+            >
+              Xでシェア
+            </button>
+          </div>
         </section>
 
         {/* Actions */}
