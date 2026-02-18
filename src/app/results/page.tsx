@@ -9,11 +9,11 @@ import SocialEmbedSection from "@/components/SocialEmbed";
 import { type DatePlan, occasionLabels, moodLabels } from "@/lib/types";
 import { getRelevantPosts, type UGCPost } from "@/lib/ugc-data";
 import { decodePlan, buildShareUrl } from "@/lib/plan-encoder";
+import type { VenueFactData } from "@/lib/google-places";
 
 // ============================================================
 // sessionStorage ヘルパー
 // ============================================================
-
 function loadPlanFromStorage(): DatePlan | null {
   if (typeof window === "undefined") return null;
   const stored = sessionStorage.getItem("nightchill-plan");
@@ -34,17 +34,16 @@ function loadLocationFromStorage(): string {
 // ============================================================
 // URLハッシュからプランデータを取得
 // ============================================================
-
 function getPlanHashFromUrl(): string | null {
   if (typeof window === "undefined") return null;
   const hash = window.location.hash;
   if (!hash.startsWith("#plan=")) return null;
-  return hash.slice(6); // "#plan=" の後ろ
+  return hash.slice(6);
 }
+
 // ============================================================
 // テキスト変換
 // ============================================================
-
 function planToText(plan: DatePlan): string {
   const l: string[] = [];
   l.push(`【${plan.title}】`);
@@ -75,14 +74,85 @@ function planToText(plan: DatePlan): string {
   return l.join("\n");
 }
 // ============================================================
+// 店舗情報カード
+// ============================================================
+function VenueCard({ venue, index }: { venue: VenueFactData; index: number }) {
+  return (
+    <div className="rounded-2xl border border-border bg-surface p-5">
+      <div className="flex items-start justify-between">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+              {index + 1}
+            </span>
+            <h3 className="font-semibold">{venue.name}</h3>
+          </div>
+          <p className="mt-1 text-sm text-muted">{venue.address}</p>
+        </div>
+        {venue.rating !== null && (
+          <div className="flex items-center gap-1 rounded-lg bg-amber-50 px-2 py-1 dark:bg-amber-950">
+            <span className="text-xs">⭐</span>
+            <span className="text-sm font-semibold text-amber-700 dark:text-amber-300">
+              {venue.rating}
+            </span>
+          </div>
+        )}
+      </div>
+
+      {venue.openingHours && venue.openingHours.length > 0 && (
+        <details className="mt-3">
+          <summary className="cursor-pointer text-sm font-medium text-primary">
+            営業時間を見る
+          </summary>
+          <ul className="mt-2 space-y-1">
+            {venue.openingHours.map((h, i) => (
+              <li key={i} className="text-xs text-muted">{h}</li>
+            ))}
+          </ul>
+        </details>
+      )}
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        {venue.phoneNumber && (
+          <a
+            href={`tel:${venue.phoneNumber}`}
+            className="rounded-lg bg-primary/5 px-3 py-1 text-xs font-medium text-primary"
+          >
+            📞 {venue.phoneNumber}
+          </a>
+        )}
+        {venue.website && (
+          <a
+            href={venue.website}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-lg bg-primary/5 px-3 py-1 text-xs font-medium text-primary"
+          >
+            🌐 公式サイト
+          </a>
+        )}
+      </div>
+
+      {venue.source === "fallback" && (
+        <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
+          ※ 詳細情報はGoogle Places API設定後に表示されます
+        </p>
+      )}
+      {venue.source === "google_places" && (
+        <p className="mt-2 text-xs text-green-600 dark:text-green-400">
+          ✓ Google Places APIから取得した最新情報
+        </p>
+      )}
+    </div>
+  );
+}
+// ============================================================
 // メインコンポーネント
 // ============================================================
-
 export default function ResultsPage() {
   const router = useRouter();
   const redirected = useRef(false);
 
-  // プランデータ: sessionStorage or URLハッシュ
   const [plan, setPlan] = useState<DatePlan | null>(loadPlanFromStorage);
   const [location, setLocation] = useState<string>(loadLocationFromStorage);
   const [isSharedView, setIsSharedView] = useState(false);
@@ -94,7 +164,6 @@ export default function ResultsPage() {
   useEffect(() => {
     const hash = getPlanHashFromUrl();
     if (!hash) return;
-
     let cancelled = false;
     decodePlan(hash).then((result) => {
       if (cancelled || !result) return;
@@ -115,7 +184,6 @@ export default function ResultsPage() {
     return () => { cancelled = true; };
   }, [plan, location]);
 
-  // UGC投稿をエリアとシチュエーションで取得
   const ugcPosts: UGCPost[] = useMemo(() => {
     if (!plan) return [];
     return getRelevantPosts(location, plan.occasion, 4);
@@ -127,7 +195,7 @@ export default function ResultsPage() {
       router.push("/plan");
     }
   }, [plan, router]);
-  // テキストコピー
+
   const handleCopyText = useCallback(async () => {
     if (!plan) return;
     try {
@@ -148,7 +216,6 @@ export default function ResultsPage() {
     }
   }, [plan]);
 
-  // URLコピー
   const handleCopyUrl = useCallback(async () => {
     if (!shareUrl) return;
     try {
@@ -156,7 +223,6 @@ export default function ResultsPage() {
       setUrlCopied(true);
       setTimeout(() => setUrlCopied(false), 2000);
     } catch {
-      // フォールバック
       const textarea = document.createElement("textarea");
       textarea.value = shareUrl;
       textarea.style.position = "fixed";
@@ -170,7 +236,6 @@ export default function ResultsPage() {
     }
   }, [shareUrl]);
 
-  // LINEシェア
   const handleShareLine = useCallback(() => {
     if (!plan) return;
     const text = `${plan.title}\n\nnightchillでデートプランを作成しました！`;
@@ -179,7 +244,6 @@ export default function ResultsPage() {
     window.open(url, "_blank", "noopener,noreferrer");
   }, [plan, shareUrl]);
 
-  // Xシェア
   const handleShareX = useCallback(() => {
     if (!plan) return;
     const text = `${plan.title}\n\nAIにデートプランを作ってもらった！\n#nightchill #デートプラン`;
@@ -198,18 +262,15 @@ export default function ResultsPage() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-
       <main className="mx-auto max-w-3xl px-6 pt-28 pb-16">
+
         {/* 共有プランバナー */}
         {isSharedView && (
           <div className="mb-8 rounded-2xl border border-primary/30 bg-primary/5 p-4 text-center">
             <p className="text-sm font-medium text-primary">
               このプランは共有リンクから表示されています
             </p>
-            <Link
-              href="/plan"
-              className="mt-2 inline-block text-xs text-muted underline hover:text-foreground"
-            >
+            <Link href="/plan" className="mt-2 inline-block text-xs text-muted underline hover:text-foreground">
               自分だけのプランを作る →
             </Link>
           </div>
@@ -230,6 +291,57 @@ export default function ResultsPage() {
           </h1>
           <p className="mt-3 text-muted">{plan.summary}</p>
         </div>
+
+        {/* Venue Info Section */}
+        {plan.venues && plan.venues.length > 0 && (
+          <section className="mt-12">
+            <h2 className="mb-6 text-xl font-bold">店舗情報</h2>
+            <div className="space-y-4">
+              {plan.venues.map((venue, i) => (
+                <VenueCard key={venue.placeId || i} venue={venue} index={i} />
+              ))}
+            </div>
+
+            {/* Walking Route */}
+            {plan.walkingRoute && plan.venues.length >= 2 && (
+              <div className="mt-4 rounded-2xl border border-primary/20 bg-primary/5 p-4">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">🚶</span>
+                  <div>
+                    <p className="font-semibold text-primary">
+                      1軒目 → 2軒目: {plan.walkingRoute.durationText}
+                    </p>
+                    <p className="text-sm text-muted">
+                      {plan.walkingRoute.distanceText} — {plan.walkingRoute.summary}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Google Maps Embed */}
+                {plan.walkingRoute.mapEmbedUrl && (
+                  <div className="mt-4 overflow-hidden rounded-xl">
+                    <iframe
+                      src={plan.walkingRoute.mapEmbedUrl}
+                      width="100%"
+                      height="300"
+                      style={{ border: 0 }}
+                      allowFullScreen
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      title="徒歩ルート"
+                    />
+                  </div>
+                )}
+
+                {plan.walkingRoute.source === "fallback" && (
+                  <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
+                    ※ 正確なルートはGoogle Maps API設定後に表示されます
+                  </p>
+                )}
+              </div>
+            )}
+          </section>
+        )}
         {/* Timeline */}
         <section className="mt-12">
           <h2 className="mb-6 text-xl font-bold">タイムライン</h2>
@@ -280,6 +392,7 @@ export default function ResultsPage() {
             ))}
           </ul>
         </section>
+
         {/* Warnings */}
         <section className="mt-8 rounded-2xl border border-amber-200 bg-amber-50 p-6 dark:border-amber-900 dark:bg-amber-950">
           <h2 className="mb-4 text-xl font-bold text-amber-900 dark:text-amber-200">
@@ -287,10 +400,7 @@ export default function ResultsPage() {
           </h2>
           <ul className="space-y-2">
             {plan.warnings.map((warning, index) => (
-              <li
-                key={index}
-                className="flex items-start gap-2 text-sm text-amber-800 dark:text-amber-300"
-              >
+              <li key={index} className="flex items-start gap-2 text-sm text-amber-800 dark:text-amber-300">
                 <span className="mt-0.5 shrink-0">⚠️</span>
                 <span>{warning}</span>
               </li>
@@ -310,6 +420,7 @@ export default function ResultsPage() {
             }
           />
         )}
+
         {/* Share */}
         <section className="mt-12 rounded-2xl border border-border bg-surface p-6">
           <h2 className="mb-2 text-lg font-bold text-center">
@@ -319,7 +430,6 @@ export default function ResultsPage() {
             リンクを共有すると、相手も同じプランを見られます
           </p>
 
-          {/* URL共有エリア */}
           {shareUrl && (
             <div className="mb-5 flex items-center gap-2 rounded-xl border border-border bg-background p-3">
               <input
@@ -375,8 +485,8 @@ export default function ResultsPage() {
             トップに戻る
           </Link>
         </div>
-      </main>
 
+      </main>
       <Footer />
     </div>
   );
