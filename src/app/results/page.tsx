@@ -11,7 +11,12 @@ function loadPlanFromStorage(): DatePlan | null {
   if (typeof window === "undefined") return null;
   const stored = sessionStorage.getItem("nightchill-plan");
   if (!stored) return null;
-  return JSON.parse(stored) as DatePlan;
+  try {
+    return JSON.parse(stored) as DatePlan;
+  } catch {
+    sessionStorage.removeItem("nightchill-plan");
+    return null;
+  }
 }
 
 function planToText(plan: DatePlan): string {

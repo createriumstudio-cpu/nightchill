@@ -24,8 +24,24 @@ const validBudgets: Budget[] = ["low", "medium", "high", "unlimited"];
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT_MAX = 10;
 const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_CLEANUP_INTERVAL_MS = 5 * 60_000;
+
+// Periodically clean up expired entries to prevent memory leaks
+let lastCleanup = Date.now();
+
+function cleanupRateLimitMap() {
+  const now = Date.now();
+  if (now - lastCleanup < RATE_LIMIT_CLEANUP_INTERVAL_MS) return;
+  lastCleanup = now;
+  for (const [key, entry] of rateLimitMap) {
+    if (now > entry.resetAt) {
+      rateLimitMap.delete(key);
+    }
+  }
+}
 
 function isRateLimited(ip: string): boolean {
+  cleanupRateLimitMap();
   const now = Date.now();
   const entry = rateLimitMap.get(ip);
 
