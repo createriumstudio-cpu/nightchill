@@ -3,13 +3,13 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import type { UGCPost } from "@/lib/ugc-data";
 
-/**
- * X (Twitter) 埋め込みウィジェットの読み込み
- * 公式の widgets.js を使用して合法的に埋め込み
- */
+/* ------------------------------------------------------------------ */
+/*  X (Twitter) 公式 widgets.js 読み込み                                */
+/* ------------------------------------------------------------------ */
 function loadTwitterWidgets(): Promise<void> {
   return new Promise((resolve) => {
-    if ((window as Record<string, unknown>).twttr) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if ((window as any).twttr) {
       resolve();
       return;
     }
@@ -22,13 +22,13 @@ function loadTwitterWidgets(): Promise<void> {
   });
 }
 
-/**
- * Instagram 埋め込みウィジェットの読み込み
- * 公式の embed.js を使用
- */
+/* ------------------------------------------------------------------ */
+/*  Instagram 公式 embed.js 読み込み                                    */
+/* ------------------------------------------------------------------ */
 function loadInstagramEmbed(): Promise<void> {
   return new Promise((resolve) => {
-    if ((window as Record<string, unknown>).instgrm) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if ((window as any).instgrm) {
       resolve();
       return;
     }
@@ -41,85 +41,118 @@ function loadInstagramEmbed(): Promise<void> {
   });
 }
 
+/* ------------------------------------------------------------------ */
+/*  例示用URLかどうかの判定                                              */
+/* ------------------------------------------------------------------ */
+function isExampleUrl(url: string): boolean {
+  return /example\d/.test(url);
+}
+
+/* ------------------------------------------------------------------ */
+/*  SocialEmbedCard                                                   */
+/* ------------------------------------------------------------------ */
 interface SocialEmbedCardProps {
   post: UGCPost;
 }
 
-/**
- * 単一のSNS投稿埋め込みカード
- * プラットフォームの公式埋め込み機能を使用
- */
 function SocialEmbedCard({ post }: SocialEmbedCardProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
+  const isExample = isExampleUrl(post.embedUrl);
 
   useEffect(() => {
+    if (isExample) {
+      setError(true);
+      return;
+    }
+
+    let cancelled = false;
+
     const embed = async () => {
       if (!containerRef.current) return;
 
       try {
         if (post.platform === "x") {
           await loadTwitterWidgets();
-          const twttr = (window as Record<string, unknown>).twttr as {
-            widgets: { createTweet: (id: string, el: HTMLElement, opts: Record<string, unknown>) => Promise<unknown> };
-          } | undefined;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const twttr = (window as any).twttr as
+            | {
+                widgets: {
+                  createTweet: (
+                    id: string,
+                    el: HTMLElement,
+                    opts: Record<string, unknown>,
+                  ) => Promise<unknown>;
+                };
+              }
+            | undefined;
+
           if (twttr?.widgets) {
             const tweetId = post.embedUrl.split("/status/")[1]?.split("?")[0];
-            if (tweetId && tweetId !== "example1" && tweetId !== "example3" && tweetId !== "example5") {
+            if (tweetId) {
               containerRef.current.innerHTML = "";
               await twttr.widgets.createTweet(tweetId, containerRef.current, {
                 theme: "dark",
                 lang: "ja",
                 dnt: true,
               });
-              setLoaded(true);
+              if (!cancelled) setLoaded(true);
             } else {
-              setError(true);
+              if (!cancelled) setError(true);
             }
-          }
-        } else if (post.platform === "instagram") {
+          } else if (post.platform === "instagram") {
           await loadInstagramEmbed();
-          const instgrm = (window as Record<string, unknown>).instgrm as {
-            Embeds: { process: () => void };
-          } | undefined;
+          if (containerRef.current) {
+            const permalink = post.embedUrl;
+            containerRef.current.innerHTML =
+              '<blockquote class="instagram-media" data-instgrm-permalink="' +
+              permalink +
+              '" data-instgrm-version="14" style="max-width:540px;width:100%;"><a href="' +
+              permalink +
+              '">Instagram投稿を表示</a></blockquote>';
+          }
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const instgrm = (window as any).instgrm as
+            | { Embeds: { process: () => void } }
+            | undefined;
           if (instgrm?.Embeds) {
             instgrm.Embeds.process();
-            setLoaded(true);
+            if (!cancelled) setLoaded(true);
           } else {
-            setError(true);
+            if (!cancelled) setError(true);
           }
         }
       } catch {
-        setError(true);
+        if (!cancelled) setError(true);
       }
     };
 
     embed();
-  }, [post]);
+    return () => {
+      cancelled = true;
+    };
+  }, [post, isExample]);
 
-  // フォールバック: 埋め込みが読み込めない場合のプレースホルダー
-  if (error || !loaded) {
-    return (
-      <div className="rounded-2xl border border-border bg-surface p-5 transition-shadow hover:shadow-md">
-        <div className="flex items-start gap-3">
-          <span className="mt-1 text-lg">
-            {post.platform === "x" ? "𝕏" : "📸"}
-          </span>
-          <div className="flex-1">
-            <p className="text-sm leading-relaxed text-muted">
-              {post.summary}
-            </p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {post.tags.slice(0, 3).map((tag) => (
-                <span
-                  key={tag}
-                  className="rounded-full bg-primary/5 px-2.5 py-0.5 text-xs text-primary"
-                >
-                  #{tag}
-                </span>
-              ))}
-            </div>
+  const fallback = (
+    <div className="rounded-2xl border border-border bg-surface p-5 transition-shadow hover:shadow-md">
+      <div className="flex items-start gap-3">
+        <span className="mt-1 text-lg">
+          {post.platform === "x" ? "𝕏" : "📸"}
+        </span>
+        <div className="flex-1">
+          <p className="text-sm leading-relaxed text-muted">{post.summary}</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {post.tags.slice(0, 3).map((tag) => (
+              <span
+                key={tag}
+                className="rounded-full bg-primary/5 px-2.5 py-0.5 text-xs text-primary"
+              >
+                #{tag}
+              </span>
+            ))}
+          </div>
+          {!isExample && (
             <a
               href={post.embedUrl}
               target="_blank"
@@ -128,30 +161,35 @@ function SocialEmbedCard({ post }: SocialEmbedCardProps) {
             >
               {post.platform === "x" ? "Xで見る →" : "Instagramで見る →"}
             </a>
-          </div>
+          )}
         </div>
       </div>
-    );
-  }
+    </div>
+  );
+
+  if (isExample || error) return fallback;
 
   return (
-    <div
-      ref={containerRef}
-      className="rounded-2xl border border-border bg-surface overflow-hidden"
-    />
+    <>
+      <div
+        ref={containerRef}
+        className="rounded-2xl border border-border bg-surface overflow-hidden"
+        style={{ display: loaded ? "block" : "none" }}
+      />
+      {!loaded && fallback}
+    </>
   );
 }
 
+/* ------------------------------------------------------------------ */
+/*  SocialEmbedSection                                                */
+/* ------------------------------------------------------------------ */
 interface SocialEmbedSectionProps {
   posts: UGCPost[];
   title?: string;
   subtitle?: string;
 }
 
-/**
- * SNS投稿埋め込みセクション
- * 複数の投稿をグリッド表示
- */
 export default function SocialEmbedSection({
   posts,
   title = "みんなのデート体験",
@@ -193,20 +231,26 @@ export default function SocialEmbedSection({
           </button>
         </div>
       </div>
+
       <div
         ref={scrollRef}
         className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {posts.map((post) => (
-          <div key={post.id} className="min-w-[300px] max-w-[350px] snap-start flex-shrink-0">
+          <div
+            key={post.id}
+            className="min-w-[300px] max-w-[350px] snap-start flex-shrink-0"
+          >
             <SocialEmbedCard post={post} />
           </div>
         ))}
       </div>
+
       <p className="mt-4 text-center text-xs text-muted">
         ※ 各投稿はプラットフォームの公式埋め込み機能を使用しています
       </p>
     </section>
   );
 }
+
