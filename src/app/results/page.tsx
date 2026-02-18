@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import SocialEmbedSection from "@/components/SocialEmbed";
 import { type DatePlan, occasionLabels, moodLabels } from "@/lib/types";
+import { getRelevantPosts, type UGCPost } from "@/lib/ugc-data";
 
 function loadPlanFromStorage(): DatePlan | null {
   if (typeof window === "undefined") return null;
@@ -17,6 +19,11 @@ function loadPlanFromStorage(): DatePlan | null {
     sessionStorage.removeItem("nightchill-plan");
     return null;
   }
+}
+
+function loadLocationFromStorage(): string {
+  if (typeof window === "undefined") return "";
+  return sessionStorage.getItem("nightchill-location") || "";
 }
 
 function planToText(plan: DatePlan): string {
@@ -52,8 +59,15 @@ function planToText(plan: DatePlan): string {
 export default function ResultsPage() {
   const router = useRouter();
   const [plan] = useState<DatePlan | null>(loadPlanFromStorage);
+  const [location] = useState<string>(loadLocationFromStorage);
   const redirected = useRef(false);
   const [copied, setCopied] = useState(false);
+
+  // UGC投稿をエリアとシチュエーションで取得
+  const ugcPosts: UGCPost[] = useMemo(() => {
+    if (!plan) return [];
+    return getRelevantPosts(location, plan.occasion, 4);
+  }, [plan, location]);
 
   useEffect(() => {
     if (!plan && !redirected.current) {
@@ -108,7 +122,6 @@ export default function ResultsPage() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-
       <main className="mx-auto max-w-3xl px-6 pt-28 pb-16">
         {/* Title */}
         <div className="text-center">
@@ -195,6 +208,15 @@ export default function ResultsPage() {
           </ul>
         </section>
 
+        {/* UGC Social Embed Section */}
+        {ugcPosts.length > 0 && (
+          <SocialEmbedSection
+            posts={ugcPosts}
+            title="みんなのデート体験"
+            subtitle={location ? `${location}エリアで話題のデートスポット` : "SNSで話題のデートスポット・体験をチェック"}
+          />
+        )}
+
         {/* Share */}
         <section className="mt-12 rounded-2xl border border-border bg-surface p-6">
           <h2 className="mb-4 text-lg font-bold text-center">
@@ -238,7 +260,6 @@ export default function ResultsPage() {
           </Link>
         </div>
       </main>
-
       <Footer />
     </div>
   );
