@@ -18,7 +18,7 @@ interface CompactPlan {
   s: string;       // summary
   o: string;       // occasion
   m: string;       // mood
-  tl: { t: string; a: string; p: string }[]; // timeline [{time, activity, tip}]
+  tl: { t: string; a: string; p: string }[]; // timeline
   f: string;       // fashionAdvice
   c: string[];     // conversationTopics
   w: string[];     // warnings
@@ -66,10 +66,12 @@ function fromCompact(compact: CompactPlan): DatePlan {
   };
 }
 // ============================================================
-// deflate 圧縮 / 解凍（ブラウザ組み込み CompressionStream API）
+// deflate 圧縮 / 解凍（ブラウザ CompressionStream API）
 // ============================================================
 
-async function streamToBytes(stream: ReadableStream<Uint8Array>): Promise<Uint8Array> {
+async function streamToBytes(
+  stream: ReadableStream<Uint8Array>,
+): Promise<Uint8Array> {
   const chunks: Uint8Array[] = [];
   const reader = stream.getReader();
   for (;;) {
@@ -88,12 +90,15 @@ async function streamToBytes(stream: ReadableStream<Uint8Array>): Promise<Uint8A
 }
 
 async function compressBytes(input: Uint8Array): Promise<Uint8Array> {
-  // CompressionStream が使えない環境ではフォールバック
   if (typeof CompressionStream === "undefined") {
     return input;
   }
-  // Blob.stream() → pipeThrough で型の互換性問題を回避
-  const blob = new Blob([input]);
+  // ArrayBuffer をBlobPartとして渡すことでTS型互換性を確保
+  const buf: ArrayBuffer = input.buffer.slice(
+    input.byteOffset,
+    input.byteOffset + input.byteLength,
+  );
+  const blob = new Blob([buf]);
   const compressed = blob
     .stream()
     .pipeThrough(new CompressionStream("deflate-raw"));
@@ -104,7 +109,11 @@ async function decompressBytes(input: Uint8Array): Promise<Uint8Array> {
   if (typeof DecompressionStream === "undefined") {
     return input;
   }
-  const blob = new Blob([input]);
+  const buf: ArrayBuffer = input.buffer.slice(
+    input.byteOffset,
+    input.byteOffset + input.byteLength,
+  );
+  const blob = new Blob([buf]);
   const decompressed = blob
     .stream()
     .pipeThrough(new DecompressionStream("deflate-raw"));
