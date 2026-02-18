@@ -50,10 +50,7 @@ function SocialEmbedCard({ post }: SocialEmbedCardProps) {
   const isExample = isExampleUrl(post.embedUrl);
 
   useEffect(() => {
-    if (isExample) {
-      setError(true);
-      return;
-    }
+    if (isExample) return;
     let cancelled = false;
     const embed = async () => {
       if (!containerRef.current) return;
