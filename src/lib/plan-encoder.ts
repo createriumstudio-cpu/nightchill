@@ -93,12 +93,8 @@ async function compressBytes(input: Uint8Array): Promise<Uint8Array> {
   if (typeof CompressionStream === "undefined") {
     return input;
   }
-  // ArrayBuffer をBlobPartとして渡すことでTS型互換性を確保
-  const buf: ArrayBuffer = input.buffer.slice(
-    input.byteOffset,
-    input.byteOffset + input.byteLength,
-  );
-  const blob = new Blob([buf]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const blob = new Blob([input as any]);
   const compressed = blob
     .stream()
     .pipeThrough(new CompressionStream("deflate-raw"));
@@ -109,11 +105,8 @@ async function decompressBytes(input: Uint8Array): Promise<Uint8Array> {
   if (typeof DecompressionStream === "undefined") {
     return input;
   }
-  const buf: ArrayBuffer = input.buffer.slice(
-    input.byteOffset,
-    input.byteOffset + input.byteLength,
-  );
-  const blob = new Blob([buf]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const blob = new Blob([input as any]);
   const decompressed = blob
     .stream()
     .pipeThrough(new DecompressionStream("deflate-raw"));
