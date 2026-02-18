@@ -2,6 +2,11 @@ import Anthropic from "@anthropic-ai/sdk";
 import type { PlanRequest, DatePlan } from "./types";
 import { occasionLabels, moodLabels, budgetLabels } from "./types";
 import { env } from "./env";
+import { searchVenue, formatVenueForPrompt } from "./google-places";
+import type { VenueFactData } from "./google-places";
+import { getWalkingRoute, formatRouteForPrompt } from "./google-maps";
+import type { WalkingRoute } from "./google-maps";
+import { findRelevantPR, formatPRForPrompt } from "./contextual-pr";
 
 let client: Anthropic | null = null;
 
@@ -15,9 +20,15 @@ function getClient(): Anthropic {
 const SYSTEM_PROMPT = `あなたは「nightchill」というデートコンシェルジュサービスのAIプランナーです。
 ユーザーの入力に基づいて、具体的で実践的なデートプランをJSON形式で生成してください。
 
-以下の点を重視してください：
+【最重要ルール】
+- 「ファクトデータ」として提供された情報（店名・住所・営業時間）は絶対に改変してはならない
+- ファクトデータがない場合、営業時間や住所を創作してはならない
 - 「Where（場所）」ではなく「How（どう過ごすか）」を提案する
+- 1軒目→2軒目の「線」としてのストーリーを重視する
+
+以下の点を重視してください：
 - 具体的な時間配分とアクティビティの流れ
+- 1軒目から2軒目への移動中の会話ネタや雰囲気づくり
 - 相手を喜ばせるためのリアルなtip（コツ）
 - 雰囲気や状況に合った服装アドバイス
 - 会話のネタと注意点
@@ -38,9 +49,14 @@ const SYSTEM_PROMPT = `あなたは「nightchill」というデートコンシ�
   "warnings": ["注意点1", "注意点2", "注意点3"]
 }
 
-timelineは4〜5項目、conversationTopicsは3〜5項目、warningsは2〜4項目にしてください。`;
+timelineは4〜6項目（移動時間も含む）、conversationTopicsは3〜5項目、warningsは2〜4項目にしてください。`;
 
-function buildUserPrompt(request: PlanRequest): string {
+function buildUserPrompt(
+  request: PlanRequest,
+  venues: VenueFactData[],
+  route: WalkingRoute | null,
+  prText: string,
+): string {
   const parts = [
     `シチュエーション: ${occasionLabels[request.occasion]}`,
     `雰囲気: ${moodLabels[request.mood]}`,
@@ -51,8 +67,32 @@ function buildUserPrompt(request: PlanRequest): string {
   if (request.partnerInterests) {
     parts.push(`相手の趣味・好み: ${request.partnerInterests}`);
   }
+
   if (request.additionalNotes) {
     parts.push(`その他の要望: ${request.additionalNotes}`);
+  }
+
+  // ファクトデータ注入
+  if (venues.length > 0) {
+    parts.push("");
+    parts.push("=== 以下はGoogle Places APIから取得したファクトデータです ===");
+    parts.push("※ 店名・住所・営業時間は絶対に改変しないでください");
+    for (const venue of venues) {
+      parts.push("");
+      parts.push(formatVenueForPrompt(venue));
+    }
+  }
+
+  // 徒歩ルート情報注入
+  if (route) {
+    parts.push("");
+    parts.push(formatRouteForPrompt(route));
+  }
+
+  // PR情報注入（あれば）
+  if (prText) {
+    parts.push("");
+    parts.push(prText);
   }
 
   return parts.join("\n");
@@ -62,9 +102,37 @@ function generateId(): string {
   return Math.random().toString(36).substring(2, 10);
 }
 
+/**
+ * ファクトデータを収集してからAIプランを生成
+ */
 export async function generateAIPlan(request: PlanRequest): Promise<DatePlan> {
-  const model = env().ANTHROPIC_MODEL;
+  const area = request.location || "東京";
 
+  // Step 1: 店舗ファクトデータ取得（並行実行）
+  const venuePromises = [
+    searchVenue(`${area} デート レストラン`, area),
+    searchVenue(`${area} デート バー カフェ`, area),
+  ];
+  const venueResults = await Promise.all(venuePromises);
+  const venues = venueResults.filter((v): v is VenueFactData => v !== null);
+
+  // Step 2: 徒歩ルート取得（2軒見つかった場合）
+  let walkingRoute: WalkingRoute | null = null;
+  if (venues.length >= 2 && venues[0].lat !== 0 && venues[1].lat !== 0) {
+    walkingRoute = await getWalkingRoute(
+      { lat: venues[0].lat, lng: venues[0].lng },
+      { lat: venues[1].lat, lng: venues[1].lng },
+    );
+  } else if (venues.length >= 2) {
+    walkingRoute = await getWalkingRoute(venues[0].name + " " + area, venues[1].name + " " + area);
+  }
+
+  // Step 3: Contextual PR取得
+  const prItems = findRelevantPR(request.occasion, request.mood, area);
+  const prText = formatPRForPrompt(prItems);
+
+  // Step 4: AI生成
+  const model = env().ANTHROPIC_MODEL;
   const message = await getClient().messages.create({
     model,
     max_tokens: 1024,
@@ -72,7 +140,7 @@ export async function generateAIPlan(request: PlanRequest): Promise<DatePlan> {
     messages: [
       {
         role: "user",
-        content: buildUserPrompt(request),
+        content: buildUserPrompt(request, venues, walkingRoute, prText),
       },
     ],
   });
@@ -94,6 +162,8 @@ export async function generateAIPlan(request: PlanRequest): Promise<DatePlan> {
     fashionAdvice: parsed.fashionAdvice,
     conversationTopics: parsed.conversationTopics,
     warnings: parsed.warnings,
+    venues,
+    walkingRoute: walkingRoute ?? undefined,
   };
 }
 
