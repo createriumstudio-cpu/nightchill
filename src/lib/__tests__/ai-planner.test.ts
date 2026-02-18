@@ -63,7 +63,7 @@ describe("buildUserPrompt", () => {
     };
     const prompt = buildUserPrompt(baseRequest, [venue], null, "");
     expect(prompt).toContain("テスト居酒屋");
-    expect(prompt).toContain("絶対改変不可");
+    expect(prompt).toContain("改変厳禁");
     expect(prompt).toContain("東京都渋谷区1-1-1");
   });
 
