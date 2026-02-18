@@ -3,9 +3,6 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import type { UGCPost } from "@/lib/ugc-data";
 
-/* ------------------------------------------------------------------ */
-/*  X (Twitter) 公式 widgets.js 読み込み                                */
-/* ------------------------------------------------------------------ */
 function loadTwitterWidgets(): Promise<void> {
   return new Promise((resolve) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -22,9 +19,6 @@ function loadTwitterWidgets(): Promise<void> {
   });
 }
 
-/* ------------------------------------------------------------------ */
-/*  Instagram 公式 embed.js 読み込み                                    */
-/* ------------------------------------------------------------------ */
 function loadInstagramEmbed(): Promise<void> {
   return new Promise((resolve) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -41,16 +35,10 @@ function loadInstagramEmbed(): Promise<void> {
   });
 }
 
-/* ------------------------------------------------------------------ */
-/*  例示用URLかどうかの判定                                              */
-/* ------------------------------------------------------------------ */
 function isExampleUrl(url: string): boolean {
   return /example\d/.test(url);
 }
 
-/* ------------------------------------------------------------------ */
-/*  SocialEmbedCard                                                   */
-/* ------------------------------------------------------------------ */
 interface SocialEmbedCardProps {
   post: UGCPost;
 }
@@ -66,12 +54,9 @@ function SocialEmbedCard({ post }: SocialEmbedCardProps) {
       setError(true);
       return;
     }
-
     let cancelled = false;
-
     const embed = async () => {
       if (!containerRef.current) return;
-
       try {
         if (post.platform === "x") {
           await loadTwitterWidgets();
@@ -87,7 +72,6 @@ function SocialEmbedCard({ post }: SocialEmbedCardProps) {
                 };
               }
             | undefined;
-
           if (twttr?.widgets) {
             const tweetId = post.embedUrl.split("/status/")[1]?.split("?")[0];
             if (tweetId) {
@@ -101,16 +85,17 @@ function SocialEmbedCard({ post }: SocialEmbedCardProps) {
             } else {
               if (!cancelled) setError(true);
             }
-          } else if (post.platform === "instagram") {
+          }
+        } else if (post.platform === "instagram") {
           await loadInstagramEmbed();
           if (containerRef.current) {
             const permalink = post.embedUrl;
             containerRef.current.innerHTML =
-              '<blockquote class="instagram-media" data-instgrm-permalink="' +
-              permalink +
-              '" data-instgrm-version="14" style="max-width:540px;width:100%;"><a href="' +
-              permalink +
-              '">Instagram投稿を表示</a></blockquote>';
+              '<blockquote class="instagram-media"' +
+              ' data-instgrm-permalink="' + permalink + '"' +
+              ' data-instgrm-version="14"' +
+              ' style="max-width:540px;width:100%;"><a href="' +
+              permalink + '">Instagram投稿を表示</a></blockquote>';
           }
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const instgrm = (window as any).instgrm as
@@ -127,7 +112,6 @@ function SocialEmbedCard({ post }: SocialEmbedCardProps) {
         if (!cancelled) setError(true);
       }
     };
-
     embed();
     return () => {
       cancelled = true;
@@ -181,9 +165,6 @@ function SocialEmbedCard({ post }: SocialEmbedCardProps) {
   );
 }
 
-/* ------------------------------------------------------------------ */
-/*  SocialEmbedSection                                                */
-/* ------------------------------------------------------------------ */
 interface SocialEmbedSectionProps {
   posts: UGCPost[];
   title?: string;
@@ -253,4 +234,3 @@ export default function SocialEmbedSection({
     </section>
   );
 }
-
