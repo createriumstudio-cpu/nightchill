@@ -102,13 +102,13 @@ export default function FeaturesPage() {
           {/* CTA Section */}
           <div className="mt-12 text-center">
             <p className="text-gray-500 text-sm mb-4">
-              特集にないエリアやシーンのデートプランも、AIが自動で作成します
+              特集にないエリアやシーンも、あなただけのデートプランを作れます
             </p>
             <Link
               href="/plan"
               className="inline-block bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold py-3 px-8 rounded-full hover:scale-105 transition-transform"
             >
-              🤖 AIでデートプランを作る
+              ✨ あなただけのプランを作る
             </Link>
           </div>
         </section>
