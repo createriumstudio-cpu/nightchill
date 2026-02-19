@@ -41,7 +41,18 @@ export default async function FeatureDetailPage({ params }: PageProps) {
             >
               ← 特集一覧に戻る
             </Link>
-            <div className="text-5xl mb-4">{feature.heroEmoji}</div>
+            {feature.heroImage ? (
+              <div className="relative w-full h-48 md:h-56 rounded-2xl overflow-hidden mb-4">
+                <img
+                  src={feature.heroImage}
+                  alt={feature.title}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-gray-950/60 to-transparent" />
+              </div>
+            ) : (
+              <div className="text-5xl mb-4">{feature.heroEmoji}</div>
+            )}
             <span className="text-xs text-orange-400 font-medium">
               {feature.area}エリア特集
             </span>
