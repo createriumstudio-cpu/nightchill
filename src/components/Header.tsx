@@ -22,6 +22,12 @@ export default function Header() {
             特徴
           </Link>
           <Link
+            href="/features"
+            className="text-sm text-muted transition-colors hover:text-foreground"
+          >
+            🔥 特集
+          </Link>
+          <Link
             href="/#how-it-works"
             className="text-sm text-muted transition-colors hover:text-foreground"
           >
@@ -61,6 +67,13 @@ export default function Header() {
               onClick={() => setMenuOpen(false)}
             >
               特徴
+            </Link>
+            <Link
+              href="/features"
+              className="text-sm text-muted transition-colors hover:text-foreground"
+              onClick={() => setMenuOpen(false)}
+            >
+              🔥 特集
             </Link>
             <Link
               href="/#how-it-works"
