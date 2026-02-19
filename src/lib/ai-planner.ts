@@ -33,7 +33,10 @@ const SYSTEM_PROMPT = `あなたは「nightchill」というデートコンシ�
 - 雰囲気や状況に合った服装アドバイス
 - 会話のネタと注意点
 
-必ず以下のJSON形式で応答してください。JSON以外のテキストは含めないでください：
+【重要】応答はJSON形式のみで返してください。マークダウンのコードブロック（\`\`\`json等）で囲まないでください。
+JSON内の文字列値にダブルクォートを含める場合は必ずバックスラッシュでエスケープしてください。
+
+以下のJSON形式で応答してください：
 {
   "title": "プランのタイトル（20文字以内）",
   "summary": "プランの概要（1〜2文、エリアや特徴を含む）",
@@ -98,29 +101,82 @@ function buildUserPrompt(
   return parts.join("\n");
 }
 
-
 /**
- * AIレスポンスからmarkdownコードブロックを除去してJSONを抽出
+ * AIレスポンスからJSONを抽出・修正
+ * - markdownコードブロック除去
+ * - JSONオブジェクト部分の抽出
+ * - よくあるJSON構文エラーの修正
  */
 function sanitizeJsonResponse(text: string): string {
   let cleaned = text.trim();
-  // ```json ... ``` or ``` ... ``` パターンを除去
-  if (cleaned.startsWith('```')) {
-    // 最初の改行までスキップ（```json\n のような部分）
-    const firstNewline = cleaned.indexOf('\n');
+
+  // \`\`\`json ... \`\`\` or \`\`\` ... \`\`\` パターンを除去
+  if (cleaned.startsWith("\`\`\`")) {
+    const firstNewline = cleaned.indexOf("\n");
     if (firstNewline !== -1) {
       cleaned = cleaned.slice(firstNewline + 1);
     }
-    // 末尾の ``` を除去
-    if (cleaned.endsWith('```')) {
+    if (cleaned.endsWith("\`\`\`")) {
       cleaned = cleaned.slice(0, -3);
     }
+    cleaned = cleaned.trim();
   }
+
+  // JSONオブジェクトの開始・終了位置を見つける
+  const firstBrace = cleaned.indexOf("{");
+  const lastBrace = cleaned.lastIndexOf("}");
+  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+    cleaned = cleaned.slice(firstBrace, lastBrace + 1);
+  }
+
+  // 末尾カンマの除去（配列・オブジェクト内）
+  cleaned = cleaned.replace(/,\s*([\]}])/g, "$1");
+
   return cleaned.trim();
 }
 
 function generateId(): string {
   return Math.random().toString(36).substring(2, 10);
+}
+
+/**
+ * JSON.parseを試行し、失敗した場合は修正を試みる
+ */
+function robustJsonParse(text: string): Record<string, unknown> {
+  const sanitized = sanitizeJsonResponse(text);
+
+  // 1回目: そのままパース
+  try {
+    return JSON.parse(sanitized) as Record<string, unknown>;
+  } catch (firstError) {
+    console.error("First JSON parse attempt failed:", (firstError as Error).message);
+    console.error("Sanitized text (first 500 chars):", sanitized.slice(0, 500));
+  }
+
+  // 2回目: 制御文字を除去してからパース
+  try {
+    // eslint-disable-next-line no-control-regex
+    const noControl = sanitized.replace(/[\x00-\x1f\x7f]/g, (ch) => {
+      if (ch === "\n" || ch === "\r" || ch === "\t") return ch;
+      return "";
+    });
+    return JSON.parse(noControl) as Record<string, unknown>;
+  } catch (secondError) {
+    console.error("Second JSON parse attempt failed:", (secondError as Error).message);
+  }
+
+  // 3回目: 文字列値内の改行をエスケープ
+  try {
+    const escaped = sanitized.replace(/"([^"]*)"\s*:/g, (match) => match)
+      .replace(/:\s*"([^"]*)"/g, (match, val: string) => {
+        const fixed = val.replace(/\n/g, "\\n").replace(/\r/g, "\\r").replace(/\t/g, "\\t");
+        return `: "${fixed}"`;
+      });
+    return JSON.parse(escaped) as Record<string, unknown>;
+  } catch (thirdError) {
+    console.error("Third JSON parse attempt failed:", (thirdError as Error).message);
+    throw new Error(`JSON parse failed after 3 attempts. Raw text (first 200 chars): ${text.slice(0, 200)}`);
+  }
 }
 
 /**
@@ -134,6 +190,7 @@ export async function generateAIPlan(request: PlanRequest): Promise<DatePlan> {
     searchVenue(`${area} デート レストラン`, area),
     searchVenue(`${area} デート バー カフェ`, area),
   ];
+
   const venueResults = await Promise.all(venuePromises);
   const venues = venueResults.filter((v): v is VenueFactData => v !== null);
 
@@ -152,40 +209,56 @@ export async function generateAIPlan(request: PlanRequest): Promise<DatePlan> {
   const prItems = findRelevantPR(request.occasion, request.mood, area);
   const prText = formatPRForPrompt(prItems);
 
-  // Step 4: AI生成
+  // Step 4: AI生成（最大2回リトライ）
   const model = env().ANTHROPIC_MODEL;
-  const message = await getClient().messages.create({
-    model,
-    max_tokens: 1024,
-    system: SYSTEM_PROMPT,
-    messages: [
-      {
-        role: "user",
-        content: buildUserPrompt(request, venues, walkingRoute, prText),
-      },
-    ],
-  });
+  let lastError: Error | null = null;
 
-  const textBlock = message.content.find((block) => block.type === "text");
-  if (!textBlock || textBlock.type !== "text") {
-    throw new Error("AI応答にテキストが含まれていません");
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const message = await getClient().messages.create({
+        model,
+        max_tokens: 1024,
+        system: SYSTEM_PROMPT,
+        messages: [
+          {
+            role: "user",
+            content: buildUserPrompt(request, venues, walkingRoute, prText),
+          },
+        ],
+      });
+
+      const textBlock = message.content.find((block) => block.type === "text");
+      if (!textBlock || textBlock.type !== "text") {
+        throw new Error("AI応答にテキストが含まれていません");
+      }
+
+      console.log(`AI response (attempt ${attempt + 1}, first 300 chars):`, textBlock.text.slice(0, 300));
+
+      const parsed = robustJsonParse(textBlock.text);
+
+      return {
+        id: generateId(),
+        title: parsed.title as string,
+        summary: parsed.summary as string,
+        occasion: request.occasion,
+        mood: request.mood,
+        timeline: parsed.timeline as DatePlan["timeline"],
+        fashionAdvice: parsed.fashionAdvice as string,
+        conversationTopics: parsed.conversationTopics as string[],
+        warnings: parsed.warnings as string[],
+        venues,
+        walkingRoute: walkingRoute ?? undefined,
+      };
+    } catch (error) {
+      lastError = error as Error;
+      console.error(`AI plan generation attempt ${attempt + 1} failed:`, (error as Error).message);
+      if (attempt < 1) {
+        console.log("Retrying AI plan generation...");
+      }
+    }
   }
 
-  const parsed = JSON.parse(sanitizeJsonResponse(textBlock.text));
-
-  return {
-    id: generateId(),
-    title: parsed.title,
-    summary: parsed.summary,
-    occasion: request.occasion,
-    mood: request.mood,
-    timeline: parsed.timeline,
-    fashionAdvice: parsed.fashionAdvice,
-    conversationTopics: parsed.conversationTopics,
-    warnings: parsed.warnings,
-    venues,
-    walkingRoute: walkingRoute ?? undefined,
-  };
+  throw lastError ?? new Error("AI plan generation failed");
 }
 
 export { buildUserPrompt };
