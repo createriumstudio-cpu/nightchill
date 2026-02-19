@@ -197,27 +197,80 @@ function robustJsonParse(text: string): Record<string, unknown> {
   try {
     return JSON.parse(sanitized) as Record<string, unknown>;
   } catch (firstError) {
-    console.error("First JSON parse attempt failed:", (firstError as Error).message);
+    const msg = (firstError as Error).message;
+    console.error("First JSON parse attempt failed:", msg);
+    // エラー位置の前後の文字を出力
+    const posMatch = msg.match(/position (\d+)/);
+    if (posMatch) {
+      const pos = parseInt(posMatch[1], 10);
+      console.error("Context around error position:", JSON.stringify(sanitized.slice(Math.max(0, pos - 50), pos + 50)));
+    }
   }
 
-  // 2回目: 文字列値内のリテラル改行をエスケープしてからパース
+  // 2回目: 文字列値内のリテラル改行をエスケープ
   try {
     const escaped = escapeNewlinesInStrings(sanitized);
     return JSON.parse(escaped) as Record<string, unknown>;
   } catch (secondError) {
     console.error("Second JSON parse attempt failed:", (secondError as Error).message);
-    console.error("Sanitized text (first 500 chars):", sanitized.slice(0, 500));
   }
 
-  // 3回目: 全ての改行を空白に置換してからパース（最終手段）
+  // 3回目: 全ての改行を空白に置換
   try {
     const noNewlines = sanitized.replace(/\n/g, " ").replace(/\r/g, " ");
     return JSON.parse(noNewlines) as Record<string, unknown>;
   } catch (thirdError) {
     console.error("Third JSON parse attempt failed:", (thirdError as Error).message);
-    throw new Error(`JSON parse failed after 3 attempts. Raw text (first 200 chars): ${text.slice(0, 200)}`);
+  }
+
+  // 4回目: AI応答から正規表現でフィールドを抽出（最終手段）
+  try {
+    const titleMatch = sanitized.match(/"title"\s*:\s*"([^"]*(?:\\.[^"]*)*)"/);
+    const summaryMatch = sanitized.match(/"summary"\s*:\s*"([^"]*(?:\\.[^"]*)*)"/);
+    const fashionMatch = sanitized.match(/"fashionAdvice"\s*:\s*"([^"]*(?:\\.[^"]*)*)"/);
+
+    // タイムラインを抽出
+    const timelineSection = sanitized.match(/"timeline"\s*:\s*\[([\s\S]*?)\]\s*,\s*"fashionAdvice"/);
+    const timeEntries = timelineSection ? timelineSection[1].match(/"time"\s*:\s*"([^"]*)"/g) : [];
+    const activityEntries = timelineSection ? timelineSection[1].match(/"activity"\s*:\s*"([^"]*(?:\\.[^"]*)*)"/g) : [];
+    const tipEntries = timelineSection ? timelineSection[1].match(/"tip"\s*:\s*"([^"]*(?:\\.[^"]*)*)"/g) : [];
+
+    const timeline = [];
+    const count = Math.min(timeEntries?.length || 0, activityEntries?.length || 0);
+    for (let i = 0; i < count; i++) {
+      const time = timeEntries![i].match(/"time"\s*:\s*"([^"]*)"/)?.[1] || "";
+      const activity = activityEntries![i].match(/"activity"\s*:\s*"([^"]*(?:\\.[^"]*)*)"/)?.[1] || "";
+      const tip = tipEntries?.[i]?.match(/"tip"\s*:\s*"([^"]*(?:\\.[^"]*)*)"/)?.[1] || "";
+      timeline.push({ time, activity, tip });
+    }
+
+    // 会話ネタ抽出
+    const topicsMatch = sanitized.match(/"conversationTopics"\s*:\s*\[([^\]]*)\]/);
+    const topics = topicsMatch ? topicsMatch[1].match(/"([^"]*)"/g)?.map(s => s.replace(/"/g, "")) || [] : [];
+
+    // 注意点抽出
+    const warningsMatch = sanitized.match(/"warnings"\s*:\s*\[([^\]]*)\]/);
+    const warnings = warningsMatch ? warningsMatch[1].match(/"([^"]*)"/g)?.map(s => s.replace(/"/g, "")) || [] : [];
+
+    if (titleMatch && timeline.length > 0) {
+      console.log("4th attempt: regex extraction succeeded");
+      return {
+        title: titleMatch[1],
+        summary: summaryMatch?.[1] || "",
+        timeline,
+        fashionAdvice: fashionMatch?.[1] || "",
+        conversationTopics: topics,
+        warnings,
+      };
+    }
+
+    throw new Error("Regex extraction failed: no title or timeline found");
+  } catch (fourthError) {
+    console.error("Fourth JSON parse (regex) attempt failed:", (fourthError as Error).message);
+    throw new Error(`JSON parse failed after 4 attempts. Raw text (first 200 chars): ${text.slice(0, 200)}`);
   }
 }
+
 
 /**
  * ファクトデータを収集してからAIプランを生成
