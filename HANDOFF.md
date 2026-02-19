@@ -181,3 +181,102 @@ Claude AIが生成するJSONにJSX風パターン(`{'\n'}`)が含まれ、JSON.p
 1. UGC統合: Instagram/TikTok公式embed API連携 (実在店舗と紐付け)
 2. HANDOFF.md / NotebookLM 継続更新
 3. Phase 2: CMS統合・逆引き検索UI
+
+
+---
+
+## 11. 開発ワークフロー（GitHub Web UI経由）
+
+このプロジェクトはGitHub Web UI + Vercel自動デプロイで開発されています。
+ローカル環境がなくても以下のフローで開発可能です。
+
+### コード修正の手順
+1. GitHub Web UIで対象ファイルの Edit ボタンをクリック
+2. コードを修正
+3. 「Commit changes...」→ 「Create a new branch」を選択
+4. ブランチ名を `fix/修正内容` 形式で入力
+5. 「Propose changes」→ PR作成画面で説明を追加
+6. 「Create pull request」でPR作成
+7. CI（4チェック）が全てパスするのを待つ（約1〜2分）
+8. 「Merge pull request」→「Confirm merge」
+9. 「Delete branch」でブランチ削除
+10. Vercelが自動デプロイ（約30秒〜1分）
+11. 本番サイトで動作確認
+
+### CI チェック項目（4つ）
+- `CI / ci` — lint + typecheck + test + build
+- `Vercel / nightchill` — プレビューデプロイ
+- `Vercel / nightchill-sr5g` — 本番デプロイ
+- `Vercel Preview Comments` — プレビューコメント
+
+### 注意事項
+- **main ブランチは直接コミット禁止**（docsファイルのみ例外）
+- CIが `npm ci` でなく `npm install` を使っているのは意図的
+- Vercelデプロイは main マージで自動実行される
+
+## 12. 完了済みPR（全履歴）
+
+| PR | タイトル | マージ日 | 備考 |
+|----|---------|---------|------|
+| #1 | Vercel デプロイ修正 + CI | 2026-02-18 | |
+| #4 | UGC合法埋め込み | 2026-02-19 | |
+| #5 | URL永続化 + SNSシェア | 2026-02-19 | |
+| #7 | Phase 1: Google API統合 | 2026-02-19 | |
+| #8 | HANDOFF.md更新 | 2026-02-19 | |
+| #9 | JSON sanitize (markdown除去) | 2026-02-19 | 不十分 |
+| #10 | robustJsonParse 3段階 | 2026-02-19 | 不十分 |
+| #11 | escapeNewlinesInStrings | 2026-02-19 | 不十分 |
+| #12 | regex fallback追加 | 2026-02-19 | 不十分 |
+| #13 | **cleanAIResponseText + prompt強化** | **2026-02-20** | **JSON問題解決** |
+
+## 13. 障害対応ガイド
+
+### 障害パターン1: 「プランがテンプレートに落ちる」
+
+**重要度**: 高（コア機能がダウン）
+
+**確認手順**:
+1. Vercel Dashboard → nightchill-sr5g → Logs
+2. POST `/api/plan` リクエストのログを確認
+3. エラーメッセージに応じて対処:
+
+| ログメッセージ | 原因 | 対処 |
+|--------------|------|------|
+| `AI response (attempt...)` + `JSON parse failed` | AIのJSON出力が壊れた | `ai-planner.ts` の防御を強化 |
+| `AI plan generation failed` のみ | APIキー/モデル問題 | 環境変数確認 |
+| ログなし | APIキー未設定 | ANTHROPIC_API_KEY確認 |
+
+**AI JSON解析エラーの修正アプローチ**:
+1. まず `SYSTEM_PROMPT` の出力制約を強化（最も効果的）
+2. 次に `cleanAIResponseText()` に新しいパターンを追加
+3. 最後に `extractFieldsWithRegex()` を改善
+
+**絶対にやってはいけないこと**:
+- SYSTEM_PROMPTのJSON出力ルールを緩めること
+- robustJsonParseのフォールバック段数を減らすこと
+- cleanAIResponseTextを削除すること
+
+### 障害パターン2: 「店舗情報が出ない」
+
+**確認手順**:
+1. Vercel Logs の External APIs に `maps.googleapis.com` があるか
+2. Google Cloud Console でAPIキーの有効性を確認
+3. `GOOGLE_PLACES_API_KEY` が Vercel (nightchill-sr5g) に設定されているか
+
+### 障害パターン3: 「地図が表示されない」
+
+**確認手順**:
+1. ブラウザDevTools → Console でエラー確認
+2. `GOOGLE_MAPS_API_KEY` がVercelに設定されているか
+3. Maps Embed API がGoogle Cloudで有効か
+4. APIキーのリファラ制限に `nightchill-sr5g.vercel.app` が含まれているか
+
+## 14. 参照リンク
+
+| リソース | URL |
+|---------|-----|
+| 本番サイト | https://nightchill-sr5g.vercel.app |
+| GitHubリポジトリ | https://github.com/createriumstudio-cpu/nightchill |
+| Vercel Dashboard | https://vercel.com/createriumstudio-cpus-projects/nightchill-sr5g |
+| Google Cloud Console | https://console.cloud.google.com/google/maps-apis/credentials?project=starry-seat-482615-j1 |
+| NotebookLM | https://notebooklm.google.com/notebook/b5fca57c-0385-4064-9188-0f0343032e16 |
