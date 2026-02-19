@@ -103,20 +103,17 @@ function buildUserPrompt(
 
 /**
  * AIレスポンスからJSONを抽出・修正
- * - markdownコードブロック除去
- * - JSONオブジェクト部分の抽出
- * - よくあるJSON構文エラーの修正
  */
 function sanitizeJsonResponse(text: string): string {
   let cleaned = text.trim();
 
-  // \`\`\`json ... \`\`\` or \`\`\` ... \`\`\` パターンを除去
-  if (cleaned.startsWith("\`\`\`")) {
+  // markdownコードブロック除去
+  if (cleaned.startsWith("```")) {
     const firstNewline = cleaned.indexOf("\n");
     if (firstNewline !== -1) {
       cleaned = cleaned.slice(firstNewline + 1);
     }
-    if (cleaned.endsWith("\`\`\`")) {
+    if (cleaned.endsWith("```")) {
       cleaned = cleaned.slice(0, -3);
     }
     cleaned = cleaned.trim();
@@ -129,10 +126,61 @@ function sanitizeJsonResponse(text: string): string {
     cleaned = cleaned.slice(firstBrace, lastBrace + 1);
   }
 
-  // 末尾カンマの除去（配列・オブジェクト内）
-  cleaned = cleaned.replace(/,\s*([\]}])/g, "$1");
+  // 末尾カンマの除去
+  cleaned = cleaned.replace(/,\s*([\\]}])/g, "$1");
 
   return cleaned.trim();
+}
+
+/**
+ * JSON文字列値内のリテラル改行をエスケープ
+ * AIが生成するJSONで最も多い問題: 文字列値内の生改行
+ */
+function escapeNewlinesInStrings(json: string): string {
+  let result = "";
+  let inString = false;
+  let escaped = false;
+
+  for (let i = 0; i < json.length; i++) {
+    const ch = json[i];
+
+    if (escaped) {
+      result += ch;
+      escaped = false;
+      continue;
+    }
+
+    if (ch === "\\") {
+      result += ch;
+      escaped = true;
+      continue;
+    }
+
+    if (ch === '"') {
+      inString = !inString;
+      result += ch;
+      continue;
+    }
+
+    if (inString && ch === "\n") {
+      result += "\\n";
+      continue;
+    }
+
+    if (inString && ch === "\r") {
+      result += "\\r";
+      continue;
+    }
+
+    if (inString && ch === "\t") {
+      result += "\\t";
+      continue;
+    }
+
+    result += ch;
+  }
+
+  return result;
 }
 
 function generateId(): string {
@@ -140,7 +188,7 @@ function generateId(): string {
 }
 
 /**
- * JSON.parseを試行し、失敗した場合は修正を試みる
+ * JSON.parseを堅牢に実行
  */
 function robustJsonParse(text: string): Record<string, unknown> {
   const sanitized = sanitizeJsonResponse(text);
@@ -150,29 +198,21 @@ function robustJsonParse(text: string): Record<string, unknown> {
     return JSON.parse(sanitized) as Record<string, unknown>;
   } catch (firstError) {
     console.error("First JSON parse attempt failed:", (firstError as Error).message);
+  }
+
+  // 2回目: 文字列値内のリテラル改行をエスケープしてからパース
+  try {
+    const escaped = escapeNewlinesInStrings(sanitized);
+    return JSON.parse(escaped) as Record<string, unknown>;
+  } catch (secondError) {
+    console.error("Second JSON parse attempt failed:", (secondError as Error).message);
     console.error("Sanitized text (first 500 chars):", sanitized.slice(0, 500));
   }
 
-  // 2回目: 制御文字を除去してからパース
+  // 3回目: 全ての改行を空白に置換してからパース（最終手段）
   try {
-    // eslint-disable-next-line no-control-regex
-    const noControl = sanitized.replace(/[\x00-\x1f\x7f]/g, (ch) => {
-      if (ch === "\n" || ch === "\r" || ch === "\t") return ch;
-      return "";
-    });
-    return JSON.parse(noControl) as Record<string, unknown>;
-  } catch (secondError) {
-    console.error("Second JSON parse attempt failed:", (secondError as Error).message);
-  }
-
-  // 3回目: 文字列値内の改行をエスケープ
-  try {
-    const escaped = sanitized.replace(/"([^"]*)"\s*:/g, (match) => match)
-      .replace(/:\s*"([^"]*)"/g, (match, val: string) => {
-        const fixed = val.replace(/\n/g, "\\n").replace(/\r/g, "\\r").replace(/\t/g, "\\t");
-        return `: "${fixed}"`;
-      });
-    return JSON.parse(escaped) as Record<string, unknown>;
+    const noNewlines = sanitized.replace(/\n/g, " ").replace(/\r/g, " ");
+    return JSON.parse(noNewlines) as Record<string, unknown>;
   } catch (thirdError) {
     console.error("Third JSON parse attempt failed:", (thirdError as Error).message);
     throw new Error(`JSON parse failed after 3 attempts. Raw text (first 200 chars): ${text.slice(0, 200)}`);
