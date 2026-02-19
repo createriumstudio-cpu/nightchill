@@ -98,6 +98,27 @@ function buildUserPrompt(
   return parts.join("\n");
 }
 
+
+/**
+ * AIレスポンスからmarkdownコードブロックを除去してJSONを抽出
+ */
+function sanitizeJsonResponse(text: string): string {
+  let cleaned = text.trim();
+  // ```json ... ``` or ``` ... ``` パターンを除去
+  if (cleaned.startsWith('```')) {
+    // 最初の改行までスキップ（```json\n のような部分）
+    const firstNewline = cleaned.indexOf('\n');
+    if (firstNewline !== -1) {
+      cleaned = cleaned.slice(firstNewline + 1);
+    }
+    // 末尾の ``` を除去
+    if (cleaned.endsWith('```')) {
+      cleaned = cleaned.slice(0, -3);
+    }
+  }
+  return cleaned.trim();
+}
+
 function generateId(): string {
   return Math.random().toString(36).substring(2, 10);
 }
@@ -150,7 +171,7 @@ export async function generateAIPlan(request: PlanRequest): Promise<DatePlan> {
     throw new Error("AI応答にテキストが含まれていません");
   }
 
-  const parsed = JSON.parse(textBlock.text);
+  const parsed = JSON.parse(sanitizeJsonResponse(textBlock.text));
 
   return {
     id: generateId(),
