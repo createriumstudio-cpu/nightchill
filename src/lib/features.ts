@@ -40,6 +40,7 @@ export interface FeaturedArticle {
   publishedAt: string;
   updatedAt: string;
   heroEmoji: string;
+  heroImage?: string;
   spots: FeaturedSpot[];
 }
 
@@ -61,6 +62,7 @@ export const featuredArticles: FeaturedArticle[] = [
     publishedAt: "2026-02-20",
     updatedAt: "2026-02-20",
     heroEmoji: "🌙",
+    heroImage: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800&h=400&fit=crop&q=80",
     spots: [
       {
         name: "AELU&BRODO",
@@ -109,6 +111,7 @@ export const featuredArticles: FeaturedArticle[] = [
     publishedAt: "2026-02-20",
     updatedAt: "2026-02-20",
     heroEmoji: "☕",
+    heroImage: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800&h=400&fit=crop&q=80",
     spots: [
       {
         name: "ABOUT LIFE COFFEE BREWERS",
