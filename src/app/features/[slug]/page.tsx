@@ -173,13 +173,13 @@ export default async function FeatureDetailPage({ params }: PageProps) {
           {/* CTA */}
           <div className="mt-12 text-center">
             <p className="text-gray-500 text-sm mb-4">
-              このエリアの別のデートプランも気になる？
+              このエリアのデートプランを作ってみる？
             </p>
             <Link
               href={`/plan?area=${encodeURIComponent(feature.area)}`}
               className="inline-block bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold py-3 px-8 rounded-full hover:scale-105 transition-transform"
             >
-              🤖 {feature.area}のAIプランを作る
+              ✨ {feature.area}のデートプランを作る
             </Link>
           </div>
         </section>
