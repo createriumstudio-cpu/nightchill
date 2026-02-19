@@ -38,7 +38,7 @@ const steps = [
   },
   {
     number: "02",
-    title: "AIがプランを生成",
+    title: "あなただけのプランを生成",
     description:
       "あなたの情報をもとに、最適なデートプランと成功のポイントを提案します。",
   },
@@ -100,7 +100,7 @@ export default function Home() {
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted md:text-xl">
             「どこに行くか」ではなく「どうデートするか」。
             <br className="hidden sm:block" />
-            AIが、タイムライン・服装・会話術まで
+            タイムライン・服装・会話術まで
             <br className="hidden sm:block" />
             あなたのデートを成功に導きます。
           </p>

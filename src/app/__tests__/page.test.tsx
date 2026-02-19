@@ -31,7 +31,7 @@ describe("Home", () => {
   it("renders how-it-works steps", () => {
     render(<Home />);
     expect(screen.getByText("シチュエーションを入力")).toBeInTheDocument();
-    expect(screen.getByText("AIがプランを生成")).toBeInTheDocument();
+    expect(screen.getByText("あなただけのプランを生成")).toBeInTheDocument();
     expect(screen.getByText("完璧なデートを実行")).toBeInTheDocument();
   });
 
