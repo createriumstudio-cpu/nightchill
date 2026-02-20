@@ -1,5 +1,5 @@
 # nightchill 引き継ぎドキュメント(HANDOFF.md)
-最終更新: 2026-02-20
+最終更新: 2026-02-21
 
 ## プロジェクト概要
 **nightchill** − 成功確約型デートコンシェルジュWebメディア
@@ -26,11 +26,14 @@
 | URL | 説明 | 状態 |
 |------|--------|-------|
 | / | ホームページ | ✅ 稼働中 |
-| /features | 特集一覧（ヒーロー画像付きカード）| ✅ 稼働中（4記事）|
+| /features | 特集一覧（ヒーロー画像付きカード）| ✅ 稼働中（7記事）|
 | /features/ebisu-night-date | 恵比寿ナイトデート詳細 | ✅ 稼働中 |
 | /features/shibuya-casual-date | 渋谷カジュアルデート詳細 | ✅ 稼働中 |
 | /features/omotesando-sophisticated-date | 表参道デート詳細 | ✅ 稼働中 |
 | /features/roppongi-premium-night | 六本木プレミアムナイト詳細 | ✅ 稼働中 |
+| /features/ginza-luxury-date | 銀座ラグジュアリーデート詳細 | ✅ 稼働中 |
+| /features/nakameguro-canal-date | 中目黒キャナルデート詳細 | ✅ 稼働中 |
+| /features/daikanyama-stylish-date | 代官山スタイリッシュデート詳細 | ✅ 稼働中 |
 | /plan → /results | AIデートプラン生成 | ✅ 稼働中 |
 | /admin/login | 管理画面ログイン | ✅ 稼働中 |
 | /admin | 管理画面ダッシュボード | ✅ 稼働中（読み取り専用）|
@@ -45,6 +48,9 @@
   - shibuya-casual-date-hero.png (1011KB) - 渋谷カフェカップル
   - omotesando-date-hero.png (991KB) - 表参道並木道カップル
   - roppongi-night-date-hero.png (826KB) - 六本木ルーフトップバー+東京タワー
+  - ginza-luxury-date-hero.png - 銀座並木通りラグジュアリーカップル
+  - nakameguro-canal-date-hero.png - 中目黒キャナル沿いカフェカップル
+  - daikanyama-stylish-date-hero.png - 代官山スタイリッシュカップル
 - 画像生成時のプロンプトのコツ:
   - **英語で記述**（日本語だとイラスト調になる）
   - カメラ設定明記: "Shot on Sony A7IV, 35mm f/1.4 lens"
@@ -69,6 +75,7 @@
 - PR #19: Admin panel with JSON data store + CRUD API
 - PR #20: Nanobanana Pro hero images (ebisu + shibuya) + local paths
 - PR #21: Omotesando + Roppongi feature articles + hero images
+- PR #22: Ginza + Nakameguro + Daikanyama feature articles + hero images
 
 ## 重要な制約
 - Google Places APIデータ = **絶対改変不可のファクト**
@@ -84,7 +91,7 @@
 - URL: https://notebooklm.google.com/notebook/b5fca57c-0385-4064-9188-0f0343032e16
 
 ## 次のステップ（優先順）
-1. ❌ 追加エリア特集（銀座、中目黒、代官山）+ 画像生成
+1. ✅ 追加エリア特集（銀座、中目黒、代官山）+ 画像生成
 2. ❌ 各スポットのリアルSNS投稿URL追加
 3. ❌ Vercel KV/Postgres移行（管理画面の書き込み有効化）
 4. ❌ 国内旅行・海外旅行カテゴリ追加
