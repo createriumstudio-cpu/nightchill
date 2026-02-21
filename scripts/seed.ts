@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Seed script: JSON → Neon Postgres
  * Usage: npx tsx scripts/seed.ts
