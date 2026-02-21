@@ -289,3 +289,74 @@
                                                                                                                                           - [x] 商標調査実施（J-PlatPat: 関連区分での直接競合なし）
                                                                                                                                           - [ ] - [x] HANDOFF.md更新
                                                                                                                                           - [x] NotebookLM更新
+
+---
+
+## 再開ガイド（2026-02-22 時点）
+
+### 現在のステータス
+- Phase 0〜3 全完了。Phase 4（ユーザーリテンション + インバウンド i18n）が次。
+- ライブサイト: https://nightchill-sr5g.vercel.app/
+- 管理画面: https://nightchill-sr5g.vercel.app/admin （PW: taas1111）
+- UGC管理: https://nightchill-sr5g.vercel.app/admin/ugc
+- GitHub: https://github.com/createriumstudio-cpu/nightchill
+- Codespace名: potential couscous（停止中、再起動で使用可）
+- NotebookLM: 16ソース登録済み
+
+### 完了フェーズ一覧
+| Phase | PR | 内容 |
+|---|---|---|
+| Phase 0 | #24 | ブランドリネーム nightchill → futatabito |
+| Phase 1 | #25 | E-E-A-T ページ（/about, /privacy, sitemap, robots.txt） |
+| — | #26 | ホームページコピー改善 |
+| Phase 2a | #27 | Neon Postgres DB + Drizzle ORM + seed |
+| Phase 2b | #28 | Admin CRUD（features API + admin UI全書き直し） |
+| Phase 3 | #29 | UGC embed system（admin API, public API, UgcSection, seed 10投稿） |
+
+### Phase 3 で追加されたファイル（PR #29）
+- `src/app/api/admin/ugc/route.ts` — Admin UGC API（GET/POST, 認証+監査ログ）
+- `src/app/api/admin/ugc/[id]/route.ts` — Admin UGC個別操作（PATCH/DELETE）
+- `src/app/api/ugc/route.ts` — 公開UGC API（approved投稿をfeatureSlug指定で取得）
+- `src/app/admin/ugc/page.tsx` — UGC管理画面
+- `src/components/UgcSection.tsx` — Twitter/X oEmbed + Instagram embed クライアントコンポーネント
+- `scripts/seed-ugc.ts` — UGCシードスクリプト（7エリア10投稿）
+- `src/app/admin/page.tsx` — UGC管理リンク追加（修正）
+- `src/app/features/[slug]/page.tsx` — UgcSection統合（修正）
+
+### DB テーブル構成（Neon Postgres）
+- `features` — 特集記事（7件、slug/title/spots等）
+- `ugc_posts` — UGC投稿（10件seed済、platform/postUrl/status/featureSlug）
+- `audit_log` — 操作ログ
+
+### DB接続情報（Codespace用 .env.local）
+```
+DATABASE_URL=postgresql://neondb_owner:npg_z0pbsIgxeYa2@ep-fragrant-sea-a1z0md8l-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
+ADMIN_PASSWORD=taas1111
+```
+
+### 次のフェーズ: Phase 4 — ユーザーリテンション + インバウンド
+ロードマップ案:
+1. i18n（英語対応）— next-intl or next-i18next
+2. SNS OGP最適化 — 各feature pageのOG画像自動生成
+3. プッシュ通知 or メール通知（新エリア追加時）
+4. エリア追加（渋谷、新宿、浅草などインバウンド人気エリア）
+
+### 再開時の手順
+1. このHANDOFF.mdとCLAUDE.mdを読む
+2. Codespace "potential couscous" を再起動
+3. `.env.local` を作成（上記DB接続情報）
+4. `git checkout main && git pull`
+5. 新ブランチ作成: `git checkout -b feat/phase4-xxx`
+6. 実装 → lint → build → test → PR → CI → merge
+
+### 重要な制約（必ず守ること）
+- Google Places APIデータ = 改変不可のファクト
+- UGC embeds = 公式embed APIのみ使用（法的要件）
+- ユーザー向けテキストに「AI」の文言は使わない
+- PR/ads = Contextual only（バナー広告禁止）
+- layout.tsx に Header は含まない（個別ページでimport）
+- main ブランチ保護 → 変更は PR 経由のみ
+- CI は npm install（npm ci ではない）
+- Vercel環境変数は nightchill-sr5g project に設定
+- GitHub リポジトリ名・Vercel プロジェクト名は「nightchill」のまま
+- テストファイルはユーザー向けテキスト変更時に必ず更新
