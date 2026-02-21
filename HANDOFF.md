@@ -251,7 +251,31 @@
                                                                                                                                           - [ ] UGCキュレーション機能
                                                                                                                                           - [ ] - [ ] 監査ログ
                                                                                                                                          
-                                                                                                                                          - [ ] ### Phase 3: UGC embed実装
+                                                                                                                                          - [ ] 
+### Phase 4: OGP最適化 + i18n英語対応（PR #30）
+- **PR**: https://github.com/createriumstudio-cpu/nightchill/pull/30
+- 特集詳細ページにopenGraph, Twitter Card, canonical URL, hreflang追加
+- JSON-LD構造化データ（Article + Placeスキーマ）を全特集ページに追加
+- 英語ランディングページ（/en）作成（インバウンド対応）
+- 英語特集詳細ページ（/en/features/[slug]）全7エリア対応
+- LanguageSwitcherコンポーネント追加（Header desktop + mobile）
+- i18n翻訳システム（src/lib/i18n.ts）作成
+- sitemap.tsに英語URL追加
+- next-intl依存関係追加
+- テストモック更新（usePathname対応）
+- **新規ファイル**:
+  - `src/app/en/page.tsx` — 英語ランディングページ
+  - `src/app/en/layout.tsx` — 英語レイアウト（lang="en"）
+  - `src/app/en/features/[slug]/page.tsx` — 英語特集詳細
+  - `src/components/LanguageSwitcher.tsx` — 言語切替コンポーネント
+  - `src/lib/i18n.ts` — 翻訳データ + UIテキスト
+- **変更ファイル**:
+  - `src/app/features/[slug]/page.tsx` — OGP + JSON-LD + hreflang
+  - `src/app/features/page.tsx` — OGP metadata追加
+  - `src/app/sitemap.ts` — 英語URL追加
+  - `src/components/Header.tsx` — LanguageSwitcher追加
+  - `src/app/__tests__/page.test.tsx` — usePathname mock追加
+### Phase 3: UGC embed実装
                                                                                                                                           
                                                                                                                                           - [ ] X (Twitter) embed
                                                                                                                                           - [ ] - [ ] TikTok oEmbed API
