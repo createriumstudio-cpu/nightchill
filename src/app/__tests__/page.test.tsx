@@ -14,9 +14,9 @@ describe("Home", () => {
     expect(heading.textContent).toContain("プロデュース");
   });
 
-  it("renders the nightchill brand", () => {
+  it("renders the futatabito brand", () => {
     render(<Home />);
-    const brandElements = screen.getAllByText("night");
+    const brandElements = screen.getAllByText("futa");
     expect(brandElements.length).toBeGreaterThan(0);
   });
 

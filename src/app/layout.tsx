@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://nightchill.app";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://futatabito.com";
 
 export const viewport: Viewport = {
   themeColor: [
@@ -14,37 +14,37 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: "nightchill - 成功確約型デートコンシェルジュ",
-    template: "%s | nightchill",
+    default: "futatabito - デート視点の東京カルチャーガイド",
+    template: "%s | futatabito",
   },
   description:
-    "「どこに行くか」ではなく「どうデートするか」。AIがあなたのデートを成功に導く具体的なプラン・服装・会話術を提案。初デートから記念日、プロポーズまで対応。",
+    "「どこに行くか」ではなく「どうデートするか」。ふたりの時間を、もっとおもしろく。東京のデートスポット・カフェ・レストランを独自の視点で提案するカルチャーガイド。",
   keywords: [
     "デートプラン",
-    "デート コンシェルジュ",
+    "東京 デートガイド",
     "初デート 成功",
     "記念日 プラン",
-    "デート AI",
+    "デート カルチャー",
     "デート 服装",
     "デート 会話",
     "プロポーズ プラン",
-    "nightchill",
+    "futatabito",
   ],
   metadataBase: new URL(siteUrl),
   openGraph: {
-    title: "nightchill - 成功確約型デートコンシェルジュ",
+    title: "futatabito - デート視点の東京カルチャーガイド",
     description:
-      "「どこに行くか」ではなく「どうデートするか」。AIがあなたのデートを成功に導く具体的なプランを提案します。",
+      "「どこに行くか」ではなく「どうデートするか」。ふたりの時間を、もっとおもしろく。東京デートのカルチャーガイド。",
     url: siteUrl,
-    siteName: "nightchill",
+    siteName: "futatabito",
     locale: "ja_JP",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "nightchill - 成功確約型デートコンシェルジュ",
+    title: "futatabito - デート視点の東京カルチャーガイド",
     description:
-      "AIがあなたのデートを成功に導く。服装・会話・タイムラインを完璧にプロデュース。",
+      "ふたりの時間を、もっとおもしろく。東京のデートスポットを独自の視点で提案。",
   },
   robots: {
     index: true,
@@ -63,9 +63,9 @@ export default function RootLayout({
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    name: "nightchill",
+    name: "futatabito",
     description:
-      "AIがデートを成功に導く具体的なプラン・服装・会話術を提案するデートコンシェルジュサービス",
+      "デート視点で東京のカルチャースポットを提案するライフスタイルガイド",
     url: siteUrl,
     applicationCategory: "LifestyleApplication",
     operatingSystem: "Web",

@@ -35,7 +35,7 @@ export default async function AdminDashboard() {
       <header className="border-b border-zinc-800 px-6 py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold">nightchill 管理画面</h1>
+            <h1 className="text-xl font-bold">futatabito 管理画面</h1>
             <p className="text-sm text-zinc-400">特集記事・スポット管理</p>
           </div>
           <div className="flex gap-3">

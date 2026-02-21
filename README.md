@@ -1,6 +1,8 @@
-# nightchill
+# futatabito
 
-成功確約型デートコンシェルジュ — 「Where」ではなく「How」を提供するデートプランニングプラットフォーム。
+デート視点の東京カルチャーガイド — 「Where」ではなく「How」を提供するデートプランニングプラットフォーム。
+
+キャッチコピー: **ふたりの時間を、もっとおもしろく。**
 
 ## Tech Stack
 
@@ -21,9 +23,14 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Scripts
 
-| Command | Description |
-| --- | --- |
-| `npm run dev` | Start dev server |
-| `npm run build` | Production build |
-| `npm run lint` | Run ESLint |
-| `npm test` | Run tests |
+| Command       | Description       |
+|---------------|-------------------|
+| npm run dev   | Start dev server  |
+| npm run build | Production build  |
+| npm run lint  | Run ESLint        |
+| npm test      | Run tests         |
+
+## Note
+
+GitHub リポジトリ名・Vercel プロジェクト名は「nightchill」のまま維持（インフラ変更リスク回避）。
+コード内のユーザー向け表示のみ「futatabito」を使用。

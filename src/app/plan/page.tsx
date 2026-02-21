@@ -74,8 +74,8 @@ export default function PlanPage() {
       }
 
       const plan = await res.json();
-      sessionStorage.setItem("nightchill-plan", JSON.stringify(plan));
-      sessionStorage.setItem("nightchill-location", location || "東京");
+      sessionStorage.setItem("futatabito-plan", JSON.stringify(plan));
+      sessionStorage.setItem("futatabito-location", location || "東京");
       router.push("/results");
     } catch (err) {
       setError(err instanceof Error ? err.message : "エラーが発生しました");

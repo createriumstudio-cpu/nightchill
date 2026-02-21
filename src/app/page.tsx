@@ -90,7 +90,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-b from-surface-alt/50 to-transparent" />
         <div className="relative mx-auto max-w-4xl text-center">
           <p className="mb-4 text-sm font-semibold tracking-widest text-primary uppercase">
-            成功確約型デートコンシェルジュ
+            デート視点の東京カルチャーガイド
           </p>
           <h1 className="text-5xl font-bold leading-tight tracking-tight md:text-7xl">
             特別な夜を、
@@ -152,7 +152,7 @@ export default function Home() {
               Features
             </p>
             <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
-              nightchillの特徴
+              futatabitoの特徴
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-muted">
               場所の提案だけではありません。デートを成功させるための「How」をお届けします。
@@ -255,7 +255,7 @@ export default function Home() {
       <section className="bg-surface px-6 py-24">
         <div className="mx-auto max-w-4xl text-center">
           <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
-            nightchillが提案するもの
+            futatabitoが提案するもの
           </h2>
           <div className="mt-12 grid gap-6 sm:grid-cols-2">
             {[
@@ -300,7 +300,7 @@ export default function Home() {
             次のデートを、忘れられない夜に。
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-white/80">
-            nightchillが、あなたのデートを成功に導く具体的なプランを提案します。
+            ふたりの時間を、もっとおもしろく。デートという視点で東京のカルチャーを提案します。
           </p>
           <Link
             href="/plan"

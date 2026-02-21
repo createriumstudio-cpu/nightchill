@@ -282,7 +282,7 @@ function getTitleForPlan(occasion: string, mood: string): string {
 
   return (
     titles[occasion]?.[mood] ??
-    `nightchill デートプラン`
+    `futatabito デートプラン`
   );
 }
 

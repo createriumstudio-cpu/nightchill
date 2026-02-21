@@ -16,19 +16,19 @@ import type { VenueFactData } from "@/lib/google-places";
 // ============================================================
 function loadPlanFromStorage(): DatePlan | null {
   if (typeof window === "undefined") return null;
-  const stored = sessionStorage.getItem("nightchill-plan");
+  const stored = sessionStorage.getItem("futatabito-plan");
   if (!stored) return null;
   try {
     return JSON.parse(stored) as DatePlan;
   } catch {
-    sessionStorage.removeItem("nightchill-plan");
+    sessionStorage.removeItem("futatabito-plan");
     return null;
   }
 }
 
 function loadLocationFromStorage(): string {
   if (typeof window === "undefined") return "";
-  return sessionStorage.getItem("nightchill-location") || "";
+  return sessionStorage.getItem("futatabito-location") || "";
 }
 
 // ============================================================
@@ -70,7 +70,7 @@ function planToText(plan: DatePlan): string {
     l.push(`⚠ ${warning}`);
   }
   l.push("");
-  l.push("nightchill - 成功確約型デートコンシェルジュ");
+  l.push("futatabito - デート視点の東京カルチャーガイド");
   return l.join("\n");
 }
 // ============================================================
@@ -238,7 +238,7 @@ export default function ResultsPage() {
 
   const handleShareLine = useCallback(() => {
     if (!plan) return;
-    const text = `${plan.title}\n\nnightchillでデートプランを作成しました！`;
+    const text = `${plan.title}\n\nfutatabitoでデートプランを作成しました！`;
     const lineUrl = shareUrl || (typeof window !== "undefined" ? window.location.origin : "");
     const url = `https://social-plugins.line.me/lineit/share?text=${encodeURIComponent(text)}&url=${encodeURIComponent(lineUrl)}`;
     window.open(url, "_blank", "noopener,noreferrer");
@@ -246,7 +246,7 @@ export default function ResultsPage() {
 
   const handleShareX = useCallback(() => {
     if (!plan) return;
-    const text = `${plan.title}\n\nAIにデートプランを作ってもらった！\n#nightchill #デートプラン`;
+    const text = `${plan.title}\n\nデートプランを作ってみた！\n#futatabito #デートプラン`;
     const xUrl = shareUrl || (typeof window !== "undefined" ? window.location.origin : "");
     const url = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(xUrl)}`;
     window.open(url, "_blank", "noopener,noreferrer");

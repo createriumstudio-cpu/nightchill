@@ -39,7 +39,7 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-white">
-            nightchill 管理画面
+            futatabito 管理画面
           </h1>
           <p className="text-zinc-400 mt-2">ログインしてください</p>
         </div>

@@ -10,8 +10,8 @@ export default function Header() {
     <header className="fixed top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <Link href="/" className="text-xl font-bold tracking-tight">
-          <span className="text-primary">night</span>
-          <span>chill</span>
+          <span className="text-primary">futa</span>
+          <span>tabito</span>
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
