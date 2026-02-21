@@ -285,6 +285,7 @@
 - [x] Homepage copy refinement（PR #26: CTA・How It Works見出し・Step3タイトルから旧ブランド表現を除去）
 - [x] Phase 2a: Neon Postgres DB setup (PR #27: Drizzle ORM, schema push, 7 features seeded, async features.ts with DB-first + JSON fallback)
 - [x] Phase 2b: Admin CRUD with DB writes (PR #28): Drizzle ORM + Neon, features CRUD API (GET/POST/PUT/DELETE), publish/unpublish toggle, audit log on all admin operations, admin UI rewrite
+- [x] Phase 3: UGC embed system (PR #29): UGC admin API (CRUD + auth + audit), public UGC API, admin management page (/admin/ugc), UgcSection client component with Twitter/X oEmbed + Instagram embed.js, 10 seed posts across 7 areas, dark theme
                                                                                                                                           - [x] 商標調査実施（J-PlatPat: 関連区分での直接競合なし）
                                                                                                                                           - [ ] - [x] HANDOFF.md更新
                                                                                                                                           - [x] NotebookLM更新
