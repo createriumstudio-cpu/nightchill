@@ -9,12 +9,12 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  return getAllFeatures().map((f) => ({ slug: f.slug }));
+  return (await getAllFeatures()).map((f) => ({ slug: f.slug }));
 }
 
 export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
-  const feature = getFeatureBySlug(slug);
+  const feature = await getFeatureBySlug(slug);
   if (!feature) return { title: "特集が見つかりません | futatabito" };
   return {
     title: `${feature.title} | futatabito`,
@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function FeatureDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const feature = getFeatureBySlug(slug);
+  const feature = await getFeatureBySlug(slug);
   if (!feature) notFound();
 
   return (

@@ -8,8 +8,8 @@ export const metadata = {
     "今話題のデートスポットを、SNSの口コミとプロのアドバイスとともに紹介",
 };
 
-export default function FeaturesPage() {
-  const features = getAllFeatures();
+export default async function FeaturesPage() {
+  const features = await getAllFeatures();
 
   return (
     <>

@@ -1,14 +1,14 @@
 /**
  * 特集ページデータ管理
  *
- * JSON ファイル (src/data/features.json) からデータを読み込む。
- * 管理画面から CRUD API 経由でデータを更新可能。
- *
- * ビルド時は JSON ファイルを直接 import し、
- * API 経由の操作では fs で読み書きする。
+ * DB (Neon Postgres) からデータを読み込む。
+ * DB接続不可の場合はJSON fallbackを使用。
  */
 
 import featuresData from "@/data/features.json";
+import { getDb } from "./db";
+import { features as featuresTable } from "./schema";
+import { eq } from "drizzle-orm";
 
 export type EmbedPlatform = "instagram" | "tiktok";
 
@@ -43,35 +43,73 @@ export interface FeaturedArticle {
   spots: FeaturedSpot[];
 }
 
-/**
- * 特集記事データ（JSON から読み込み）
- */
-const featuredArticles: FeaturedArticle[] = featuresData as FeaturedArticle[];
+/** JSON fallback data */
+const jsonArticles: FeaturedArticle[] = featuresData as FeaturedArticle[];
 
 /**
- * 全特集を取得
+ * 全特集を取得 (DB優先、fallback: JSON)
  */
-export function getAllFeatures(): FeaturedArticle[] {
-  return featuredArticles;
+export async function getAllFeatures(): Promise<FeaturedArticle[]> {
+  try {
+    const db = getDb();
+    if (db) {
+      const rows = await db.select().from(featuresTable).orderBy(featuresTable.publishedAt);
+      if (rows.length > 0) {
+        return rows.map(rowToArticle);
+      }
+    }
+  } catch (e) {
+    console.warn("DB read failed, using JSON fallback:", e);
+  }
+  return jsonArticles;
 }
 
 /**
- * slugで特集を取得
+ * slugで特集を取得 (DB優先、fallback: JSON)
  */
-export function getFeatureBySlug(slug: string): FeaturedArticle | undefined {
-  return featuredArticles.find((a) => a.slug === slug);
+export async function getFeatureBySlug(slug: string): Promise<FeaturedArticle | undefined> {
+  try {
+    const db = getDb();
+    if (db) {
+      const rows = await db.select().from(featuresTable).where(eq(featuresTable.slug, slug));
+      if (rows.length > 0) {
+        return rowToArticle(rows[0]);
+      }
+    }
+  } catch (e) {
+    console.warn("DB read failed, using JSON fallback:", e);
+  }
+  return jsonArticles.find((a) => a.slug === slug);
 }
 
 /**
  * エリアで関連特集を取得
  */
-export function getFeaturesByArea(area: string, limit = 3): FeaturedArticle[] {
+export async function getFeaturesByArea(area: string, limit = 3): Promise<FeaturedArticle[]> {
+  const all = await getAllFeatures();
   const normalized = area.toLowerCase();
-  return featuredArticles
+  return all
     .filter(
       (a) =>
         a.area.toLowerCase().includes(normalized) ||
         a.tags.some((t) => t.toLowerCase().includes(normalized)),
     )
     .slice(0, limit);
+}
+
+/** DB row → FeaturedArticle 変換 */
+function rowToArticle(row: typeof featuresTable.$inferSelect): FeaturedArticle {
+  return {
+    slug: row.slug,
+    title: row.title,
+    subtitle: row.subtitle,
+    description: row.description,
+    area: row.area,
+    tags: (row.tags as string[]) || [],
+    publishedAt: row.publishedAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
+    heroEmoji: row.heroEmoji,
+    heroImage: row.heroImage || undefined,
+    spots: (row.spots as FeaturedSpot[]) || [],
+  };
 }

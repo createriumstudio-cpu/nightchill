@@ -28,7 +28,7 @@ export default async function AdminDashboard() {
     redirect("/admin/login");
   }
 
-  const features = getAllFeatures();
+  const features = await getAllFeatures();
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
