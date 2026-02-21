@@ -32,7 +32,7 @@ describe("Home", () => {
     render(<Home />);
     expect(screen.getByText("シチュエーションを入力")).toBeInTheDocument();
     expect(screen.getByText("あなただけのプランを生成")).toBeInTheDocument();
-    expect(screen.getByText("完璧なデートを実行")).toBeInTheDocument();
+    expect(screen.getByText("デートを楽しむ")).toBeInTheDocument();
   });
 
   it("renders CTA links to plan page", () => {
