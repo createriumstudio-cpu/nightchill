@@ -14,45 +14,45 @@ export interface FeatureTranslation {
 export const featureTranslations: Record<string, FeatureTranslation> = {
   "omotesando-sophisticated-date": {
     title: "Omotesando Sophisticated Date Plan Guide",
-    subtitle: "A refined couple's guide to Tokyo's most stylish boulevard",
-    description: "Discover the perfect Omotesando date: trendy cafes, flagship boutiques, and hidden backstreet gems. A curated guide to Tokyo's chic avenue for couples.",
+    subtitle: "A refined couple\'s guide to Tokyo\'s most stylish boulevard",
+    description: "Discover the perfect Omotesando date: trendy cafes, flagship boutiques, and hidden backstreet gems. A curated guide for couples.",
     area: "Omotesando",
   },
-  "ginza-luxury-adult-date": {
-    title: "Ginza Luxury Date Plan Guide",
-    subtitle: "An elegant evening in Tokyo's most prestigious district",
-    description: "Plan a luxurious Ginza date with world-class dining, art galleries, and sophisticated nightlife. The ultimate guide to an upscale Tokyo date experience.",
+  "ginza-luxury-date": {
+    title: "Ginza Luxury Date Guide",
+    subtitle: "An elegant evening in Tokyo\'s most prestigious district",
+    description: "Plan a luxurious Ginza date with world-class dining, art galleries, and sophisticated nightlife. The ultimate upscale Tokyo date.",
     area: "Ginza",
   },
-  "ebisu-relaxed-gourmet-date": {
-    title: "Ebisu Relaxed Gourmet Date Plan Guide",
-    subtitle: "Laid-back foodie exploration in one of Tokyo's coolest neighborhoods",
-    description: "Explore Ebisu's best restaurants, craft beer spots, and cozy cafes for a relaxed gourmet date. Your guide to a delicious Tokyo date experience.",
+  "ebisu-night-date": {
+    title: "Ebisu Night Date Guide",
+    subtitle: "From Italian dining to stylish bars in one of Tokyo\'s coolest neighborhoods",
+    description: "Explore Ebisu\'s best restaurants and bars for a memorable night date. Your guide to a delicious Tokyo evening experience.",
     area: "Ebisu",
   },
-  "roppongi-art-night-date": {
-    title: "Roppongi Art & Night Date Plan Guide",
-    subtitle: "Art, culture, and nightlife in Tokyo's most cosmopolitan district",
-    description: "Experience Roppongi's world-class art museums, stunning night views, and vibrant dining scene. A perfect date plan for art lovers and night owls.",
+  "roppongi-premium-night": {
+    title: "Roppongi Premium Night Date",
+    subtitle: "Stunning night views and refined dining in Tokyo\'s most cosmopolitan district",
+    description: "Experience Roppongi\'s premium lounges, Tokyo Tower views, and vibrant dining scene. A perfect date plan for a special night out.",
     area: "Roppongi",
   },
-  "nakameguro-riverside-date": {
-    title: "Nakameguro Riverside Date Plan Guide",
+  "nakameguro-canal-date": {
+    title: "Nakameguro Canal Date Plan",
     subtitle: "A romantic stroll along the Meguro River with hidden gems",
-    description: "Walk along Nakameguro's iconic riverside, discover indie shops, artisan cafes, and trendy galleries. A charming Tokyo date spot loved by locals.",
+    description: "Walk along Nakameguro\'s iconic canal, discover cafes, bistros, and charming galleries. A Tokyo date spot loved by locals.",
     area: "Nakameguro",
   },
-  "daikanyama-art-culture-date": {
-    title: "Daikanyama Art & Culture Date Plan Guide",
-    subtitle: "Tokyo's Brooklyn: culture, design, and creative energy",
-    description: "Explore Daikanyama's architectural wonders, bookstores, and designer boutiques. A sophisticated date plan in Tokyo's most creative neighborhood.",
+  "daikanyama-stylish-date": {
+    title: "Daikanyama Stylish Date Plan",
+    subtitle: "Vintage shops, terrace cafes, and creative energy",
+    description: "Explore Daikanyama\'s architectural wonders, bookstores, and designer boutiques. A sophisticated date in Tokyo\'s most creative area.",
     area: "Daikanyama",
   },
-  "shimokitazawa-subculture-date": {
-    title: "Shimokitazawa Subculture Date Plan Guide",
-    subtitle: "Vintage shops, live music, and bohemian charm",
-    description: "Dive into Shimokitazawa's vintage stores, theater scene, and indie culture. The ultimate date guide for couples who love Tokyo's alternative side.",
-    area: "Shimokitazawa",
+  "shibuya-casual-date": {
+    title: "Shibuya Casual Date Plan",
+    subtitle: "Relaxed vibes and hidden gems in Tokyo\'s most energetic district",
+    description: "Discover Shibuya\'s best casual date spots: specialty coffee, cozy hideaways, and the city\'s vibrant street culture.",
+    area: "Shibuya",
   },
 };
 
