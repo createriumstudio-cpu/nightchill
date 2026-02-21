@@ -284,6 +284,7 @@
 - [x] Phase 1: E-E-A-T基盤 + SEO完了（PR #25: /about, /privacy, sitemap.xml, robots.txt, ヒーローコピー更新）
 - [x] Homepage copy refinement（PR #26: CTA・How It Works見出し・Step3タイトルから旧ブランド表現を除去）
 - [x] Phase 2a: Neon Postgres DB setup (PR #27: Drizzle ORM, schema push, 7 features seeded, async features.ts with DB-first + JSON fallback)
+- [x] Phase 2b: Admin CRUD with DB writes (PR #28): Drizzle ORM + Neon, features CRUD API (GET/POST/PUT/DELETE), publish/unpublish toggle, audit log on all admin operations, admin UI rewrite
                                                                                                                                           - [x] 商標調査実施（J-PlatPat: 関連区分での直接競合なし）
                                                                                                                                           - [ ] - [x] HANDOFF.md更新
                                                                                                                                           - [x] NotebookLM更新
