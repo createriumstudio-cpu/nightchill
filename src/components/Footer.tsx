@@ -1,26 +1,24 @@
 import Link from "next/link";
 
-export default function Footer() {
+const Footer = () => {
   return (
-    <footer className="border-t border-border bg-surface">
-      <div className="mx-auto max-w-6xl px-6 py-12">
-        <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
+    <footer className="bg-gray-950 border-t border-gray-800">
+      <div className="max-w-7xl mx-auto px-4 py-12">
+        <div className="flex flex-col sm:flex-row justify-between items-start gap-8">
           <div>
-            <Link href="/" className="text-lg font-bold tracking-tight">
-              <span className="text-primary">futa</span>
-              <span>tabito</span>
+            <Link href="/" className="text-xl font-bold text-white">
+              futa<span className="text-primary">tabito</span>
             </Link>
-            <p className="mt-2 text-sm text-muted">
+            <p className="text-sm text-muted mt-2">
               デート視点の東京カルチャーガイド
             </p>
           </div>
-
-          <nav className="flex gap-8">
+          <nav className="flex flex-wrap gap-x-8 gap-y-3">
             <Link
-              href="/#features"
+              href="/features"
               className="text-sm text-muted transition-colors hover:text-foreground"
             >
-              特徴
+              特集一覧
             </Link>
             <Link
               href="/#how-it-works"
@@ -34,13 +32,26 @@ export default function Footer() {
             >
               デートを計画する
             </Link>
+            <Link
+              href="/about"
+              className="text-sm text-muted transition-colors hover:text-foreground"
+            >
+              運営者情報
+            </Link>
+            <Link
+              href="/privacy"
+              className="text-sm text-muted transition-colors hover:text-foreground"
+            >
+              プライバシーポリシー
+            </Link>
           </nav>
         </div>
-
         <div className="mt-8 border-t border-border pt-8 text-center text-sm text-muted">
           &copy; {new Date().getFullYear()} futatabito. All rights reserved.
         </div>
       </div>
     </footer>
   );
-}
+};
+
+export default Footer;
