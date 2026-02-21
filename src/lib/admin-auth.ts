@@ -8,7 +8,7 @@
 
 import { cookies } from "next/headers";
 
-const ADMIN_COOKIE_NAME = "nightchill_admin_token";
+const ADMIN_COOKIE_NAME = "futatabito_admin_token";
 const TOKEN_EXPIRY_HOURS = 24;
 
 /**

@@ -7,11 +7,11 @@ export default function Footer() {
         <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
           <div>
             <Link href="/" className="text-lg font-bold tracking-tight">
-              <span className="text-primary">night</span>
-              <span>chill</span>
+              <span className="text-primary">futa</span>
+              <span>tabito</span>
             </Link>
             <p className="mt-2 text-sm text-muted">
-              成功確約型デートコンシェルジュ
+              デート視点の東京カルチャーガイド
             </p>
           </div>
 
@@ -38,7 +38,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-8 border-t border-border pt-8 text-center text-sm text-muted">
-          &copy; {new Date().getFullYear()} nightchill. All rights reserved.
+          &copy; {new Date().getFullYear()} futatabito. All rights reserved.
         </div>
       </div>
     </footer>

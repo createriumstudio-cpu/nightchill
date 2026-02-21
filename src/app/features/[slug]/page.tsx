@@ -15,9 +15,9 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
   const feature = getFeatureBySlug(slug);
-  if (!feature) return { title: "特集が見つかりません | nightchill" };
+  if (!feature) return { title: "特集が見つかりません | futatabito" };
   return {
-    title: `${feature.title} | nightchill`,
+    title: `${feature.title} | futatabito`,
     description: feature.description,
   };
 }

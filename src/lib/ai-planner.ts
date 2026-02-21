@@ -16,7 +16,7 @@ function getClient(): Anthropic {
   return client;
 }
 
-const SYSTEM_PROMPT = `あなたは「nightchill」というデートコンシェルジュサービスのAIプランナーです。
+const SYSTEM_PROMPT = `あなたは「futatabito」というデート視点の東京カルチャーガイドのプランナーです。
 ユーザーの入力に基づいて、具体的で実践的なデートプランをJSON形式で生成してください。
 
 【最重要ルール】

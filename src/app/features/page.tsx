@@ -3,7 +3,7 @@ import Header from "@/components/Header";
 import { getAllFeatures } from "@/lib/features";
 
 export const metadata = {
-  title: "特集 | nightchill",
+  title: "特集 | futatabito",
   description:
     "今話題のデートスポットを、SNSの口コミとプロのアドバイスとともに紹介",
 };
