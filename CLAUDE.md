@@ -36,6 +36,8 @@ src/lib/ — types.ts, ai-planner.ts, planner.ts, env.ts
      
       - シチュエーション追加: types.ts → planner.ts → route.ts → plan/page.tsx
       - ページ追加: src/app/[name]/page.tsx + Header/Footer使用
+既存ページ: /about（運営者情報）, /privacy（プライバシーポリシー）
+sitemap.ts + robots.ts でSEO基盤構築済み
       - API追加: src/app/api/[name]/route.ts + レート制限 + sanitizeText
      
       - ## Testing

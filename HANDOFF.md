@@ -78,6 +78,10 @@
                                                           - | /plan から /results | AIデートプラン生成 | 稼働中 |
                                                           - | /admin/login | 管理画面ログイン | 稼働中 |
                                                           - | /admin | 管理画面ダッシュボード | 稼働中（読み取り専用） |
+| /about | 運営者情報（コンセプト・連絡先・広告ポリシー） | 稼働中 |
+| /privacy | プライバシーポリシー（免責事項含む） | 稼働中 |
+| /sitemap.xml | XMLサイトマップ（12 URL、Next.js動的生成） | 稼働中 |
+| /robots.txt | robots.txt（/admin/、/api/ をdisallow） | 稼働中 |
                                                          
                                                           - Vercelのサーバーレス環境はファイルシステムが読み取り専用のため、CRUD書き込み操作は動作しません。将来的にVercel Postgres への移行が必要です。
                                                          
@@ -233,12 +237,12 @@
                                                                                                                                           - [ ] テストファイル更新
                                                                                                                                           - [ ] - [x] package.json / README.md更新
                                                                                                                                          
-                                                                                                                                          - [ ] ### Phase 1: E-E-A-T基盤 + SEO
+                                                                                                                                          - [ ] ### Phase 1: E-E-A-T基盤 + SEO  ✅完了（2026-02-21 PR #25）
                                                                                                                                          
-                                                                                                                                          - [ ] - [ ] /about ページ（運営者情報）
-                                                                                                                                          - [ ] - [ ] /privacy ページ（プライバシーポリシー）
-                                                                                                                                          - [ ] - [ ] sitemap.xml + robots.txt
-                                                                                                                                          - [ ] - [ ] OGPメタデータ強化
+                                                                                                                                          - [ ] - [x] /about ページ（運営者情報）
+                                                                                                                                          - [ ] - [x] /privacy ページ（プライバシーポリシー）
+                                                                                                                                          - [ ] - [x] sitemap.xml + robots.txt
+                                                                                                                                          - [ ] - [x] OGPメタデータ強化（layout.tsxで実装済み）
                                                                                                                                          
                                                                                                                                           - [ ] ### Phase 2: 運営基盤（DB移行）
                                                                                                                                          
@@ -276,6 +280,8 @@
                                                                                                                                           - [ ] - [x] パフォーマンスベンチマーク取得（97/95/100/100）
                                                                                                                                           - [x] ブランドリネーム方針決定
 - [x] ブランドリネーム コード実装完了（PR #24: 18ファイル変更、ビルド・テスト通過）（nightchill -> futatabito）
+- [x] ホームページヒーローコピー更新（「特別な夜を。完璧にプロデュース。」→「ふたりの時間を、もっとおもしろく。」）
+- [x] Phase 1: E-E-A-T基盤 + SEO完了（PR #25: /about, /privacy, sitemap.xml, robots.txt, ヒーローコピー更新）
                                                                                                                                           - [x] 商標調査実施（J-PlatPat: 関連区分での直接競合なし）
                                                                                                                                           - [ ] - [x] HANDOFF.md更新
                                                                                                                                           - [x] NotebookLM更新
