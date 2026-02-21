@@ -224,14 +224,14 @@
                                                                                                                                           
                                                                                                                                           ## ロードマップ（優先順位）
                                                                                                                                           
-                                                                                                                                          ### Phase 0: ブランドリネーム（最優先）
+                                                                                                                                          ### Phase 0: ブランドリネーム ✅完了（2026-02-21 PR #24）
                                                                                                                                           
                                                                                                                                           - [ ] コード内のブランド名変更（nightchill表示をfutatabitoに）（Codespaces/ローカル環境で実行）
-                                                                                                                                          - [ ] - [ ] layout.tsxのmetadata更新（title, description, OGP）
-                                                                                                                                          - [ ] - [ ] Header/Footerのブランド表示更新
-                                                                                                                                          - [ ] - [ ] ai-planner.tsのSYSTEM_PROMPT更新
+                                                                                                                                          - [ ] - [x] layout.tsxのmetadata更新（title, description, OGP）
+                                                                                                                                          - [ ] - [x] Header/Footerのブランド表示更新
+                                                                                                                                          - [ ] - [x] ai-planner.tsのSYSTEM_PROMPT更新
                                                                                                                                           - [ ] テストファイル更新
-                                                                                                                                          - [ ] - [ ] package.json / README.md更新
+                                                                                                                                          - [ ] - [x] package.json / README.md更新
                                                                                                                                          
                                                                                                                                           - [ ] ### Phase 1: E-E-A-T基盤 + SEO
                                                                                                                                          
@@ -274,7 +274,8 @@
                                                                                                                                           - [x] 管理画面（読み取り専用）
                                                                                                                                           - [ ] - [x] CI/CD
                                                                                                                                           - [ ] - [x] パフォーマンスベンチマーク取得（97/95/100/100）
-                                                                                                                                          - [x] ブランドリネーム方針決定（nightchill -> futatabito）
+                                                                                                                                          - [x] ブランドリネーム方針決定
+- [x] ブランドリネーム コード実装完了（PR #24: 18ファイル変更、ビルド・テスト通過）（nightchill -> futatabito）
                                                                                                                                           - [x] 商標調査実施（J-PlatPat: 関連区分での直接競合なし）
                                                                                                                                           - [ ] - [x] HANDOFF.md更新
                                                                                                                                           - [x] NotebookLM更新
