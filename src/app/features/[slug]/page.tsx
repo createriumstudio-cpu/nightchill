@@ -1,3 +1,4 @@
+import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getFeatureBySlug, getAllFeatures } from "@/lib/features";
@@ -5,21 +6,61 @@ import FeatureSpotEmbed from "@/components/FeatureSpotEmbed";
 import Header from "@/components/Header";
 import UgcSection from "@/components/UgcSection";
 
-interface PageProps {
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://nightchill-sr5g.vercel.app";
+
+type PageProps = {
   params: Promise<{ slug: string }>;
-}
+};
 
 export async function generateStaticParams() {
-  return (await getAllFeatures()).map((f) => ({ slug: f.slug }));
+  const features = await getAllFeatures();
+  return features.map((f) => ({ slug: f.slug }));
 }
 
-export async function generateMetadata({ params }: PageProps) {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const feature = await getFeatureBySlug(slug);
   if (!feature) return { title: "特集が見つかりません | futatabito" };
+
+  const pageUrl = `${siteUrl}/features/${slug}`;
+  const title = `${feature.title} | futatabito`;
+  const description = feature.description;
+  const imageUrl = feature.heroImage
+    ? `${siteUrl}${feature.heroImage}`
+    : `${siteUrl}/images/omotesando-date-hero.png`;
+
   return {
-    title: `${feature.title} | futatabito`,
-    description: feature.description,
+    title,
+    description,
+    alternates: {
+      canonical: pageUrl,
+      languages: {
+        ja: pageUrl,
+        en: `${siteUrl}/en/features/${slug}`,
+      },
+    },
+    openGraph: {
+      title,
+      description,
+      url: pageUrl,
+      siteName: "futatabito",
+      locale: "ja_JP",
+      type: "article",
+      images: [
+        {
+          url: imageUrl,
+          width: 1370,
+          height: 896,
+          alt: feature.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [imageUrl],
+    },
   };
 }
 
@@ -28,9 +69,39 @@ export default async function FeatureDetailPage({ params }: PageProps) {
   const feature = await getFeatureBySlug(slug);
   if (!feature) notFound();
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: feature.title,
+    description: feature.description,
+    image: feature.heroImage ? `${siteUrl}${feature.heroImage}` : undefined,
+    url: `${siteUrl}/features/${slug}`,
+    publisher: {
+      "@type": "Organization",
+      name: "futatabito",
+      url: siteUrl,
+    },
+    datePublished: feature.publishedAt,
+    dateModified: feature.updatedAt,
+    about: {
+      "@type": "Place",
+      name: feature.area,
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: feature.area,
+        addressRegion: "Tokyo",
+        addressCountry: "JP",
+      },
+    },
+  };
+
   return (
     <>
       <Header />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
       <main className="min-h-screen bg-gray-950 text-white">
         {/* Hero */}
         <section className="relative py-16 px-4 pt-24">

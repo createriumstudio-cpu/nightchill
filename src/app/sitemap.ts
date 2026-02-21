@@ -53,5 +53,22 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
-  return [...staticPages, ...featurePages];
+  // English pages
+  const enStaticPages: MetadataRoute.Sitemap = [
+    {
+      url: `${baseUrl}/en`,
+      lastModified: new Date("2026-02-22"),
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+  ];
+
+  const enFeaturePages: MetadataRoute.Sitemap = features.map((slug) => ({
+    url: `${baseUrl}/en/features/${slug}`,
+    lastModified: new Date("2026-02-22"),
+    changeFrequency: "weekly" as const,
+    priority: 0.7,
+  }));
+
+  return [...staticPages, ...featurePages, ...enStaticPages, ...enFeaturePages];
 }

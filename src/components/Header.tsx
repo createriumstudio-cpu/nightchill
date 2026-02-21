@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useState } from "react";
 
 export default function Header() {
@@ -40,6 +41,7 @@ export default function Header() {
             デートを計画する
           </Link>
         </nav>
+            <div className="hidden md:block"><LanguageSwitcher /></div>
 
         <button
           className="flex flex-col gap-1.5 md:hidden"
@@ -88,6 +90,7 @@ export default function Header() {
               onClick={() => setMenuOpen(false)}
             >
               デートを計画する
+              <div className="mt-4 flex justify-center"><LanguageSwitcher /></div>
             </Link>
           </div>
         </nav>

@@ -2,10 +2,29 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import { getAllFeatures } from "@/lib/features";
 
-export const metadata = {
+import { Metadata } from "next";
+
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://nightchill-sr5g.vercel.app";
+
+export const metadata: Metadata = {
   title: "特集 | futatabito",
-  description:
-    "今話題のデートスポットを、SNSの口コミとプロのアドバイスとともに紹介",
+  description: "今話題のデートスポットを、SNSの口コミとプロのアドバイスとともに紹介",
+  alternates: {
+    canonical: `${siteUrl}/features`,
+  },
+  openGraph: {
+    title: "デート特集一覧 | futatabito",
+    description: "今話題のデートスポットを、SNSの口コミとプロのアドバイスとともに紹介",
+    url: `${siteUrl}/features`,
+    siteName: "futatabito",
+    locale: "ja_JP",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "デート特集一覧 | futatabito",
+    description: "今話題のデートスポットを、SNSの口コミとプロのアドバイスとともに紹介",
+  },
 };
 
 export default async function FeaturesPage() {
