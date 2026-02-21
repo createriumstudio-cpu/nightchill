@@ -1,38 +1,27 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-interface SpotEmbed {
-  platform: "instagram" | "tiktok";
-  url: string;
-  caption: string;
-}
-
-interface FeaturedSpot {
+interface SpotForm {
   name: string;
   area: string;
   genre: string;
   description: string;
   tip: string;
-  instagramHashtag: string;
-  tiktokHashtag: string;
-  embeds: SpotEmbed[];
 }
 
-interface FeatureData {
-  slug: string;
+interface FeatureForm {
   title: string;
   subtitle: string;
   description: string;
   area: string;
-  tags: string[];
-  publishedAt: string;
-  updatedAt: string;
+  tags: string;
   heroEmoji: string;
   heroImage: string;
-  spots: FeaturedSpot[];
+  isPublished: boolean;
+  spots: SpotForm[];
 }
 
 export default function EditFeaturePage({
@@ -42,363 +31,316 @@ export default function EditFeaturePage({
 }) {
   const { slug } = use(params);
   const router = useRouter();
-  const [feature, setFeature] = useState<FeatureData | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [form, setForm] = useState<FeatureForm>({
+    title: "",
+    subtitle: "",
+    description: "",
+    area: "",
+    tags: "",
+    heroEmoji: "",
+    heroImage: "",
+    isPublished: true,
+    spots: [],
+  });
 
   useEffect(() => {
-    fetch("/api/admin/features")
-      .then((res) => {
-        if (!res.ok) throw new Error("認証エラー");
-        return res.json();
-      })
-      .then((data: FeatureData[]) => {
-        const found = data.find((f) => f.slug === slug);
-        if (found) {
-          setFeature(found);
-        } else {
-          setError("特集が見つかりません");
-        }
-      })
-      .catch(() => setError("データの読み込みに失敗しました"))
-      .finally(() => setLoading(false));
+    const fetchFeature = async () => {
+      try {
+        const res = await fetch(`/api/admin/features/${slug}`);
+        if (!res.ok) throw new Error("Not found");
+        const data = await res.json();
+        setForm({
+          title: data.title || "",
+          subtitle: data.subtitle || "",
+          description: data.description || "",
+          area: data.area || "",
+          tags: Array.isArray(data.tags) ? data.tags.join(", ") : "",
+          heroEmoji: data.heroEmoji || "",
+          heroImage: data.heroImage || "",
+          isPublished: data.isPublished ?? true,
+          spots: (data.spots || []).map((s: SpotForm) => ({
+            name: s.name || "",
+            area: s.area || "",
+            genre: s.genre || "",
+            description: s.description || "",
+            tip: s.tip || "",
+          })),
+        });
+      } catch {
+        setError("記事の取得に失敗しました");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchFeature();
   }, [slug]);
 
-  const handleSave = async () => {
-    if (!feature) return;
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSpotChange = (
+    index: number,
+    field: keyof SpotForm,
+    value: string
+  ) => {
+    setForm((prev) => {
+      const spots = [...prev.spots];
+      spots[index] = { ...spots[index], [field]: value };
+      return { ...prev, spots };
+    });
+  };
+
+  const addSpot = () => {
+    setForm((prev) => ({
+      ...prev,
+      spots: [
+        ...prev.spots,
+        { name: "", area: "", genre: "", description: "", tip: "" },
+      ],
+    }));
+  };
+
+  const removeSpot = (index: number) => {
+    setForm((prev) => ({
+      ...prev,
+      spots: prev.spots.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setSaving(true);
     setError("");
-    setSuccess("");
 
     try {
-      const res = await fetch("/api/admin/features", {
+      const res = await fetch(`/api/admin/features/${slug}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(feature),
+        body: JSON.stringify({
+          ...form,
+          tags: form.tags
+            .split(",")
+            .map((t) => t.trim())
+            .filter(Boolean),
+        }),
       });
 
-      if (res.ok) {
-        setSuccess("保存しました");
-        setTimeout(() => setSuccess(""), 3000);
-      } else {
+      if (!res.ok) {
         const data = await res.json();
-        setError(data.error || "保存に失敗しました");
+        throw new Error(data.error || "保存に失敗しました");
       }
-    } catch {
-      setError("通信エラーが発生しました");
+
+      router.push("/admin");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "保存に失敗しました");
     } finally {
       setSaving(false);
     }
   };
 
-  const updateField = (field: keyof FeatureData, value: string | string[]) => {
-    if (!feature) return;
-    setFeature({ ...feature, [field]: value });
-  };
-
-  const updateSpot = (index: number, field: keyof FeaturedSpot, value: string | SpotEmbed[]) => {
-    if (!feature) return;
-    const spots = [...feature.spots];
-    spots[index] = { ...spots[index], [field]: value };
-    setFeature({ ...feature, spots });
-  };
-
-  const addSpot = () => {
-    if (!feature) return;
-    const newSpot: FeaturedSpot = {
-      name: "",
-      area: feature.area,
-      genre: "",
-      description: "",
-      tip: "",
-      instagramHashtag: "",
-      tiktokHashtag: "",
-      embeds: [],
-    };
-    setFeature({ ...feature, spots: [...feature.spots, newSpot] });
-  };
-
-  const removeSpot = (index: number) => {
-    if (!feature) return;
-    const spots = feature.spots.filter((_, i) => i !== index);
-    setFeature({ ...feature, spots });
-  };
-
-  const addEmbed = (spotIndex: number) => {
-    if (!feature) return;
-    const spots = [...feature.spots];
-    spots[spotIndex] = {
-      ...spots[spotIndex],
-      embeds: [...spots[spotIndex].embeds, { platform: "instagram", url: "", caption: "" }],
-    };
-    setFeature({ ...feature, spots });
-  };
-
-  const updateEmbed = (spotIndex: number, embedIndex: number, field: keyof SpotEmbed, value: string) => {
-    if (!feature) return;
-    const spots = [...feature.spots];
-    const embeds = [...spots[spotIndex].embeds];
-    embeds[embedIndex] = { ...embeds[embedIndex], [field]: value };
-    spots[spotIndex] = { ...spots[spotIndex], embeds };
-    setFeature({ ...feature, spots });
-  };
-
-  const removeEmbed = (spotIndex: number, embedIndex: number) => {
-    if (!feature) return;
-    const spots = [...feature.spots];
-    spots[spotIndex] = {
-      ...spots[spotIndex],
-      embeds: spots[spotIndex].embeds.filter((_, i) => i !== embedIndex),
-    };
-    setFeature({ ...feature, spots });
-  };
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-        <p className="text-zinc-400">読み込み中...</p>
-      </div>
-    );
-  }
-
-  if (!feature) {
-    return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-400 mb-4">{error || "特集が見つかりません"}</p>
-          <Link href="/admin" className="text-orange-400 hover:underline">
-            管理画面に戻る
-          </Link>
-        </div>
+      <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center">
+        <p>読み込み中...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white">
-      <header className="border-b border-zinc-800 px-6 py-4 sticky top-0 bg-zinc-950 z-10">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/admin" className="text-zinc-400 hover:text-white">
-              ← 戻る
-            </Link>
-            <h1 className="text-lg font-bold">特集を編集</h1>
-          </div>
-          <div className="flex items-center gap-3">
-            {success && <span className="text-green-400 text-sm">{success}</span>}
-            {error && <span className="text-red-400 text-sm">{error}</span>}
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="px-5 py-2 bg-orange-600 hover:bg-orange-500 disabled:bg-zinc-700 rounded-lg text-sm font-medium transition-colors"
-            >
-              {saving ? "保存中..." : "保存する"}
-            </button>
-          </div>
-        </div>
+    <div className="min-h-screen bg-gray-950 text-white">
+      <header className="border-b border-gray-800 px-6 py-4 flex items-center gap-4">
+        <Link href="/admin" className="text-gray-400 hover:text-white">
+          &larr; 戻る
+        </Link>
+        <h1 className="text-xl font-bold">編集: {form.title || slug}</h1>
       </header>
 
-      <main className="max-w-4xl mx-auto px-6 py-8 space-y-8">
-        {/* 基本情報 */}
-        <section className="space-y-4">
-          <h2 className="text-lg font-semibold border-b border-zinc-800 pb-2">基本情報</h2>
+      <main className="max-w-2xl mx-auto px-6 py-8">
+        {error && (
+          <p className="text-red-400 mb-4 bg-red-900/20 border border-red-800 rounded p-3">
+            {error}
+          </p>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="block text-sm font-medium mb-1">タイトル</label>
+            <input
+              name="title"
+              value={form.title}
+              onChange={handleChange}
+              required
+              className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">サブタイトル</label>
+            <input
+              name="subtitle"
+              value={form.subtitle}
+              onChange={handleChange}
+              className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">説明文</label>
+            <textarea
+              name="description"
+              value={form.description}
+              onChange={handleChange}
+              rows={3}
+              className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm"
+            />
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-zinc-400 mb-1">タイトル</label>
+              <label className="block text-sm font-medium mb-1">エリア</label>
               <input
-                value={feature.title}
-                onChange={(e) => updateField("title", e.target.value)}
-                className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded text-white"
+                name="area"
+                value={form.area}
+                onChange={handleChange}
+                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm"
               />
             </div>
             <div>
-              <label className="block text-sm text-zinc-400 mb-1">slug（URL）</label>
+              <label className="block text-sm font-medium mb-1">ヒーロー絵文字</label>
               <input
-                value={feature.slug}
-                disabled
-                className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded text-zinc-500"
+                name="heroEmoji"
+                value={form.heroEmoji}
+                onChange={handleChange}
+                className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm"
               />
             </div>
           </div>
+
           <div>
-            <label className="block text-sm text-zinc-400 mb-1">サブタイトル</label>
+            <label className="block text-sm font-medium mb-1">タグ（カンマ区切り）</label>
             <input
-              value={feature.subtitle}
-              onChange={(e) => updateField("subtitle", e.target.value)}
-              className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded text-white"
+              name="tags"
+              value={form.tags}
+              onChange={handleChange}
+              className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm"
             />
           </div>
+
           <div>
-            <label className="block text-sm text-zinc-400 mb-1">説明文</label>
-            <textarea
-              value={feature.description}
-              onChange={(e) => updateField("description", e.target.value)}
-              rows={3}
-              className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded text-white"
-            />
-          </div>
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm text-zinc-400 mb-1">エリア</label>
-              <input
-                value={feature.area}
-                onChange={(e) => updateField("area", e.target.value)}
-                className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded text-white"
-              />
-            </div>
-            <div>
-              <label className="block text-sm text-zinc-400 mb-1">絵文字</label>
-              <input
-                value={feature.heroEmoji}
-                onChange={(e) => updateField("heroEmoji", e.target.value)}
-                className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded text-white"
-              />
-            </div>
-            <div>
-              <label className="block text-sm text-zinc-400 mb-1">タグ（カンマ区切り）</label>
-              <input
-                value={feature.tags.join(", ")}
-                onChange={(e) => updateField("tags", e.target.value.split(",").map((t) => t.trim()).filter(Boolean))}
-                className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded text-white"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm text-zinc-400 mb-1">ヒーロー画像URL</label>
+            <label className="block text-sm font-medium mb-1">ヒーロー画像URL</label>
             <input
-              value={feature.heroImage || ""}
-              onChange={(e) => updateField("heroImage", e.target.value)}
-              className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded text-white"
-              placeholder="https://..."
+              name="heroImage"
+              value={form.heroImage}
+              onChange={handleChange}
+              className="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm"
             />
           </div>
-        </section>
 
-        {/* スポット一覧 */}
-        <section className="space-y-4">
-          <div className="flex items-center justify-between border-b border-zinc-800 pb-2">
-            <h2 className="text-lg font-semibold">スポット（{feature.spots.length}件）</h2>
-            <button
-              onClick={addSpot}
-              className="px-4 py-1.5 text-sm bg-zinc-800 hover:bg-zinc-700 rounded transition-colors"
-            >
-              + スポット追加
-            </button>
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="isPublished"
+              checked={form.isPublished}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, isPublished: e.target.checked }))
+              }
+              className="rounded"
+            />
+            <label htmlFor="isPublished" className="text-sm">
+              公開する
+            </label>
           </div>
 
-          {feature.spots.map((spot, spotIndex) => (
-            <div key={spotIndex} className="bg-zinc-900 border border-zinc-800 rounded-lg p-5 space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="font-medium text-orange-400">スポット {spotIndex + 1}</h3>
-                <button
-                  onClick={() => removeSpot(spotIndex)}
-                  className="text-sm text-red-400 hover:text-red-300"
-                >
-                  削除
-                </button>
-              </div>
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-xs text-zinc-500 mb-1">店名</label>
-                  <input
-                    value={spot.name}
-                    onChange={(e) => updateSpot(spotIndex, "name", e.target.value)}
-                    className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded text-white text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs text-zinc-500 mb-1">エリア</label>
-                  <input
-                    value={spot.area}
-                    onChange={(e) => updateSpot(spotIndex, "area", e.target.value)}
-                    className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded text-white text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs text-zinc-500 mb-1">ジャンル</label>
-                  <input
-                    value={spot.genre}
-                    onChange={(e) => updateSpot(spotIndex, "genre", e.target.value)}
-                    className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded text-white text-sm"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs text-zinc-500 mb-1">説明</label>
-                <textarea
-                  value={spot.description}
-                  onChange={(e) => updateSpot(spotIndex, "description", e.target.value)}
-                  rows={2}
-                  className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded text-white text-sm"
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-zinc-500 mb-1">デートTIP</label>
-                <textarea
-                  value={spot.tip}
-                  onChange={(e) => updateSpot(spotIndex, "tip", e.target.value)}
-                  rows={2}
-                  className="w-full px-3 py-2 bg-zinc-800 border border-zinc-700 rounded text-white text-sm"
-                />
-              </div>
+          {/* Spots Section */}
+          <div className="border-t border-gray-800 pt-5">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-semibold">スポット一覧</h2>
+              <button
+                type="button"
+                onClick={addSpot}
+                className="text-xs bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded"
+              >
+                + スポット追加
+              </button>
+            </div>
 
-              {/* SNS Embeds */}
-              <div className="border-t border-zinc-800 pt-3">
+            {form.spots.map((spot, i) => (
+              <div
+                key={i}
+                className="bg-gray-900 border border-gray-800 rounded-lg p-4 mb-3"
+              >
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-zinc-400">SNS埋め込み（{spot.embeds.length}件）</span>
+                  <span className="text-sm font-medium text-gray-300">
+                    スポット {i + 1}
+                  </span>
                   <button
-                    onClick={() => addEmbed(spotIndex)}
-                    className="text-xs text-orange-400 hover:text-orange-300"
+                    type="button"
+                    onClick={() => removeSpot(i)}
+                    className="text-xs text-red-400 hover:text-red-300"
                   >
-                    + 追加
+                    削除
                   </button>
                 </div>
-                {spot.embeds.map((embed, embedIndex) => (
-                  <div key={embedIndex} className="flex gap-2 mb-2 items-start">
-                    <select
-                      value={embed.platform}
-                      onChange={(e) => updateEmbed(spotIndex, embedIndex, "platform", e.target.value)}
-                      className="px-2 py-1.5 bg-zinc-800 border border-zinc-700 rounded text-white text-sm"
-                    >
-                      <option value="instagram">Instagram</option>
-                      <option value="tiktok">TikTok</option>
-                    </select>
+                <div className="space-y-2">
+                  <input
+                    value={spot.name}
+                    onChange={(e) => handleSpotChange(i, "name", e.target.value)}
+                    placeholder="店名"
+                    className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm"
+                  />
+                  <div className="grid grid-cols-2 gap-2">
                     <input
-                      value={embed.url}
-                      onChange={(e) => updateEmbed(spotIndex, embedIndex, "url", e.target.value)}
-                      placeholder="投稿URL"
-                      className="flex-1 px-2 py-1.5 bg-zinc-800 border border-zinc-700 rounded text-white text-sm"
+                      value={spot.area}
+                      onChange={(e) =>
+                        handleSpotChange(i, "area", e.target.value)
+                      }
+                      placeholder="エリア"
+                      className="bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm"
                     />
                     <input
-                      value={embed.caption}
-                      onChange={(e) => updateEmbed(spotIndex, embedIndex, "caption", e.target.value)}
-                      placeholder="キャプション"
-                      className="flex-1 px-2 py-1.5 bg-zinc-800 border border-zinc-700 rounded text-white text-sm"
+                      value={spot.genre}
+                      onChange={(e) =>
+                        handleSpotChange(i, "genre", e.target.value)
+                      }
+                      placeholder="ジャンル"
+                      className="bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm"
                     />
-                    <button
-                      onClick={() => removeEmbed(spotIndex, embedIndex)}
-                      className="text-red-400 hover:text-red-300 text-sm px-2"
-                    >
-                      ✕
-                    </button>
                   </div>
-                ))}
+                  <textarea
+                    value={spot.description}
+                    onChange={(e) =>
+                      handleSpotChange(i, "description", e.target.value)
+                    }
+                    placeholder="説明"
+                    rows={2}
+                    className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm"
+                  />
+                  <input
+                    value={spot.tip}
+                    onChange={(e) => handleSpotChange(i, "tip", e.target.value)}
+                    placeholder="デートTip"
+                    className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm"
+                  />
+                </div>
               </div>
-            </div>
-          ))}
-        </section>
+            ))}
+          </div>
 
-        <div className="flex justify-end pt-4 border-t border-zinc-800">
           <button
-            onClick={handleSave}
+            type="submit"
             disabled={saving}
-            className="px-8 py-3 bg-orange-600 hover:bg-orange-500 disabled:bg-zinc-700 rounded-lg font-medium transition-colors"
+            className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 px-6 py-2 rounded text-sm font-medium"
           >
-            {saving ? "保存中..." : "保存する"}
+            {saving ? "保存中..." : "保存"}
           </button>
-        </div>
+        </form>
       </main>
     </div>
   );
