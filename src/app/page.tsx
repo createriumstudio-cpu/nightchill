@@ -19,7 +19,7 @@ const features = [
     icon: "🌙",
     title: "雰囲気づくり",
     description:
-      "照明、音楽、服装まで。特別な夜を演出するためのトータルコーディネート。",
+        "エリアの空気感、お店の動線、会話のきっかけまで。ふたりの時間をトータルにデザイン。",
   },
   {
     icon: "💡",
@@ -93,23 +93,23 @@ export default function Home() {
             デート視点の東京カルチャーガイド
           </p>
           <h1 className="text-5xl font-bold leading-tight tracking-tight md:text-7xl">
-            特別な夜を、
+            ふたりの時間を、
             <br />
-            <span className="text-primary">完璧</span>にプロデュース。
+            <span className="text-primary">もっとおもしろく</span>。
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted md:text-xl">
             「どこに行くか」ではなく「どうデートするか」。
             <br className="hidden sm:block" />
-            タイムライン・服装・会話術まで
+            エリアの魅力・お店の動線・会話のきっかけまで
             <br className="hidden sm:block" />
-            あなたのデートを成功に導きます。
+            ふたりのデートをもっと楽しく。
           </p>
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Link
               href="/plan"
               className="rounded-full bg-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-primary/25 transition-all hover:bg-primary-dark hover:shadow-xl hover:shadow-primary/30"
             >
-              無料でプランを作成
+              デートプランをつくる
             </Link>
             <a
               href="#how-it-works"
@@ -306,7 +306,7 @@ export default function Home() {
             href="/plan"
             className="mt-8 inline-block rounded-full bg-white px-8 py-3.5 font-semibold text-primary-dark shadow-lg transition-all hover:bg-white/90 hover:shadow-xl"
           >
-            無料でプランを作成
+            デートプランをつくる
           </Link>
           <p className="mt-4 text-xs text-white/60">
             登録不要・完全無料

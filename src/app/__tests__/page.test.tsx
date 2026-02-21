@@ -10,8 +10,8 @@ describe("Home", () => {
     render(<Home />);
     const heading = screen.getByRole("heading", { level: 1 });
     expect(heading).toBeInTheDocument();
-    expect(heading.textContent).toContain("完璧");
-    expect(heading.textContent).toContain("プロデュース");
+    expect(heading.textContent).toContain("ふたりの時間");
+    expect(heading.textContent).toContain("おもしろく");
   });
 
   it("renders the futatabito brand", () => {
