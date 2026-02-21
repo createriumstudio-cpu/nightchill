@@ -82,6 +82,12 @@ export default function AdminDashboard() {
         >
           + 新規作成
         </Link>
+          <Link
+            href="/admin/ugc"
+            className="bg-purple-600 hover:bg-purple-500 px-4 py-2 rounded text-sm font-medium"
+          >
+            UGC 管理
+          </Link>
       </header>
 
       <main className="max-w-5xl mx-auto px-6 py-8">

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getFeatureBySlug, getAllFeatures } from "@/lib/features";
 import FeatureSpotEmbed from "@/components/FeatureSpotEmbed";
 import Header from "@/components/Header";
+import UgcSection from "@/components/UgcSection";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -180,6 +181,9 @@ export default async function FeatureDetailPage({ params }: PageProps) {
               </a>
             </div>
           )}
+
+          {/* UGC Section */}
+          <UgcSection featureSlug={slug} />
 
           {/* CTA */}
           <div className="mt-12 text-center">
