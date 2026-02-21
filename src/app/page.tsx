@@ -44,7 +44,7 @@ const steps = [
   },
   {
     number: "03",
-    title: "完璧なデートを実行",
+    title: "デートを楽しむ",
     description:
       "タイムライン付きの具体的なプランに沿って、自信を持ってデートを楽しんでください。",
   },
@@ -184,7 +184,7 @@ export default function Home() {
               How It Works
             </p>
             <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
-              3ステップで完璧なデートを
+              3ステップでデートプランを
             </h2>
           </div>
 
@@ -297,7 +297,7 @@ export default function Home() {
       <section className="px-6 py-24">
         <div className="mx-auto max-w-4xl rounded-3xl bg-gradient-to-br from-primary to-primary-dark p-12 text-center text-white md:p-16">
           <h2 className="text-3xl font-bold md:text-4xl">
-            次のデートを、忘れられない夜に。
+            次のデートを、もっと楽しく。
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-white/80">
             ふたりの時間を、もっとおもしろく。デートという視点で東京のカルチャーを提案します。
