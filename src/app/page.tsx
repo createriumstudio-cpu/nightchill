@@ -86,6 +86,8 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+        <JsonLd type="website" />
+        <JsonLd type="organization" />
 
       {/* Hero */}
       <section className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 pt-16">
@@ -154,6 +156,10 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+
+        {/* Featured Picks */}
+        <FeaturedPicks />
 
       {/* Features */}
       <section id="features" className="px-6 py-24">
