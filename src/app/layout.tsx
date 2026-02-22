@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import FloatingChatButton from "@/components/FloatingChatButton";
+import { Analytics } from "@vercel/analytics/react";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://futatabito.com";
 
@@ -40,9 +41,11 @@ export const metadata: Metadata = {
     siteName: "futatabito",
     locale: "ja_JP",
     type: "website",
+      images: [{ url: "/api/og", width: 1200, height: 630, alt: "futatabito" }],
   },
   twitter: {
     card: "summary_large_image",
+      images: ["/api/og"],
     title: "futatabito - デート視点の東京カルチャーガイド",
     description:
       "ふたりの時間を、もっとおもしろく。東京のデートスポットを独自の視点で提案。",
@@ -86,7 +89,8 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">{children}
-          <FloatingChatButton /></body>
+          <FloatingChatButton />
+          <Analytics /></body>
     </html>
   );
 }
