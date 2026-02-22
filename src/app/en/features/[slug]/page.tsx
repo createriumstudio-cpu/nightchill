@@ -7,6 +7,7 @@ import FeatureSpotEmbed from "@/components/FeatureSpotEmbed";
 import Header from "@/components/Header";
 import ContextualPRSection from "@/components/ContextualPRSection";
 import UgcSection from "@/components/UgcSection";
+import Footer from "@/components/Footer";
 
 const t = uiTranslations.en;
 
@@ -187,6 +188,7 @@ export default async function EnglishFeatureDetailPage({ params }: PageProps) {
           </Link>
         </section>
       </main>
+      <Footer />
     </>
   );
 }

@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import Header from "@/components/Header";
 import ChatUI from "@/components/ChatUI";
 import Link from "next/link";
+import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "デートコンシェルジュ | futatabito",
@@ -36,6 +37,7 @@ export default function ChatPage() {
           </div>
         </div>
       </main>
+      <Footer />
     </>
   );
 }
