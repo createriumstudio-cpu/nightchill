@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
+import Script from "next/script";
 
 interface UgcPost {
   id: number;
@@ -14,9 +15,18 @@ interface UgcPost {
   reviewedAt: string | null;
 }
 
-// Extract tweet ID from X/Twitter URLs
 function extractTweetId(url: string): string | null {
   const match = url.match(/(?:twitter\.com|x\.com)\/\w+\/status\/(\d+)/);
+  return match ? match[1] : null;
+}
+
+function extractInstagramId(url: string): string | null {
+  const match = url.match(/instagram\.com\/(?:p|reel|reels)\/([A-Za-z0-9_-]+)/);
+  return match ? match[1] : null;
+}
+
+function extractTikTokId(url: string): string | null {
+  const match = url.match(/tiktok\.com\/@[^/]+\/video\/(\d+)/);
   return match ? match[1] : null;
 }
 
@@ -50,29 +60,31 @@ function TweetEmbed({ postUrl }: { postUrl: string }) {
       }
     };
 
-    // Load Twitter widgets.js if not already loaded
-    if (!window.twttr) {
-      const script = document.createElement("script");
-      script.src = "https://platform.twitter.com/widgets.js";
-      script.async = true;
-      script.onload = () => {
-        renderTweet();
-      };
-      document.head.appendChild(script);
-    } else {
+    if (window.twttr?.widgets) {
       renderTweet();
+    } else {
+      const checkInterval = setInterval(() => {
+        if (window.twttr?.widgets) {
+          clearInterval(checkInterval);
+          renderTweet();
+        }
+      }, 500);
+      const timeout = setTimeout(() => {
+        clearInterval(checkInterval);
+        if (!loaded) setError(true);
+      }, 10000);
+      return () => {
+        clearInterval(checkInterval);
+        clearTimeout(timeout);
+      };
     }
-  }, [postUrl]);
+  }, [postUrl, loaded]);
 
   if (error) {
     return (
-      <a
-        href={postUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="block p-4 bg-gray-800/50 border border-gray-700 rounded-lg text-center text-sm text-gray-400 hover:text-gray-200 transition-colors"
-      >
-        ポストを表示する →
+      <a href={postUrl} target="_blank" rel="noopener noreferrer"
+        className="block p-4 bg-gray-800/50 border border-gray-700 rounded-lg text-center text-sm text-gray-400 hover:text-gray-200 transition-colors">
+        投稿を見る →
       </a>
     );
   }
@@ -89,65 +101,148 @@ function TweetEmbed({ postUrl }: { postUrl: string }) {
   );
 }
 
-// Instagram embed component
 function InstagramEmbed({ postUrl }: { postUrl: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const shortcode = extractInstagramId(postUrl);
+    if (!shortcode) return;
+
+    containerRef.current.innerHTML = `
+      <blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="${postUrl}" data-instgrm-version="14"
+        style="background:#000; border:0; border-radius:12px; max-width:540px; min-width:326px; padding:0; width:100%; margin: 0 auto;">
+        <div style="padding:16px;">
+          <a href="${postUrl}" target="_blank" rel="noopener noreferrer"
+            style="color:#c9c8cd; font-size:14px; text-decoration:none;">
+            Instagramで見る
+          </a>
+        </div>
+      </blockquote>
+    `;
+
+    const processEmbed = () => {
+      if (window.instgrm?.Embeds) {
+        window.instgrm.Embeds.process();
+        setLoaded(true);
+      }
+    };
+
+    if (window.instgrm?.Embeds) {
+      processEmbed();
+    } else {
+      const checkInterval = setInterval(() => {
+        if (window.instgrm?.Embeds) {
+          clearInterval(checkInterval);
+          processEmbed();
+        }
+      }, 500);
+      setTimeout(() => clearInterval(checkInterval), 10000);
+    }
+  }, [postUrl]);
+
+  return (
+    <div className="min-h-[200px]">
+      {!loaded && (
+        <div className="flex items-center justify-center h-[200px] bg-gray-800/30 rounded-lg animate-pulse">
+          <span className="text-gray-500 text-sm">読み込み中...</span>
+        </div>
+      )}
+      <div ref={containerRef} />
+    </div>
+  );
+}
+
+function TikTokEmbed({ postUrl }: { postUrl: string }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [loaded, setLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     if (!containerRef.current) return;
 
-    // Use Instagram oEmbed blockquote approach
+    const videoId = extractTikTokId(postUrl);
+    if (!videoId) {
+      // Defer state update to avoid synchronous setState in effect
+      const t = setTimeout(() => setHasError(true), 0);
+      return () => clearTimeout(t);
+    }
+
     containerRef.current.innerHTML = `
-      <blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="${postUrl}" 
-        style="background:#000; border:0; border-radius:8px; max-width:540px; min-width:326px; width:100%; margin:0 auto;">
+      <blockquote class="tiktok-embed" cite="${postUrl}" data-video-id="${videoId}"
+        style="max-width: 605px; min-width: 325px; margin: 0 auto;">
+        <section>
+          <a target="_blank" href="${postUrl}" rel="noopener noreferrer">TikTokで見る</a>
+        </section>
       </blockquote>
     `;
 
-    // Load Instagram embed.js if not already loaded
-    if (!window.instgrm) {
-      const script = document.createElement("script");
-      script.src = "https://www.instagram.com/embed.js";
-      script.async = true;
-      document.head.appendChild(script);
-    } else {
-      window.instgrm.Embeds.process();
-    }
-  }, [postUrl]);
+    const existingScript = document.querySelector('script[src*="tiktok.com/embed.js"]');
+    if (existingScript) existingScript.remove();
+    const script = document.createElement("script");
+    script.src = "https://www.tiktok.com/embed.js";
+    script.async = true;
+    script.onload = () => setLoaded(true);
+    script.onerror = () => setHasError(true);
+    document.body.appendChild(script);
 
-  return <div ref={containerRef} className="min-h-[200px]" />;
+    const timeout = setTimeout(() => {
+      if (!loaded) setLoaded(true);
+    }, 8000);
+
+    return () => clearTimeout(timeout);
+  }, [postUrl, loaded]);
+
+  if (hasError) {
+    return (
+      <a href={postUrl} target="_blank" rel="noopener noreferrer"
+        className="block p-4 bg-gray-800/50 border border-gray-700 rounded-lg text-center text-sm text-gray-400 hover:text-gray-200 transition-colors">
+        TikTokで見る →
+      </a>
+    );
+  }
+
+  return (
+    <div className="min-h-[300px]">
+      {!loaded && (
+        <div className="flex items-center justify-center h-[300px] bg-gray-800/30 rounded-lg animate-pulse">
+          <span className="text-gray-500 text-sm">読み込み中...</span>
+        </div>
+      )}
+      <div ref={containerRef} />
+    </div>
+  );
 }
 
 export default function UgcSection({ featureSlug }: { featureSlug: string }) {
   const [posts, setPosts] = useState<UgcPost[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchPosts = useCallback(async () => {
-    try {
-      const res = await fetch(`/api/ugc?featureSlug=${encodeURIComponent(featureSlug)}`);
-      if (res.ok) {
-        const data = await res.json();
-        setPosts(data);
-      }
-    } catch {
-      // Silently fail - UGC is non-critical
-    } finally {
-      setLoading(false);
-    }
+  useEffect(() => {
+    fetch(`/api/ugc?feature=${featureSlug}&status=approved`)
+      .then((res) => res.json())
+      .then((data) => setPosts(data))
+      .catch(() => setPosts([]))
+      .finally(() => setLoading(false));
   }, [featureSlug]);
 
-  useEffect(() => {
-    fetchPosts();
-  }, [fetchPosts]);
-
-  // Don't render section if no posts
   if (!loading && posts.length === 0) return null;
 
   return (
-    <section className="max-w-3xl mx-auto px-4 pb-12">
-      <h2 className="text-xl font-bold mb-2">みんなの投稿</h2>
-      <p className="text-gray-400 text-sm mb-6">
-        このエリアに関連するSNS投稿をピックアップしました
-      </p>
+    <section className="mt-12">
+      <h2 className="text-xl font-bold text-white mb-4">
+        📱 みんなの投稿
+      </h2>
+
+      <Script
+        src="https://platform.twitter.com/widgets.js"
+        strategy="lazyOnload"
+      />
+      <Script
+        src="https://www.instagram.com/embed.js"
+        strategy="lazyOnload"
+      />
 
       {loading ? (
         <div className="space-y-4">
@@ -162,10 +257,12 @@ export default function UgcSection({ featureSlug }: { featureSlug: string }) {
         <div className="space-y-6">
           {posts.map((post) => (
             <div key={post.id}>
-              {post.platform === "x" || post.platform === "twitter" ? (
+              {(post.platform === "x" || post.platform === "twitter") ? (
                 <TweetEmbed postUrl={post.postUrl} />
               ) : post.platform === "instagram" ? (
                 <InstagramEmbed postUrl={post.postUrl} />
+              ) : post.platform === "tiktok" ? (
+                <TikTokEmbed postUrl={post.postUrl} />
               ) : (
                 <a
                   href={post.postUrl}
@@ -189,7 +286,6 @@ export default function UgcSection({ featureSlug }: { featureSlug: string }) {
   );
 }
 
-// Extend Window for Twitter/Instagram widget types
 declare global {
   interface Window {
     twttr?: {
