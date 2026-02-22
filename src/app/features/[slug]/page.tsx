@@ -5,6 +5,7 @@ import { getFeatureBySlug, getAllFeatures } from "@/lib/features";
 import FeatureSpotEmbed from "@/components/FeatureSpotEmbed";
 import Header from "@/components/Header";
 import UgcSection from "@/components/UgcSection";
+import ContextualPRSection from "@/components/ContextualPRSection";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://nightchill-sr5g.vercel.app";
 
@@ -255,6 +256,9 @@ export default async function FeatureDetailPage({ params }: PageProps) {
 
           {/* UGC Section */}
           <UgcSection featureSlug={slug} />
+
+          {/* Contextual PR */}
+          <ContextualPRSection area={feature.area} />
 
           {/* CTA */}
           <div className="mt-12 text-center">

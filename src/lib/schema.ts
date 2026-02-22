@@ -58,3 +58,20 @@ export interface SpotJson {
   tiktokHashtag?: string;
   embeds: { platform: string; url: string; caption: string }[];
 }
+
+// Sponsored Spots (Contextual PR)
+export const sponsoredSpots = pgTable("sponsored_spots", {
+  id: serial("id").primaryKey(),
+  title: varchar("title", { length: 200 }).notNull(),
+  description: text("description").notNull(),
+  url: text("url").notNull(),
+  imageUrl: text("image_url"),
+  category: varchar("category", { length: 50 }).notNull(),
+  targetAreas: jsonb("target_areas").$type<string[]>().default([]),
+  priority: serial("priority"),
+  isActive: boolean("is_active").default(true),
+  labelJa: varchar("label_ja", { length: 100 }).default("おすすめ"),
+  labelEn: varchar("label_en", { length: 100 }).default("Recommended"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});

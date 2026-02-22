@@ -5,6 +5,7 @@ import { getFeatureBySlug, getAllFeatures } from "@/lib/features";
 import { featureTranslations, siteUrl, uiTranslations } from "@/lib/i18n";
 import FeatureSpotEmbed from "@/components/FeatureSpotEmbed";
 import Header from "@/components/Header";
+import ContextualPRSection from "@/components/ContextualPRSection";
 
 const t = uiTranslations.en;
 
@@ -169,7 +170,10 @@ export default async function EnglishFeatureDetailPage({ params }: PageProps) {
           </div>
         </section>
 
-        {/* Language Switch */}
+        {/* Contextual PR */}
+          <ContextualPRSection area={feature.area} locale="en" />
+
+          {/* Language Switch */}
         <section className="py-8 text-center border-t border-gray-800">
           <p className="text-gray-400 mb-3">
             Read this guide in Japanese
