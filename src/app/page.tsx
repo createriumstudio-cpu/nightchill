@@ -308,6 +308,12 @@ export default function Home() {
           >
             デートプランをつくる
           </Link>
+          <Link
+            href="/chat"
+            className="mt-3 inline-block rounded-full border border-white/30 bg-white/10 px-8 py-3.5 font-semibold text-white shadow-lg backdrop-blur-sm transition-all hover:bg-white/20 hover:shadow-xl"
+          >
+            💬 コンシェルジュに相談する
+          </Link>
           <p className="mt-4 text-xs text-white/60">
             登録不要・完全無料
           </p>
