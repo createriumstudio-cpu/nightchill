@@ -384,3 +384,29 @@ ADMIN_PASSWORD=taas1111
 - Vercel環境変数は nightchill-sr5g project に設定
 - GitHub リポジトリ名・Vercel プロジェクト名は「nightchill」のまま
 - テストファイルはユーザー向けテキスト変更時に必ず更新
+
+## Phase 5: Contextual PR Monetization (PR #31) ✅
+
+### What was done
+- Added `sponsored_spots` table to Neon DB (Drizzle schema)
+- Public API `/api/sponsored?area=` with `CONTEXTUAL_PR_ENABLED` env guard
+- Admin CRUD API `/api/admin/sponsored` with auth + audit logging
+- `SponsoredSpotCard` component with "PR" disclosure label
+- `ContextualPRSection` client component (fetches by area, locale-aware ja/en)
+- Admin management page at `/admin/sponsored`
+- PR管理 link added to admin dashboard
+- Integrated into both JA and EN feature detail pages
+- 7 seed sponsored spots (one per area)
+- `CONTEXTUAL_PR_ENABLED=true` added to Vercel env vars
+
+### DB Schema Addition
+```
+sponsored_spots: id, title, description, url, imageUrl, category, targetAreas(jsonb), priority, isActive(boolean), labelJa, labelEn, createdAt, updatedAt
+```
+
+### Key Design Decisions
+- **Contextual only**: Ads appear only on matching area pages (no banner ads)
+- **Kill switch**: `CONTEXTUAL_PR_ENABLED` env var controls visibility
+- **PR disclosure**: All sponsored content clearly labeled as "PR"
+- **Area targeting**: Each sponsored spot targets specific areas via `targetAreas` jsonb array
+- **Locale support**: Labels switch between Japanese/English based on locale prop
