@@ -344,6 +344,13 @@
 - **Homepage**: Added "コンシェルジュに相談する" CTA button alongside existing plan CTA
 - **ChatUI Component**: Full conversation UI with message bubbles, streaming, auto-scroll
 
+
+## Chat Prompt Fix: Specific Shop Recommendation (PR #35)
+- System prompt rewritten to proactively recommend specific shop names from first response
+- Added '最重要ルール' section: always include 2-3 concrete shop names from DB
+- Optimal conversation flow: 2-3 exchanges to completion
+- Prohibit vague responses; recommend first, ask later
+- Data integrity: use only DB spots, don't fabricate
 ## 再開ガイド（2026-02-22 時点）
 
 ### 現在のステータス
