@@ -6,6 +6,7 @@ import FeatureSpotEmbed from "@/components/FeatureSpotEmbed";
 import Header from "@/components/Header";
 import UgcSection from "@/components/UgcSection";
 import ContextualPRSection from "@/components/ContextualPRSection";
+import Footer from "@/components/Footer";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://nightchill-sr5g.vercel.app";
 
@@ -274,6 +275,7 @@ export default async function FeatureDetailPage({ params }: PageProps) {
           </div>
         </section>
       </main>
+      <Footer />
     </>
   );
 }

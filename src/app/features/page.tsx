@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import { getAllFeatures } from "@/lib/features";
 
 import { Metadata } from "next";
+import Footer from "@/components/Footer";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://nightchill-sr5g.vercel.app";
 
@@ -129,6 +130,7 @@ export default async function FeaturesPage() {
           </Link>
         </section>
       </div>
+      <Footer />
     </>
   );
 }

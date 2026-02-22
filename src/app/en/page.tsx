@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getAllFeatures } from "@/lib/features";
 import { featureTranslations, siteUrl, uiTranslations } from "@/lib/i18n";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 const t = uiTranslations.en;
 
@@ -116,6 +117,7 @@ export default async function EnglishHomePage() {
           </Link>
         </section>
       </main>
+      <Footer />
     </>
   );
 }
