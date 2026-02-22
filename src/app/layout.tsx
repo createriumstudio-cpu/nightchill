@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import FloatingChatButton from "@/components/FloatingChatButton";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://futatabito.com";
 
@@ -84,7 +85,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">{children}<FloatingChatButton /></body>
     </html>
   );
 }
