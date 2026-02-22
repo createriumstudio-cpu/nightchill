@@ -12,6 +12,7 @@ export default function ChatUI() {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const isComposingRef = useRef(false);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -75,7 +76,7 @@ export default function ChatUI() {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+    if (e.key === "Enter" && !e.shiftKey && !isComposingRef.current) {
       e.preventDefault();
       sendMessage();
     }
@@ -152,6 +153,8 @@ export default function ChatUI() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
+              onCompositionStart={() => { isComposingRef.current = true; }}
+              onCompositionEnd={() => { setTimeout(() => { isComposingRef.current = false; }, 10); }}
             placeholder="デートの相談をどうぞ..."
             rows={1}
             className="flex-1 bg-gray-800 text-white text-sm px-4 py-2 rounded-xl border border-gray-700 focus:outline-none focus:border-purple-500 resize-none"
