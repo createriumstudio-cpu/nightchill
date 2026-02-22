@@ -23,6 +23,7 @@ export default function ChatUI() {
     const newMessages = [...messages, userMessage];
     setMessages(newMessages);
     setInput("");
+    if (inputRef.current) inputRef.current.value = "";
     setIsLoading(true);
 
     try {
@@ -74,7 +75,7 @@ export default function ChatUI() {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
       e.preventDefault();
       sendMessage();
     }
