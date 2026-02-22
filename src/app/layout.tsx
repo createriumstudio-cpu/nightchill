@@ -41,6 +41,7 @@ export const metadata: Metadata = {
     siteName: "futatabito",
     locale: "ja_JP",
     type: "website",
+      images: [{ url: "/api/og", width: 1200, height: 630, alt: "futatabito" }],
   },
   twitter: {
     card: "summary_large_image",
