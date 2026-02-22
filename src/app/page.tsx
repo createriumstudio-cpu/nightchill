@@ -1,6 +1,8 @@
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import JsonLd from "@/components/JsonLd";
+import FeaturedPicks from "@/components/FeaturedPicks";
 
 const features = [
   {

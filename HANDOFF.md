@@ -1,85 +1,67 @@
 # futatabito 引き継ぎドキュメント
 
-> 最終更新: 2026-02-23
-> ステータス: 運用テストフェーズ
-
 ## プロジェクト概要
-
-- **ブランド名**: futatabito（ふたたびと）
+- **名前**: futatabito (ふたたびと)
 - **コンセプト**: デート視点の東京カルチャーガイド
-- **キャッチフレーズ**: ふたりの時間を、もっとおもしろく。
-- **本番URL**: https://nightchill-sr5g.vercel.app
+- **キャッチコピー**: ふたりの時間を、もっとおもしろく。
+- **URL**: https://nightchill-sr5g.vercel.app
 - **リポジトリ**: https://github.com/createriumstudio-cpu/nightchill
-- **技術スタック**: Next.js 15 / TypeScript / Tailwind CSS / Neon Postgres / Drizzle ORM
+- **Vercelプロジェクト**: nightchill-sr5g
+- **管理画面**: /admin (パスワード: taas1111)
 
-## 重要なURL一覧
+## 技術スタック
+- Next.js 16 (App Router, Turbopack)
+- TypeScript + Tailwind CSS
+- Neon Postgres (Drizzle ORM)
+- Anthropic Claude API (チャット)
+- Google Places API / Maps API
+- Vercel (ホスティング)
 
-| 用途 | URL |
-|------|-----|
-| 本番サイト | https://nightchill-sr5g.vercel.app |
-| 管理画面 | https://nightchill-sr5g.vercel.app/admin |
-| チャット | https://nightchill-sr5g.vercel.app/chat |
-| GitHub | https://github.com/createriumstudio-cpu/nightchill |
-| Vercel | https://vercel.com/createriumstudio-cpus-projects/nightchill-sr5g |
-| NotebookLM | https://notebooklm.google.com/notebook/b5fca57c-0385-4064-9188-0f0343032e16 |
-| Google Cloud | https://console.cloud.google.com/google/maps-apis/credentials?project=starry-seat-482615-j1 |
-
-## 認証情報
-
-- **管理画面パスワード**: taas1111
-- **Neon DB**: postgresql://neondb_owner:npg_z0pbsIgxeYa2@ep-fragrant-sea-a1z0md8l-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
-
-## 完了済みPR一覧
-
-| PR | 内容 | 状態 |
-|----|------|------|
-| #24 | Phase 0: Brand rename (nightchill → futatabito) | Merged |
+## PR履歴
+| PR# | 内容 | ステータス |
+|-----|------|-----------|
+| #24 | Phase 0: Brand rename | Merged |
 | #25 | Phase 1: E-E-A-T pages | Merged |
 | #26 | Homepage copy refinement | Merged |
-| #27 | Phase 2a: Neon Postgres DB setup | Merged |
-| #28 | Phase 2b: Admin CRUD with DB writes | Merged |
+| #27 | Phase 2a: Neon Postgres DB | Merged |
+| #28 | Phase 2b: Admin CRUD | Merged |
 | #29 | Phase 3: UGC embed system | Merged |
-| #30 | Phase 4: OGP + i18n English support | Merged |
-| #31 | Phase 5: Contextual PR monetization | Merged |
-| #32 | Phase 6: UGC Admin Enhancement + Multi-Platform | Merged |
-| #33 | Critical Bugfix: Feature pages crash + date format | Merged |
-| #34 | Phase 7: Chat AI + Content Infrastructure | Merged |
-| #35 | Chat prompt optimization (shop recommendations) | Merged |
-| #36 | Chat input clear (initial attempt) | Merged |
-| #37 | IME composition handling fix (chat input clear v2) | Merged |
-| #38 | Design overhaul: floating chat + hero visual | Merged |
-| #19 | Admin panel (JSON) - SUPERSEDED by #28 | Open (close) |
+| #30 | Phase 4: OGP + i18n English | Merged |
+| #31 | Phase 5: Contextual PR | Merged |
+| #32 | Phase 6: UGC Admin + Multi-Platform | Merged |
+| #33 | Critical Bugfix: Feature pages | Merged |
+| #34 | Phase 7: Chat AI + Content | Merged |
+| #35 | Chat Prompt Fix | Merged |
+| #36 | Chat Input Clear Fix | Merged |
+| #37 | IME Composition Fix | Merged |
+| #38 | Design: Floating Chat + Hero | Merged |
+| #39 | English button + PR images | Merged |
+| #40 | Homepage SEO + Footer (予定) | In Progress |
 
-## 既知の問題・TODO
+## DB スキーマ (6テーブル)
+- features, ugc_posts, audit_log, sponsored_spots, original_contents, chat_sessions
 
-1. **Englishボタン**: 全ページから /en/features に遷移してしまう → 各ページ対応の英語版へのルーティング修正が必要
-2. **PR #19**: 古いPR。#28で置き換え済み。クローズすべき
-3. **PRスポット画像/動画**: 現在テキストのみ → 画像・動画対応を検討
-4. **UGC CSVバルクインポート**: 未実装
-5. **Analytics/tracking**: 未導入
+## 重要な制約
+- layout.tsxにHeaderは含まない (各ページで個別import)
+- mainブランチは保護 → コード変更はPR必須
+- CI uses npm install (not npm ci)
+- Google Places APIデータ = 絶対改変不可のファクト
+- UGC embeds must use official platform embed APIs only
+- ユーザー向けテキストに「AI」の文言は使わない
+- GitHubリポジトリ名・Vercelプロジェクト名は「nightchill」のまま維持
 
-## DBスキーマ（6テーブル）
+## isAuthenticated() パターン
+```typescript
+const authed = await isAuthenticated();  // NO arguments
+if (!authed) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+```
 
-- **features**: 特集記事（7レコード）
-- **ugc_posts**: UGC投稿（10+レコード）
-- **audit_log**: 操作ログ
-- **sponsored_spots**: PRスポット（7レコード）
-- **original_contents**: オリジナルコンテンツ（将来用）
-- **chat_sessions**: チャットセッション
+## 環境変数 (Vercel nightchill-sr5g)
+DATABASE_POSTGRES_*, CONTEXTUAL_PR_ENABLED=true, ANTHROPIC_API_KEY, GOOGLE_PLACES_API_KEY, GOOGLE_MAPS_API_KEY, ADMIN_PASSWORD
 
-## 特集slug一覧
-
-- omotesando-sophisticated-date
-- ginza-luxury-date
-- ebisu-night-date
-- roppongi-premium-night
-- nakameguro-canal-date
-- daikanyama-stylish-date
-- shibuya-casual-date
-
-## 法的確認事項
-
-- UGC埋め込み: 公式oEmbed API使用（TikTok/Instagram規約準拠）
-- Google Places API: データ改変不可（ファクトとして扱う）
-- PR広告: コンテクスチュアル広告のみ（バナー広告禁止）
-- ユーザー向けテキストに「AI」の文言は使用しない
+## 未完了タスク
+- [ ] UGC CSV一括インポート
+- [ ] Analytics/tracking (Vercel Analytics)
+- [ ] NotebookLM source update
+- [ ] 特集ページ英語版一覧 (/en/features)
+- [ ] パフォーマンス最適化 (画像lazy load等)
