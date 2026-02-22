@@ -328,6 +328,22 @@
 - All embeds use official platform oEmbed APIs — fully TOS compliant
 - Lint: 0 errors, Build: success, Tests: 18/18 passed
 
+
+## Phase 7: Chat AI Concierge + Content Infrastructure (PR #34)
+- **Chat Page (`/chat`)**: Conversational date planning with AI concierge
+  - Streaming responses via Claude API with RAG from DB
+  - Suggestion chips for quick starts
+  - Link to form-based plan creation (both UX paths coexist)
+- **API Routes**:
+  - `POST /api/chat` — Claude streaming + reads features, UGC, original contents from DB
+  - `POST /api/ugc/health` — UGC deletion detection (checks if embedded posts still exist)
+- **Schema Extensions**:
+  - `original_contents` table — for future team-created content (interviews, photography)
+  - `chat_sessions` table — conversation history storage
+  - UGC health fields on `ugc_posts`: `is_available`, `last_checked_at`, `unavailable_count`
+- **Homepage**: Added "コンシェルジュに相談する" CTA button alongside existing plan CTA
+- **ChatUI Component**: Full conversation UI with message bubbles, streaming, auto-scroll
+
 ## 再開ガイド（2026-02-22 時点）
 
 ### 現在のステータス
