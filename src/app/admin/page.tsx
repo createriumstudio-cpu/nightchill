@@ -87,6 +87,12 @@ export default function AdminDashboard() {
             className="bg-purple-600 hover:bg-purple-500 px-4 py-2 rounded text-sm font-medium"
           >
             UGC 管理
+              </Link>
+              <Link
+                href="/admin/sponsored"
+                className="inline-block px-4 py-2 rounded bg-green-700 hover:bg-green-600 text-white text-sm font-medium transition-colors"
+              >
+                PR 管理
           </Link>
       </header>
 
