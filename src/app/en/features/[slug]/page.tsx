@@ -6,6 +6,7 @@ import { featureTranslations, siteUrl, uiTranslations } from "@/lib/i18n";
 import FeatureSpotEmbed from "@/components/FeatureSpotEmbed";
 import Header from "@/components/Header";
 import ContextualPRSection from "@/components/ContextualPRSection";
+import UgcSection from "@/components/UgcSection";
 
 const t = uiTranslations.en;
 

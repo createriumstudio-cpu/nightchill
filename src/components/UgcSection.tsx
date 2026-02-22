@@ -220,9 +220,9 @@ export default function UgcSection({ featureSlug }: { featureSlug: string }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`/api/ugc?feature=${featureSlug}&status=approved`)
+    fetch(`/api/ugc?featureSlug=${featureSlug}&status=approved`)
       .then((res) => res.json())
-      .then((data) => setPosts(data))
+      .then((data) => setPosts(Array.isArray(data) ? data : []))
       .catch(() => setPosts([]))
       .finally(() => setLoading(false));
   }, [featureSlug]);
