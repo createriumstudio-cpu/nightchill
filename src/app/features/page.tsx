@@ -105,7 +105,7 @@ export default async function FeaturesPage() {
 
                   {/* Footer */}
                   <div className="mt-4 flex items-center justify-between text-xs text-muted">
-                    <span>{feature.publishedAt} 公開</span>
+                    <span>{new Date(feature.publishedAt).toLocaleDateString("ja-JP", { year: "numeric", month: "long", day: "numeric" })} 公開</span>
                     <span className="font-medium text-primary group-hover:translate-x-1 transition-transform">
                       詳しく見る →
                     </span>

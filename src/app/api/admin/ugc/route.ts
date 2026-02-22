@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
       embedHtml: body.embedHtml || null,
       caption: body.caption || null,
       featureSlug: body.featureSlug || null,
-      status: "pending",
+      status: body.status || "pending",
     }).returning();
 
     await db.insert(auditLog).values({
