@@ -3,13 +3,43 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+// Define which Japanese routes have English equivalents
+const enRouteMap: Record<string, string> = {
+  "/": "/en",
+  "/features": "/en",  // No /en/features list page, fallback to /en
+  "/chat": "/en",
+  "/about": "/en",
+  "/privacy": "/en",
+  "/plan": "/en",
+  "/results": "/en",
+};
+
+function getEnglishPath(pathname: string): string {
+  // Feature detail pages have English equivalents
+  if (pathname.startsWith("/features/")) {
+    return `/en${pathname}`;
+  }
+  // Check static route map
+  if (pathname in enRouteMap) {
+    return enRouteMap[pathname];
+  }
+  // Default fallback to /en
+  return "/en";
+}
+
+function getJapanesePath(pathname: string): string {
+  // Remove /en prefix
+  const jaPath = pathname.replace(/^\/en/, "") || "/";
+  // /en/features/[slug] -> /features/[slug]
+  return jaPath;
+}
+
 export default function LanguageSwitcher() {
   const pathname = usePathname();
   const isEnglish = pathname.startsWith("/en");
 
   if (isEnglish) {
-    // On English page, link to Japanese equivalent
-    const jaPath = pathname.replace(/^\/en/, "") || "/";
+    const jaPath = getJapanesePath(pathname);
     return (
       <Link
         href={jaPath}
@@ -20,8 +50,7 @@ export default function LanguageSwitcher() {
     );
   }
 
-  // On Japanese page, link to English equivalent
-  const enPath = `/en${pathname === "/" ? "" : pathname}`;
+  const enPath = getEnglishPath(pathname);
   return (
     <Link
       href={enPath}

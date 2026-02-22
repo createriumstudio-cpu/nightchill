@@ -34,6 +34,15 @@ export default function AdminSponsoredPage() {
   const [description, setDescription] = useState("");
   const [url, setUrl] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+            {imageUrl && (
+              <div className="mt-2">
+                {/\.(mp4|webm|mov)$/i.test(imageUrl) ? (
+                  <video src={imageUrl} className="w-full h-32 object-cover rounded" muted loop playsInline autoPlay />
+                ) : (
+                  <img src={imageUrl} alt="Preview" className="w-full h-32 object-cover rounded" />
+                )}
+              </div>
+            )}
   const [category, setCategory] = useState("restaurant");
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
   const [labelJa, setLabelJa] = useState("おすすめ");

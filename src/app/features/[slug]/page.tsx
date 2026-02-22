@@ -218,7 +218,7 @@ export default async function FeatureDetailPage({ params }: PageProps) {
                 </div>
 
                 {/* SNS Embeds */}
-                {spot.embeds.length > 0 && (
+                {spot.embeds && spot.embeds.length > 0 && (
                   <div className="border-t border-gray-800 p-6">
                     <div className="text-xs text-gray-500 mb-4">
                       📱 SNSの口コミ
@@ -235,7 +235,7 @@ export default async function FeatureDetailPage({ params }: PageProps) {
           </div>
 
           {/* Walking Route Suggestion */}
-          {feature.spots.length >= 2 && (
+          {feature.spots && feature.spots.length >= 2 && (
             <div className="mt-8 bg-gray-900 rounded-2xl border border-gray-800 p-6 text-center">
               <p className="text-gray-400 text-sm mb-2">
                 🚶 {feature.spots[0].name} → {feature.spots[1].name}
