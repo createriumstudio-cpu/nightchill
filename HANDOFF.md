@@ -316,6 +316,18 @@
 
 ---
 
+### Phase 6: UGC Admin Enhancement + Multi-Platform Embeds (PR #32) ✅
+- **TikTok oEmbed**: Added TikTokEmbed component using official embed.js (TOS compliant, no API key needed)
+- **Instagram embed.js**: Improved InstagramEmbed with blockquote + embed.js approach (no Meta App Review needed)
+- **Admin UGC UX overhaul**:
+  - URL paste auto-detects platform (X/Twitter, Instagram, TikTok)
+  - Feature slug dropdown from DB (replaces manual text input)
+  - Live preview on URL paste
+  - Platform badges with icons (𝕏, 📷, 🎵) and colors
+  - Status filter (すべて/承認済み/保留中/却下) with count
+- All embeds use official platform oEmbed APIs — fully TOS compliant
+- Lint: 0 errors, Build: success, Tests: 18/18 passed
+
 ## 再開ガイド（2026-02-22 時点）
 
 ### 現在のステータス
