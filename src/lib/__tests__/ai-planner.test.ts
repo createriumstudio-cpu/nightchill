@@ -59,6 +59,7 @@ describe("buildUserPrompt", () => {
       website: null,
       types: ["restaurant"],
       photoReference: null,
+    photoUrl: null,
       source: "google_places" as const,
     googleMapsUrl: "https://www.google.com/maps/place/?q=place_id:test123",
     mapEmbedUrl: "https://www.google.com/maps/embed/v1/place?key=test&q=place_id:test123",

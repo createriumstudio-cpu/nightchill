@@ -78,99 +78,94 @@ function planToText(plan: DatePlan): string {
 // ============================================================
 function VenueCard({ venue, index }: { venue: VenueFactData; index: number }) {
   return (
-    <div className="rounded-2xl border border-border bg-surface p-5">
-      <div className="flex items-start justify-between">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-              {index + 1}
-            </span>
-            <h3 className="font-semibold">{venue.name}</h3>
-          </div>
-          <p className="mt-1 text-sm text-muted">{venue.address}</p>
-        </div>
-        {venue.rating !== null && (
-          <div className="flex items-center gap-1 rounded-lg bg-amber-50 px-2 py-1 dark:bg-amber-950">
-            <span className="text-xs">⭐</span>
-            <span className="text-sm font-semibold text-amber-700 dark:text-amber-300">
-              {venue.rating}
-            </span>
-          </div>
-        )}
-      </div>
-
-      {venue.openingHours && venue.openingHours.length > 0 && (
-        <details className="mt-3">
-          <summary className="cursor-pointer text-sm font-medium text-primary">
-            営業時間を見る
-          </summary>
-          <ul className="mt-2 space-y-1">
-            {venue.openingHours.map((h, i) => (
-              <li key={i} className="text-xs text-muted">{h}</li>
-            ))}
-          </ul>
-        </details>
-      )}
-
-      <div className="mt-3 flex flex-wrap gap-2">
-        {venue.phoneNumber && (
-          <a
-            href={`tel:${venue.phoneNumber}`}
-            className="rounded-lg bg-primary/5 px-3 py-1 text-xs font-medium text-primary"
-          >
-            📞 {venue.phoneNumber}
-          </a>
-        )}
-        {venue.website && (
-          <a
-            href={venue.website}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-lg bg-primary/5 px-3 py-1 text-xs font-medium text-primary"
-          >
-            🌐 公式サイト
-          </a>
-        )}
-      </div>
-
-      {venue.source === "fallback" && (
-        <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
-          ※ 詳細情報はGoogle Places API設定後に表示されます
-        </p>
-      )}
-      {venue.source === "google_places" && (
-        <p className="mt-2 text-xs text-green-600 dark:text-green-400">
-          ✓ Google Places APIから取得した最新情報
-        </p>
-      )}
-
-      {/* Google Maps Embed */}
-      {venue.mapEmbedUrl && (
-        <div className="mt-4 overflow-hidden rounded-xl">
-          <iframe
-            src={venue.mapEmbedUrl}
-            width="100%"
-            height="200"
-            style={{ border: 0 }}
-            allowFullScreen
+    <div className="rounded-2xl border border-border bg-surface overflow-hidden">
+      {/* Store Photo from Google Business Profile */}
+      {venue.photoUrl && (
+        <div className="relative h-48 w-full">
+          <img
+            src={venue.photoUrl}
+            alt={`${venue.name} の店内写真`}
+            className="h-full w-full object-cover"
             loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            title={`${venue.name} の地図`}
           />
+          {venue.rating !== null && (
+            <div className="absolute top-3 right-3 flex items-center gap-1 rounded-lg bg-black/70 px-2 py-1 backdrop-blur-sm">
+              <span className="text-xs">⭐</span>
+              <span className="text-sm font-semibold text-white">
+                {venue.rating}
+              </span>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Google Maps Link */}
-      {venue.googleMapsUrl && (
-        <a
-          href={venue.googleMapsUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 transition-colors hover:bg-blue-100 dark:bg-blue-950 dark:text-blue-300 dark:hover:bg-blue-900"
-        >
-          📍 <span translate="no">Google Maps</span>で見る
-        </a>
-      )}
+      <div className="p-5">
+        <div className="flex items-start justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                {index + 1}
+              </span>
+              <h3 className="font-semibold">{venue.name}</h3>
+            </div>
+            <p className="mt-1 text-sm text-muted">{venue.address}</p>
+          </div>
+          {venue.rating !== null && !venue.photoUrl && (
+            <div className="flex items-center gap-1 rounded-lg bg-amber-50 px-2 py-1 dark:bg-amber-950">
+              <span className="text-xs">⭐</span>
+              <span className="text-sm font-semibold text-amber-700 dark:text-amber-300">
+                {venue.rating}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {venue.openingHours && venue.openingHours.length > 0 && (
+          <details className="mt-3">
+            <summary className="cursor-pointer text-sm font-medium text-primary">
+              営業時間を見る
+            </summary>
+            <ul className="mt-2 space-y-1">
+              {venue.openingHours.map((h, i) => (
+                <li key={i} className="text-xs text-muted">{h}</li>
+              ))}
+            </ul>
+          </details>
+        )}
+
+        {/* Reservation / Contact CTA */}
+        <div className="mt-4 flex flex-wrap gap-2">
+          {venue.website && (
+            <a
+              href={venue.website}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary-dark hover:shadow-md"
+            >
+              予約・詳細を見る
+            </a>
+          )}
+          {venue.phoneNumber && (
+            <a
+              href={`tel:${venue.phoneNumber}`}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-sm font-medium transition-colors hover:bg-surface"
+            >
+              📞 電話で予約
+            </a>
+          )}
+        </div>
+
+        {venue.source === "fallback" && (
+          <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
+            ※ 詳細情報はGoogle Places API設定後に表示されます
+          </p>
+        )}
+        {venue.source === "google_places" && (
+          <p className="mt-2 text-xs text-green-600 dark:text-green-400">
+            ✓ Google Places APIから取得した最新情報
+          </p>
+        )}
+      </div>
     </div>
   );
 }
@@ -344,22 +339,6 @@ export default function ResultsPage() {
                     </p>
                   </div>
                 </div>
-
-                {/* Google Maps Embed */}
-                {plan.walkingRoute.mapEmbedUrl && (
-                  <div className="mt-4 overflow-hidden rounded-xl">
-                    <iframe
-                      src={plan.walkingRoute.mapEmbedUrl}
-                      width="100%"
-                      height="300"
-                      style={{ border: 0 }}
-                      allowFullScreen
-                      loading="lazy"
-                      referrerPolicy="no-referrer-when-downgrade"
-                      title="徒歩ルート"
-                    />
-                  </div>
-                )}
 
                 {plan.walkingRoute.source === "fallback" && (
                   <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">

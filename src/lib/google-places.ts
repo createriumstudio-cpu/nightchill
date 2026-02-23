@@ -21,6 +21,7 @@ export interface VenueFactData {
   website: string | null;
   types: string[];
   photoReference: string | null;
+  photoUrl: string | null;
   source: "google_places" | "fallback";
   googleMapsUrl: string | null;
   mapEmbedUrl: string | null;
@@ -125,6 +126,9 @@ export async function searchVenue(
       website: details.website ?? null,
       types: place.types ?? [],
       photoReference: place.photos?.[0]?.photo_reference ?? null,
+      photoUrl: place.photos?.[0]?.photo_reference
+        ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=600&photo_reference=${place.photos[0].photo_reference}&key=${apiKey}`
+        : null,
       source: "google_places",
       googleMapsUrl: `https://www.google.com/maps/place/?q=place_id:${place.place_id}`,
       mapEmbedUrl: `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=place_id:${place.place_id}`,
@@ -154,6 +158,7 @@ function createFallbackVenue(name: string, area: string): VenueFactData {
     website: null,
     types: [],
     photoReference: null,
+    photoUrl: null,
     source: "fallback",
     googleMapsUrl: null,
     mapEmbedUrl: null,
