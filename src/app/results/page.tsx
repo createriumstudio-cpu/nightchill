@@ -81,20 +81,29 @@ function VenueCard({ venue, index }: { venue: VenueFactData; index: number }) {
     <div className="rounded-2xl border border-border bg-surface overflow-hidden">
       {/* Store Photo from Google Business Profile */}
       {venue.photoUrl && (
-        <div className="relative h-48 w-full">
-          <img
-            src={venue.photoUrl}
-            alt={`${venue.name} の店内写真`}
-            className="h-full w-full object-cover"
-            loading="lazy"
-          />
-          {venue.rating !== null && (
-            <div className="absolute top-3 right-3 flex items-center gap-1 rounded-lg bg-black/70 px-2 py-1 backdrop-blur-sm">
-              <span className="text-xs">⭐</span>
-              <span className="text-sm font-semibold text-white">
-                {venue.rating}
-              </span>
-            </div>
+        <div className="relative">
+          <div className="relative h-48 w-full">
+            <img
+              src={venue.photoUrl}
+              alt={`${venue.name} の店内写真`}
+              className="h-full w-full object-cover"
+              loading="lazy"
+            />
+            {venue.rating !== null && (
+              <div className="absolute top-3 right-3 flex items-center gap-1 rounded-lg bg-black/70 px-2 py-1 backdrop-blur-sm">
+                <span className="text-xs">⭐</span>
+                <span className="text-sm font-semibold text-white">
+                  {venue.rating}
+                </span>
+              </div>
+            )}
+          </div>
+          {/* Photo Attribution (Required by Google Maps Platform Policy) */}
+          {venue.photoHtmlAttribution && (
+            <p
+              className="bg-black/60 px-3 py-1 text-[10px] text-white/80"
+              dangerouslySetInnerHTML={{ __html: `Photo: ${venue.photoHtmlAttribution}` }}
+            />
           )}
         </div>
       )}
@@ -155,14 +164,15 @@ function VenueCard({ venue, index }: { venue: VenueFactData; index: number }) {
           )}
         </div>
 
+        {/* Google Maps Attribution (Required by Google Maps Platform Policy) */}
+        {venue.source === "google_places" && (
+          <p className="mt-3 text-[11px] text-muted">
+            店舗情報提供: <span translate="no" className="font-normal" style={{ fontFamily: "Roboto, sans-serif" }}>Google Maps</span>
+          </p>
+        )}
         {venue.source === "fallback" && (
           <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
             ※ 詳細情報はGoogle Places API設定後に表示されます
-          </p>
-        )}
-        {venue.source === "google_places" && (
-          <p className="mt-2 text-xs text-green-600 dark:text-green-400">
-            ✓ Google Places APIから取得した最新情報
           </p>
         )}
       </div>
