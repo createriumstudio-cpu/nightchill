@@ -5,6 +5,7 @@ import { getFeatureBySlug, getAllFeatures } from "@/lib/features";
 import FeatureSpotEmbed from "@/components/FeatureSpotEmbed";
 import Header from "@/components/Header";
 import UgcSection from "@/components/UgcSection";
+import { SpotPhoto } from "@/components/SpotPhoto";
 import ContextualPRSection from "@/components/ContextualPRSection";
 import Footer from "@/components/Footer";
 
@@ -176,7 +177,9 @@ export default async function FeatureDetailPage({ params }: PageProps) {
                     </div>
                   </div>
 
-                  <p className="text-gray-300 leading-relaxed mb-4">
+                  <SpotPhoto spotName={spot.name} area={spot.area} />
+
+<p className="text-gray-300 leading-relaxed mb-4">
                     {spot.description}
                   </p>
 
