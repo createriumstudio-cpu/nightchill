@@ -76,25 +76,40 @@ function planToText(plan: DatePlan): string {
 // ============================================================
 // 店舗情報カード
 // ============================================================
+const ALCOHOL_VENUE_TYPES = ["bar", "night_club", "liquor_store"];
+
+function isAlcoholVenue(types: string[]): boolean {
+  return types.some((t) => ALCOHOL_VENUE_TYPES.includes(t));
+}
+
 function VenueCard({ venue, index }: { venue: VenueFactData; index: number }) {
+  const gbpUrl = venue.googleMapsUrl || `https://www.google.com/maps/place/?q=place_id:${venue.placeId}`;
+  const showAgeBadge = isAlcoholVenue(venue.types);
+
   return (
     <div className="rounded-2xl border border-border bg-surface overflow-hidden">
-      {/* Store Photo from Google Business Profile */}
+      {/* Store Photo — clickable to Google Business Profile */}
       {venue.photoUrl && (
-        <div className="relative">
-          <div className="relative h-48 w-full">
+        <a href={gbpUrl} target="_blank" rel="noopener noreferrer" className="block relative group">
+          <div className="relative h-48 w-full overflow-hidden">
             <img
               src={venue.photoUrl}
               alt={`${venue.name} の店内写真`}
-              className="h-full w-full object-cover"
+              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
               loading="lazy"
             />
+            <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/10" />
             {venue.rating !== null && (
               <div className="absolute top-3 right-3 flex items-center gap-1 rounded-lg bg-black/70 px-2 py-1 backdrop-blur-sm">
                 <span className="text-xs">⭐</span>
                 <span className="text-sm font-semibold text-white">
                   {venue.rating}
                 </span>
+              </div>
+            )}
+            {showAgeBadge && (
+              <div className="absolute top-3 left-3 flex items-center gap-1 rounded-lg bg-red-600/90 px-2 py-1 backdrop-blur-sm">
+                <span className="text-xs font-bold text-white">🔞 20歳以上対象</span>
               </div>
             )}
           </div>
@@ -105,6 +120,13 @@ function VenueCard({ venue, index }: { venue: VenueFactData; index: number }) {
               dangerouslySetInnerHTML={{ __html: `Photo: ${venue.photoHtmlAttribution}` }}
             />
           )}
+        </a>
+      )}
+
+      {/* Age badge for venues without photo */}
+      {!venue.photoUrl && showAgeBadge && (
+        <div className="bg-red-50 px-4 py-2 dark:bg-red-950">
+          <span className="text-xs font-bold text-red-600 dark:text-red-400">🔞 20歳以上対象</span>
         </div>
       )}
 

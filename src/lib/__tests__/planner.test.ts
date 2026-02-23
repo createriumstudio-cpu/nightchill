@@ -6,6 +6,8 @@ describe("generateDatePlan", () => {
     occasion: "first-date",
     mood: "romantic",
     budget: "medium",
+    dateType: "half-day",
+    ageGroup: "20-plus",
     location: "渋谷",
     partnerInterests: "カフェ巡り",
     additionalNotes: "",

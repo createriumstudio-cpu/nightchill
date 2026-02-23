@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { generateDatePlan } from "@/lib/planner";
 import { generateAIPlan } from "@/lib/ai-planner";
-import type { PlanRequest, Occasion, Mood, Budget } from "@/lib/types";
+import type { PlanRequest, Occasion, Mood, Budget, DateType, AgeGroup } from "@/lib/types";
 
 const validOccasions: Occasion[] = [
   "first-date",
@@ -19,6 +19,8 @@ const validMoods: Mood[] = [
   "adventurous",
 ];
 const validBudgets: Budget[] = ["low", "medium", "high", "unlimited"];
+const validDateTypes: DateType[] = ["dinner-only", "half-day", "full-day", "overnight"];
+const validAgeGroups: AgeGroup[] = ["under-20", "20-plus"];
 
 // Simple in-memory rate limiting (per IP, 10 requests per minute)
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
@@ -94,11 +96,27 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!body.dateType || !validDateTypes.includes(body.dateType)) {
+      return NextResponse.json(
+        { error: "有効なデートの種類を選択してください" },
+        { status: 400 },
+      );
+    }
+
+    if (!body.ageGroup || !validAgeGroups.includes(body.ageGroup)) {
+      return NextResponse.json(
+        { error: "年齢確認を選択してください" },
+        { status: 400 },
+      );
+    }
+
     // Sanitize free-text inputs
     const sanitizedRequest: PlanRequest = {
       occasion: body.occasion,
       mood: body.mood,
       budget: body.budget,
+      dateType: body.dateType,
+      ageGroup: body.ageGroup,
       location: sanitizeText(body.location || "東京", 50),
       partnerInterests: sanitizeText(body.partnerInterests || "", 200),
       additionalNotes: sanitizeText(body.additionalNotes || "", 500),

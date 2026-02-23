@@ -8,9 +8,13 @@ import {
   type Occasion,
   type Mood,
   type Budget,
+  type DateType,
+  type AgeGroup,
   occasionLabels,
   moodLabels,
   budgetLabels,
+  dateTypeLabels,
+  ageGroupLabels,
 } from "@/lib/types";
 
 const loadingMessages = [
@@ -29,7 +33,9 @@ export default function PlanPage() {
 
   const [occasion, setOccasion] = useState<Occasion | "">("");
   const [mood, setMood] = useState<Mood | "">("");
-  const [budget, setBudget] = useState<Budget | "">("");
+  const [budget, setBudget] = useState<Budget | "">("")
+  const [dateType, setDateType] = useState<DateType | "">("")
+  const [ageGroup, setAgeGroup] = useState<AgeGroup | "">("");
   const [location, setLocation] = useState("");
   const [partnerInterests, setPartnerInterests] = useState("");
   const [additionalNotes, setAdditionalNotes] = useState("");
@@ -41,7 +47,7 @@ export default function PlanPage() {
     e.preventDefault();
     setError("");
 
-    if (!occasion || !mood || !budget) {
+    if (!occasion || !mood || !budget || !dateType || !ageGroup) {
       setError("必須項目をすべて選択してください。");
       return;
     }
@@ -62,6 +68,8 @@ export default function PlanPage() {
           occasion,
           mood,
           budget,
+          dateType,
+          ageGroup,
           location: location || "東京",
           partnerInterests,
           additionalNotes,
@@ -236,6 +244,61 @@ export default function PlanPage() {
             </div>
           </fieldset>
 
+          {/* Date Type */}
+          <fieldset>
+            <legend className="mb-3 text-sm font-semibold">
+              デートの種類 <span className="text-red-500">*</span>
+            </legend>
+            <div className="grid grid-cols-2 gap-3">
+              {(Object.entries(dateTypeLabels) as [DateType, string][]).map(
+                ([value, label]) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setDateType(value)}
+                    aria-pressed={dateType === value}
+                    className={`rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
+                      dateType === value
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border hover:border-primary/50"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ),
+              )}
+            </div>
+          </fieldset>
+
+          {/* Age Group */}
+          <fieldset>
+            <legend className="mb-3 text-sm font-semibold">
+              年齢確認 <span className="text-red-500">*</span>
+            </legend>
+            <p className="mb-3 text-xs text-muted">
+              アルコールやシーシャを提供する店舗の推薦に必要です
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              {(Object.entries(ageGroupLabels) as [AgeGroup, string][]).map(
+                ([value, label]) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setAgeGroup(value)}
+                    aria-pressed={ageGroup === value}
+                    className={`rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
+                      ageGroup === value
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border hover:border-primary/50"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ),
+              )}
+            </div>
+          </fieldset>
+
           {/* Location */}
           <div>
             <label
@@ -304,7 +367,7 @@ export default function PlanPage() {
 
           <button
             type="submit"
-            disabled={loading || !occasion || !mood || !budget}
+            disabled={loading || !occasion || !mood || !budget || !dateType || !ageGroup}
             className="w-full rounded-full bg-primary py-4 text-base font-semibold text-white shadow-lg shadow-primary/25 transition-all hover:bg-primary-dark hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50"
           >
             デートプランを作成

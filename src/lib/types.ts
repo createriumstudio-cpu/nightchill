@@ -13,10 +13,16 @@ export type Mood = "romantic" | "fun" | "relaxed" | "luxurious" | "adventurous";
 
 export type Budget = "low" | "medium" | "high" | "unlimited";
 
+export type DateType = "dinner-only" | "half-day" | "full-day" | "overnight";
+
+export type AgeGroup = "under-20" | "20-plus";
+
 export interface PlanRequest {
   occasion: Occasion;
   mood: Mood;
   budget: Budget;
+  dateType: DateType;
+  ageGroup: AgeGroup;
   location: string;
   partnerInterests: string;
   additionalNotes: string;
@@ -58,6 +64,18 @@ export const moodLabels: Record<Mood, string> = {
   relaxed: "リラックス",
   luxurious: "ラグジュアリー",
   adventurous: "アドベンチャー",
+};
+
+export const dateTypeLabels: Record<DateType, string> = {
+  "dinner-only": "食事のみ",
+  "half-day": "半日デート",
+  "full-day": "終日デート",
+  overnight: "お泊まりデート",
+};
+
+export const ageGroupLabels: Record<AgeGroup, string> = {
+  "under-20": "20歳未満",
+  "20-plus": "20歳以上",
 };
 
 export const budgetLabels: Record<Budget, string> = {
