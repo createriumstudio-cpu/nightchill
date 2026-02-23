@@ -1,3 +1,4 @@
+import type { WeatherData } from "./weather";
 import type { VenueFactData } from "./google-places";
 import type { WalkingRoute } from "./google-maps";
 
@@ -47,6 +48,7 @@ export interface DatePlan {
   // Phase 1: ファクトデータ & ルート情報
   venues?: VenueFactData[];
   walkingRoute?: WalkingRoute;
+  weather?: WeatherData;
 }
 
 export const occasionLabels: Record<Occasion, string> = {

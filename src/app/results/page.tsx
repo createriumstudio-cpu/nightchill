@@ -10,6 +10,7 @@ import { type DatePlan, occasionLabels, moodLabels } from "@/lib/types";
 import { getRelevantPosts, type UGCPost } from "@/lib/ugc-data";
 import { decodePlan, buildShareUrl } from "@/lib/plan-encoder";
 import type { VenueFactData } from "@/lib/google-places";
+import type { WeatherData } from "@/lib/weather";
 
 // ============================================================
 // sessionStorage ヘルパー
@@ -201,6 +202,30 @@ function VenueCard({ venue, index }: { venue: VenueFactData; index: number }) {
     </div>
   );
 }
+
+// ============================================================
+// 天気情報カード
+// ============================================================
+function WeatherCard({ weather }: { weather: WeatherData }) {
+  return (
+    <div className="rounded-2xl border border-border bg-surface p-5">
+      <div className="flex items-center gap-3">
+        <span className="text-4xl">{weather.icon}</span>
+        <div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-bold">{weather.temperature}°C</span>
+            <span className="text-sm text-muted">体感 {weather.feelsLike}°C</span>
+          </div>
+          <p className="text-sm text-muted">{weather.description} / 湿度 {weather.humidity}%</p>
+        </div>
+      </div>
+      <p className="mt-3 text-sm leading-relaxed text-muted">
+        {weather.advice}
+      </p>
+    </div>
+  );
+}
+
 // ============================================================
 // メインコンポーネント
 // ============================================================
@@ -346,6 +371,14 @@ export default function ResultsPage() {
           </h1>
           <p className="mt-3 text-muted">{plan.summary}</p>
         </div>
+
+        {/* Weather Section */}
+        {plan.weather && (
+          <section className="mt-10">
+            <h2 className="mb-4 text-xl font-bold">今日の天気</h2>
+            <WeatherCard weather={plan.weather} />
+          </section>
+        )}
 
         {/* Venue Info Section */}
         {plan.venues && plan.venues.length > 0 && (
