@@ -143,6 +143,34 @@ function VenueCard({ venue, index }: { venue: VenueFactData; index: number }) {
           ✓ Google Places APIから取得した最新情報
         </p>
       )}
+
+      {/* Google Maps Embed */}
+      {venue.mapEmbedUrl && (
+        <div className="mt-4 overflow-hidden rounded-xl">
+          <iframe
+            src={venue.mapEmbedUrl}
+            width="100%"
+            height="200"
+            style={{ border: 0 }}
+            allowFullScreen
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            title={`${venue.name} の地図`}
+          />
+        </div>
+      )}
+
+      {/* Google Maps Link */}
+      {venue.googleMapsUrl && (
+        <a
+          href={venue.googleMapsUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 transition-colors hover:bg-blue-100 dark:bg-blue-950 dark:text-blue-300 dark:hover:bg-blue-900"
+        >
+          📍 <span translate="no">Google Maps</span>で見る
+        </a>
+      )}
     </div>
   );
 }

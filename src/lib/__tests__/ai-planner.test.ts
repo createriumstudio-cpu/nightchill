@@ -60,6 +60,8 @@ describe("buildUserPrompt", () => {
       types: ["restaurant"],
       photoReference: null,
       source: "google_places" as const,
+    googleMapsUrl: "https://www.google.com/maps/place/?q=place_id:test123",
+    mapEmbedUrl: "https://www.google.com/maps/embed/v1/place?key=test&q=place_id:test123",
     };
     const prompt = buildUserPrompt(baseRequest, [venue], null, "");
     expect(prompt).toContain("テスト居酒屋");
