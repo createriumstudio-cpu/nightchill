@@ -1,8 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // Cache to avoid repeated API calls (in-memory, persists per Vercel function instance)
+// Bounded to 500 entries max to prevent unbounded growth
+const MAX_CACHE_SIZE = 500;
 const photoCache = new Map<string, { photoUri: string; attribution: string; cachedAt: number }>();
 const CACHE_TTL = 23 * 60 * 60 * 1000; // 23 hours
+
+function setCacheEntry(key: string, value: { photoUri: string; attribution: string; cachedAt: number }) {
+  if (photoCache.size >= MAX_CACHE_SIZE) {
+    // Remove oldest entry
+    const firstKey = photoCache.keys().next().value;
+    if (firstKey) photoCache.delete(firstKey);
+  }
+  photoCache.set(key, value);
+}
 
 export async function GET(req: NextRequest) {
   const query = req.nextUrl.searchParams.get("q");
@@ -10,7 +21,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Missing q parameter" }, { status: 400 });
   }
 
-  const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+  // Use GOOGLE_PLACES_API_KEY, fallback to GOOGLE_MAPS_API_KEY
+  const apiKey = process.env.GOOGLE_PLACES_API_KEY || process.env.GOOGLE_MAPS_API_KEY;
   if (!apiKey) {
     return NextResponse.json({ error: "API key not configured" }, { status: 500 });
   }
@@ -30,7 +42,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    // Step 1: Text Search to find the place
+    // Step 1: Text Search (New) to find the place and get photo references
     const searchRes = await fetch(
       "https://places.googleapis.com/v1/places:searchText",
       {
@@ -49,7 +61,9 @@ export async function GET(req: NextRequest) {
     );
 
     if (!searchRes.ok) {
-      return NextResponse.json({ error: "Places API error" }, { status: 502 });
+      const errText = await searchRes.text();
+      console.error(`place-photo: searchText failed ${searchRes.status}: ${errText}`);
+      return NextResponse.json({ photoUri: null, attribution: null });
     }
 
     const searchData = await searchRes.json();
@@ -76,7 +90,7 @@ export async function GET(req: NextRequest) {
     const photoUri = photoData.photoUri ?? null;
 
     if (photoUri) {
-      photoCache.set(cacheKey, { photoUri, attribution: attribution ?? "", cachedAt: Date.now() });
+      setCacheEntry(cacheKey, { photoUri, attribution: attribution ?? "", cachedAt: Date.now() });
     }
 
     return NextResponse.json(
