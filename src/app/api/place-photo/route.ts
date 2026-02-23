@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 // Bounded to 500 entries max to prevent unbounded growth
 const MAX_CACHE_SIZE = 500;
 const photoCache = new Map<string, { photoUri: string; attribution: string; attributionUri: string; googleMapsUri: string; cachedAt: number }>();
-const CACHE_TTL = 23 * 60 * 60 * 1000; // 23 hours
+const CACHE_TTL = 1 * 60 * 60 * 1000; // 1 hour
 
 function setCacheEntry(key: string, value: { photoUri: string; attribution: string; attributionUri: string; googleMapsUri: string; cachedAt: number }) {
   if (photoCache.size >= MAX_CACHE_SIZE) {
@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
       { photoUri: cached.photoUri, attribution: cached.attribution, attributionUri: cached.attributionUri, googleMapsUri: cached.googleMapsUri, cached: true },
       {
         headers: {
-          "Cache-Control": "public, max-age=82800, stale-while-revalidate=3600",
+          "Cache-Control": "public, max-age=3600, stale-while-revalidate=3600",
         },
       }
     );
@@ -99,7 +99,7 @@ export async function GET(req: NextRequest) {
       { photoUri, attribution, attributionUri, googleMapsUri },
       {
         headers: {
-          "Cache-Control": "public, max-age=82800, stale-while-revalidate=3600",
+          "Cache-Control": "public, max-age=3600, stale-while-revalidate=3600",
         },
       }
     );

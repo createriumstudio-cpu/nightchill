@@ -18,7 +18,7 @@ export function SpotPhoto({ spotName, area }: SpotPhotoProps) {
 
   useEffect(() => {
     const query = encodeURIComponent(`${spotName} ${area}`);
-    fetch(`/api/place-photo?q=${query}`)
+    fetch(`/api/place-photo?v=2&q=${query}`)
       .then((r) => r.json())
       .then((data) => {
         setPhotoUri(data.photoUri ?? null);
