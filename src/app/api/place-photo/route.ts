@@ -1,0 +1,94 @@
+import { NextRequest, NextResponse } from "next/server";
+
+// Cache to avoid repeated API calls (in-memory, persists per Vercel function instance)
+const photoCache = new Map<string, { photoUri: string; attribution: string; cachedAt: number }>();
+const CACHE_TTL = 23 * 60 * 60 * 1000; // 23 hours
+
+export async function GET(req: NextRequest) {
+  const query = req.nextUrl.searchParams.get("q");
+  if (!query) {
+    return NextResponse.json({ error: "Missing q parameter" }, { status: 400 });
+  }
+
+  const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+  if (!apiKey) {
+    return NextResponse.json({ error: "API key not configured" }, { status: 500 });
+  }
+
+  // Check cache first
+  const cacheKey = query.toLowerCase().trim();
+  const cached = photoCache.get(cacheKey);
+  if (cached && Date.now() - cached.cachedAt < CACHE_TTL) {
+    return NextResponse.json(
+      { photoUri: cached.photoUri, attribution: cached.attribution, cached: true },
+      {
+        headers: {
+          "Cache-Control": "public, max-age=82800, stale-while-revalidate=3600",
+        },
+      }
+    );
+  }
+
+  try {
+    // Step 1: Text Search to find the place
+    const searchRes = await fetch(
+      "https://places.googleapis.com/v1/places:searchText",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Goog-Api-Key": apiKey,
+          "X-Goog-FieldMask": "places.id,places.photos",
+        },
+        body: JSON.stringify({
+          textQuery: `${query} 東京`,
+          languageCode: "ja",
+          maxResultCount: 1,
+        }),
+      }
+    );
+
+    if (!searchRes.ok) {
+      return NextResponse.json({ error: "Places API error" }, { status: 502 });
+    }
+
+    const searchData = await searchRes.json();
+    const place = searchData.places?.[0];
+
+    if (!place?.photos?.length) {
+      return NextResponse.json({ photoUri: null, attribution: null });
+    }
+
+    const photoName = place.photos[0].name;
+    const authorAttribution = place.photos[0].authorAttributions?.[0];
+    const attribution = authorAttribution?.displayName ?? null;
+
+    // Step 2: Get photo URL
+    const photoRes = await fetch(
+      `https://places.googleapis.com/v1/${photoName}/media?maxHeightPx=400&maxWidthPx=600&skipHttpRedirect=true&key=${apiKey}`
+    );
+
+    if (!photoRes.ok) {
+      return NextResponse.json({ photoUri: null, attribution: null });
+    }
+
+    const photoData = await photoRes.json();
+    const photoUri = photoData.photoUri ?? null;
+
+    if (photoUri) {
+      photoCache.set(cacheKey, { photoUri, attribution: attribution ?? "", cachedAt: Date.now() });
+    }
+
+    return NextResponse.json(
+      { photoUri, attribution },
+      {
+        headers: {
+          "Cache-Control": "public, max-age=82800, stale-while-revalidate=3600",
+        },
+      }
+    );
+  } catch (err) {
+    console.error("place-photo API error:", err);
+    return NextResponse.json({ photoUri: null, attribution: null });
+  }
+}
