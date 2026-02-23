@@ -128,7 +128,7 @@ export default function ChatUI() {
             <div
               className={`max-w-[80%] px-4 py-2 rounded-2xl text-sm whitespace-pre-wrap ${
                 msg.role === "user"
-                  ? "bg-purple-600 text-white rounded-br-md"
+                  ? "bg-[#1a1a2e] text-white rounded-br-md"
                   : "bg-gray-800 text-gray-200 rounded-bl-md"
               }`}
             >
@@ -157,12 +157,12 @@ export default function ChatUI() {
               onCompositionEnd={() => { setTimeout(() => { isComposingRef.current = false; }, 10); }}
             placeholder="デートの相談をどうぞ..."
             rows={1}
-            className="flex-1 bg-gray-800 text-white text-sm px-4 py-2 rounded-xl border border-gray-700 focus:outline-none focus:border-purple-500 resize-none"
+            className="flex-1 bg-gray-800 text-white text-sm px-4 py-2 rounded-xl border border-gray-700 focus:outline-none focus:border-[#c9a96e] resize-none"
           />
           <button
             onClick={sendMessage}
             disabled={!input.trim() || isLoading}
-            className="px-4 py-2 bg-purple-600 text-white rounded-xl text-sm font-medium hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-4 py-2 bg-[#1a1a2e] text-white rounded-xl text-sm font-medium hover:bg-[#0f0f1a] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             送信
           </button>

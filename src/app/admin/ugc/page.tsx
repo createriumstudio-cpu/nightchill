@@ -33,7 +33,7 @@ function detectPlatform(url: string): string {
 const platformConfig: Record<string, { label: string; color: string; icon: string }> = {
   x: { label: "X (Twitter)", color: "bg-gray-700", icon: "𝕏" },
   twitter: { label: "X (Twitter)", color: "bg-gray-700", icon: "𝕏" },
-  instagram: { label: "Instagram", color: "bg-gradient-to-r from-purple-600 to-pink-500", icon: "📷" },
+  instagram: { label: "Instagram", color: "bg-gradient-to-r from-[#1a1a2e] to-[#c9485b]", icon: "📷" },
   tiktok: { label: "TikTok", color: "bg-gray-900", icon: "🎵" },
 };
 

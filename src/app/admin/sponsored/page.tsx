@@ -136,7 +136,7 @@ export default function AdminSponsoredPage() {
               </div>
             </div>
             <button onClick={handleAdd}
-              className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded text-sm font-medium">
+              className="bg-[#c9485b] hover:bg-orange-600 text-white px-4 py-2 rounded text-sm font-medium">
               追加
             </button>
           </div>

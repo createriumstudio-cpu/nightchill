@@ -163,7 +163,7 @@ export default async function FeatureDetailPage({ params }: PageProps) {
                 {/* Spot Header */}
                 <div className="p-6">
                   <div className="flex items-center gap-3 mb-4">
-                    <span className="flex items-center justify-center w-10 h-10 rounded-full bg-orange-500 text-white font-bold text-lg">
+                    <span className="flex items-center justify-center w-10 h-10 rounded-full bg-[#c9485b] text-white font-bold text-lg">
                       {index + 1}
                     </span>
                     <div>
@@ -181,7 +181,7 @@ export default async function FeatureDetailPage({ params }: PageProps) {
                   </p>
 
                   {/* Tip */}
-                  <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-4 mb-4">
+                  <div className="bg-[#c9485b]/10 border border-orange-500/20 rounded-xl p-4 mb-4">
                     <div className="flex items-start gap-2">
                       <span className="text-orange-400 text-lg">💡</span>
                       <div>
@@ -268,7 +268,7 @@ export default async function FeatureDetailPage({ params }: PageProps) {
             </p>
             <Link
               href={`/plan?area=${encodeURIComponent(feature.area)}`}
-              className="inline-block bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold py-3 px-8 rounded-full hover:scale-105 transition-transform"
+              className="inline-block bg-gradient-to-r from-[#c9a96e] to-red-500 text-white font-bold py-3 px-8 rounded-full hover:scale-105 transition-transform"
             >
               ✨ {feature.area}のデートプランを作る
             </Link>

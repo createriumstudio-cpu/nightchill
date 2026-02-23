@@ -111,7 +111,7 @@ export default async function EnglishHomePage() {
           </p>
           <Link
             href="/"
-            className="inline-block px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-full transition-colors"
+            className="inline-block px-6 py-3 bg-[#c9485b] hover:bg-orange-600 text-white font-bold rounded-full transition-colors"
           >
             日本語版を見る
           </Link>

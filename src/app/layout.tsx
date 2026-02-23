@@ -1,3 +1,4 @@
+import { Noto_Sans_JP } from "next/font/google";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import FloatingChatButton from "@/components/FloatingChatButton";
@@ -7,12 +8,19 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://futatabito.com";
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#7c3aed" },
+    { media: "(prefers-color-scheme: light)", color: "#1a1a2e" },
     { media: "(prefers-color-scheme: dark)", color: "#0c0a09" },
   ],
   width: "device-width",
   initialScale: 1,
 };
+
+const notoSansJP = Noto_Sans_JP({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+  variable: "--font-noto",
+});
 
 export const metadata: Metadata = {
   title: {
@@ -88,7 +96,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="antialiased">{children}
+      <body className={`antialiased ${notoSansJP.className}`}>{children}
           <FloatingChatButton />
           <Analytics /></body>
     </html>

@@ -84,7 +84,7 @@ export default function AdminDashboard() {
         </Link>
           <Link
             href="/admin/ugc"
-            className="bg-purple-600 hover:bg-purple-500 px-4 py-2 rounded text-sm font-medium"
+            className="bg-[#1a1a2e] hover:bg-[#c9485b] px-4 py-2 rounded text-sm font-medium"
           >
             UGC 管理
               </Link>

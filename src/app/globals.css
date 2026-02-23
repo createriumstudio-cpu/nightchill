@@ -1,17 +1,19 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fafaf9;
-  --foreground: #1c1917;
-  --primary: #7c3aed;
-  --primary-light: #a78bfa;
-  --primary-dark: #5b21b6;
-  --accent: #f59e0b;
-  --accent-light: #fbbf24;
+  --background: #faf8f5;
+  --foreground: #1a1a2e;
+  --primary: #1a1a2e;
+  --primary-light: #3d5a80;
+  --primary-dark: #0f0f1a;
+  --accent: #c9a96e;
+  --accent-light: #dbc49b;
+  --rose: #c9485b;
+  --rose-light: #d4697a;
   --surface: #ffffff;
-  --surface-alt: #f5f3ff;
-  --border: #e7e5e4;
-  --muted: #78716c;
+  --surface-alt: #f7f4ef;
+  --border: #e8e4df;
+  --muted: #6b7280;
 }
 
 @theme inline {
@@ -22,34 +24,38 @@
   --color-primary-dark: var(--primary-dark);
   --color-accent: var(--accent);
   --color-accent-light: var(--accent-light);
+  --color-rose: var(--rose);
+  --color-rose-light: var(--rose-light);
   --color-surface: var(--surface);
   --color-surface-alt: var(--surface-alt);
   --color-border: var(--border);
   --color-muted: var(--muted);
-  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans: "Noto Sans JP", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0c0a09;
-    --foreground: #fafaf9;
-    --primary: #a78bfa;
-    --primary-light: #c4b5fd;
-    --primary-dark: #7c3aed;
-    --accent: #fbbf24;
-    --accent-light: #fcd34d;
-    --surface: #1c1917;
-    --surface-alt: #1e1b4b;
-    --border: #292524;
-    --muted: #a8a29e;
+    --background: #0f0f1a;
+    --foreground: #f0ebe5;
+    --primary: #dbc49b;
+    --primary-light: #e8d5b3;
+    --primary-dark: #c9a96e;
+    --accent: #c9a96e;
+    --accent-light: #dbc49b;
+    --rose: #d4697a;
+    --rose-light: #e08a98;
+    --surface: #1a1a2e;
+    --surface-alt: #242442;
+    --border: #2d2d4a;
+    --muted: #9ca3af;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: "Noto Sans JP", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 html {
@@ -84,4 +90,14 @@ html {
 
 .animate-float-slow {
   animation: float-slow 12s ease-in-out infinite;
+}
+
+/* Shimmer animation for hero */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-shimmer {
+  animation: shimmer 3s ease-in-out infinite;
 }
