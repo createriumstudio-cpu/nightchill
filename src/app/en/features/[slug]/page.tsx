@@ -182,7 +182,7 @@ export default async function EnglishFeatureDetailPage({ params }: PageProps) {
           </p>
           <Link
             href={`/features/${slug}`}
-            className="inline-block px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-full transition-colors text-sm"
+            className="inline-block px-5 py-2 bg-[#c9485b] hover:bg-orange-600 text-white font-bold rounded-full transition-colors text-sm"
           >
             日本語版を読む
           </Link>

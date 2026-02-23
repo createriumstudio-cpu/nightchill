@@ -30,7 +30,7 @@ export default function ChatPage() {
             </p>
             <Link
               href="/plan"
-              className="text-sm text-purple-400 hover:text-purple-300 transition-colors"
+              className="text-sm text-[#dbc49b] hover:text-[#dbc49b] transition-colors"
             >
               フォームでデートプランを作る →
             </Link>

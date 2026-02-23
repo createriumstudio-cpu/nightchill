@@ -93,16 +93,16 @@ export default function Home() {
       <section className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 pt-16">
         <div className="absolute inset-0">
               {/* Base gradient */}
-              <div className="absolute inset-0 bg-gradient-to-b from-purple-950/40 via-background to-background" />
+              <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a14]/40 via-background to-background" />
               {/* Animated bokeh lights */}
-              <div className="absolute top-1/4 left-1/4 h-64 w-64 rounded-full bg-purple-500/20 blur-3xl animate-float" />
+              <div className="absolute top-1/4 left-1/4 h-64 w-64 rounded-full bg-[#1a1a2e]/20 blur-3xl animate-float" />
               <div className="absolute top-1/3 right-1/4 h-48 w-48 rounded-full bg-primary/15 blur-3xl animate-float-delayed" />
-              <div className="absolute bottom-1/3 left-1/3 h-56 w-56 rounded-full bg-purple-400/10 blur-3xl animate-float-slow" />
+              <div className="absolute bottom-1/3 left-1/3 h-56 w-56 rounded-full bg-[#3d5a80]/10 blur-3xl animate-float-slow" />
               {/* Subtle grid overlay */}
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(168,85,247,0.03)_1px,transparent_1px)] bg-[size:40px_40px]" />
             </div>
         <div className="relative mx-auto max-w-4xl text-center">
-          <p className="mb-4 text-sm font-semibold tracking-widest text-primary uppercase">
+          <p className="mb-4 text-sm font-semibold tracking-widest text-[#c9a96e] uppercase">
             デート視点の東京カルチャーガイド
           </p>
           <h1 className="text-5xl font-bold leading-tight tracking-tight md:text-7xl">
@@ -165,7 +165,7 @@ export default function Home() {
       <section id="features" className="px-6 py-24">
         <div className="mx-auto max-w-6xl">
           <div className="text-center">
-            <p className="text-sm font-semibold tracking-widest text-primary uppercase">
+            <p className="text-sm font-semibold tracking-widest text-[#c9a96e] uppercase">
               Features
             </p>
             <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
@@ -197,7 +197,7 @@ export default function Home() {
       <section id="how-it-works" className="bg-surface px-6 py-24">
         <div className="mx-auto max-w-4xl">
           <div className="text-center">
-            <p className="text-sm font-semibold tracking-widest text-primary uppercase">
+            <p className="text-sm font-semibold tracking-widest text-[#c9a96e] uppercase">
               How It Works
             </p>
             <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
@@ -234,7 +234,7 @@ export default function Home() {
       <section className="px-6 py-24">
         <div className="mx-auto max-w-6xl">
           <div className="text-center">
-            <p className="text-sm font-semibold tracking-widest text-primary uppercase">
+            <p className="text-sm font-semibold tracking-widest text-[#c9a96e] uppercase">
               Voice
             </p>
             <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">

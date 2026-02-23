@@ -33,13 +33,13 @@ export async function GET() {
               display: "flex",
             }}
           >
-            <span style={{ color: "#a78bfa" }}>futa</span>
+            <span style={{ color: "#c9a96e" }}>futa</span>
             <span>tabito</span>
           </div>
           <div
             style={{
               fontSize: "24px",
-              color: "#a78bfa",
+              color: "#c9a96e",
               display: "flex",
             }}
           >

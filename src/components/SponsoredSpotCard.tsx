@@ -26,7 +26,7 @@ export default function SponsoredSpotCard({ spot, locale = "ja" }: Props) {
       className="block rounded-xl overflow-hidden border border-gray-800 hover:border-orange-500/50 transition-all duration-300 group bg-gray-900/50 hover:bg-gray-900/80"
     >
       <div className="relative">
-        <span className="absolute top-2 left-2 z-10 bg-orange-500/90 text-white text-xs font-bold px-2 py-0.5 rounded">
+        <span className="absolute top-2 left-2 z-10 bg-[#c9485b]/90 text-white text-xs font-bold px-2 py-0.5 rounded">
           {label}
         </span>
         {spot.imageUrl && (
@@ -50,7 +50,7 @@ export default function SponsoredSpotCard({ spot, locale = "ja" }: Props) {
           )
         )}
         {!spot.imageUrl && (
-          <div className="h-20 bg-gradient-to-r from-orange-500/10 to-purple-500/10 flex items-center justify-center">
+          <div className="h-20 bg-gradient-to-r from-[#c9a96e]/10 to-[#1a1a2e]/10 flex items-center justify-center">
             <span className="text-2xl">✨</span>
           </div>
         )}
