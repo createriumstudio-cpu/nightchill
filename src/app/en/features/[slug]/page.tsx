@@ -8,6 +8,7 @@ import Header from "@/components/Header";
 import ContextualPRSection from "@/components/ContextualPRSection";
 import UgcSection from "@/components/UgcSection";
 import Footer from "@/components/Footer";
+import { SpotPhoto } from "@/components/SpotPhoto";
 
 const t = uiTranslations.en;
 
@@ -155,10 +156,11 @@ export default async function EnglishFeatureDetailPage({ params }: PageProps) {
                 <div className="flex items-start gap-3 mb-3">
                   <span className="text-2xl">{"📍"}</span>
                   <div>
-                    <h3 className="text-xl font-bold">{spot.name}</h3>
+                    <h3 className="text-xl font-bold"><a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.name + " " + spot.area)}`} target="_blank" rel="noopener noreferrer" className="hover:underline">{spot.name}</a></h3>
                     <p className="text-sm text-gray-400">{spot.genre}</p>
                   </div>
                 </div>
+                    <SpotPhoto spotName={spot.name} area={spot.area} />
                 <p className="text-gray-300 mb-4">{spot.description}</p>
                 {spot.embeds && spot.embeds.length > 0 && (
                   <div className="mt-4 space-y-3">
