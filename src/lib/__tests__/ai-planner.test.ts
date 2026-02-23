@@ -14,7 +14,7 @@ describe("buildUserPrompt", () => {
   };
 
   it("includes all required fields", () => {
-    const prompt = buildUserPrompt(baseRequest, [], null, "");
+    const prompt = buildUserPrompt(baseRequest, [], null, "", null);
     expect(prompt).toContain("初デート");
     expect(prompt).toContain("ロマンチック");
     expect(prompt).toContain("5,000〜15,000円");
@@ -22,12 +22,12 @@ describe("buildUserPrompt", () => {
   });
 
   it("includes partner interests when provided", () => {
-    const prompt = buildUserPrompt(baseRequest, [], null, "");
+    const prompt = buildUserPrompt(baseRequest, [], null, "", null);
     expect(prompt).toContain("カフェ巡り");
   });
 
   it("excludes partner interests when empty", () => {
-    const prompt = buildUserPrompt({ ...baseRequest, partnerInterests: "" }, [], null, "");
+    const prompt = buildUserPrompt({ ...baseRequest, partnerInterests: "" }, [], null, "", null);
     expect(prompt).not.toContain("趣味・好み");
   });
 
@@ -37,12 +37,13 @@ describe("buildUserPrompt", () => {
       [],
       null,
       "",
+          null,
     );
     expect(prompt).toContain("夜景が見えるところ");
   });
 
   it("defaults location to 東京 when empty", () => {
-    const prompt = buildUserPrompt({ ...baseRequest, location: "" }, [], null, "");
+    const prompt = buildUserPrompt({ ...baseRequest, location: "" }, [], null, "", null);
     expect(prompt).toContain("東京");
   });
 
@@ -67,7 +68,7 @@ describe("buildUserPrompt", () => {
     googleMapsUrl: "https://www.google.com/maps/place/?q=place_id:test123",
     mapEmbedUrl: "https://www.google.com/maps/embed/v1/place?key=test&q=place_id:test123",
     };
-    const prompt = buildUserPrompt(baseRequest, [venue], null, "");
+    const prompt = buildUserPrompt(baseRequest, [venue], null, "", null);
     expect(prompt).toContain("テスト居酒屋");
     expect(prompt).toContain("改変厳禁");
     expect(prompt).toContain("東京都渋谷区1-1-1");
@@ -83,7 +84,7 @@ describe("buildUserPrompt", () => {
       mapEmbedUrl: null,
       source: "google_maps" as const,
     };
-    const prompt = buildUserPrompt(baseRequest, [], route, "");
+    const prompt = buildUserPrompt(baseRequest, [], route, "", null);
     expect(prompt).toContain("徒歩8分");
     expect(prompt).toContain("650m");
   });
