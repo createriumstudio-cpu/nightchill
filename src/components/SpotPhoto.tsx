@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import Image from "next/image";
 
 interface SpotPhotoProps {
   spotName: string;
@@ -10,6 +11,8 @@ interface SpotPhotoProps {
 export function SpotPhoto({ spotName, area }: SpotPhotoProps) {
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [attribution, setAttribution] = useState<string | null>(null);
+  const [attributionUri, setAttributionUri] = useState<string | null>(null);
+  const [googleMapsUri, setGoogleMapsUri] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -20,6 +23,8 @@ export function SpotPhoto({ spotName, area }: SpotPhotoProps) {
       .then((data) => {
         setPhotoUri(data.photoUri ?? null);
         setAttribution(data.attribution ?? null);
+        setAttributionUri(data.attributionUri ?? null);
+        setGoogleMapsUri(data.googleMapsUri ?? null);
       })
       .catch(() => setError(true))
       .finally(() => setLoading(false));
@@ -34,7 +39,7 @@ export function SpotPhoto({ spotName, area }: SpotPhotoProps) {
   }
 
   if (error || !photoUri) {
-    return null; // Graceful fallback - don't show anything if no photo
+    return null; // Graceful fallback – don't show anything if no photo
   }
 
   return (
@@ -45,11 +50,37 @@ export function SpotPhoto({ spotName, area }: SpotPhotoProps) {
         alt={`${spotName}の写真`}
         className="w-full h-full object-cover"
       />
-      {attribution && (
-        <div className="absolute bottom-1 right-2 text-xs text-white/70 bg-black/30 px-1 rounded">
-          📷 {attribution} · <span translate="no">Google マップ</span>
-        </div>
-      )}
+      {/* Attribution overlay – compliant with Google Maps Platform policies */}
+      <div className="absolute bottom-1 right-2 text-xs text-white/70 bg-black/30 px-1 rounded">
+        {attribution && attributionUri ? (
+          <>
+            📷{" "}
+            <a
+              href={attributionUri}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-white"
+            >
+              {attribution}
+            </a>
+            {" · "}
+          </>
+        ) : attribution ? (
+          <>📷 {attribution} · </>
+        ) : null}
+        {googleMapsUri ? (
+          <a
+            href={googleMapsUri}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-white"
+          >
+            <span translate="no">Google Maps</span>
+          </a>
+        ) : (
+          <span translate="no">Google Maps</span>
+        )}
+      </div>
     </div>
   );
 }

@@ -3,10 +3,10 @@ import { NextRequest, NextResponse } from "next/server";
 // Cache to avoid repeated API calls (in-memory, persists per Vercel function instance)
 // Bounded to 500 entries max to prevent unbounded growth
 const MAX_CACHE_SIZE = 500;
-const photoCache = new Map<string, { photoUri: string; attribution: string; cachedAt: number }>();
+const photoCache = new Map<string, { photoUri: string; attribution: string; attributionUri: string; googleMapsUri: string; cachedAt: number }>();
 const CACHE_TTL = 23 * 60 * 60 * 1000; // 23 hours
 
-function setCacheEntry(key: string, value: { photoUri: string; attribution: string; cachedAt: number }) {
+function setCacheEntry(key: string, value: { photoUri: string; attribution: string; attributionUri: string; googleMapsUri: string; cachedAt: number }) {
   if (photoCache.size >= MAX_CACHE_SIZE) {
     // Remove oldest entry
     const firstKey = photoCache.keys().next().value;
@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
   const cached = photoCache.get(cacheKey);
   if (cached && Date.now() - cached.cachedAt < CACHE_TTL) {
     return NextResponse.json(
-      { photoUri: cached.photoUri, attribution: cached.attribution, cached: true },
+      { photoUri: cached.photoUri, attribution: cached.attribution, attributionUri: cached.attributionUri, googleMapsUri: cached.googleMapsUri, cached: true },
       {
         headers: {
           "Cache-Control": "public, max-age=82800, stale-while-revalidate=3600",
@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    // Step 1: Text Search (New) to find the place and get photo references
+    // Step 1: Text Search (New) to find the place and get photo references + Google Maps URI
     const searchRes = await fetch(
       "https://places.googleapis.com/v1/places:searchText",
       {
@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
         headers: {
           "Content-Type": "application/json",
           "X-Goog-Api-Key": apiKey,
-          "X-Goog-FieldMask": "places.id,places.photos",
+          "X-Goog-FieldMask": "places.id,places.photos,places.googleMapsUri",
         },
         body: JSON.stringify({
           textQuery: `${query} 東京`,
@@ -63,19 +63,21 @@ export async function GET(req: NextRequest) {
     if (!searchRes.ok) {
       const errText = await searchRes.text();
       console.error(`place-photo: searchText failed ${searchRes.status}: ${errText}`);
-      return NextResponse.json({ photoUri: null, attribution: null });
+      return NextResponse.json({ photoUri: null, attribution: null, attributionUri: null, googleMapsUri: null });
     }
 
     const searchData = await searchRes.json();
     const place = searchData.places?.[0];
 
     if (!place?.photos?.length) {
-      return NextResponse.json({ photoUri: null, attribution: null });
+      return NextResponse.json({ photoUri: null, attribution: null, attributionUri: null, googleMapsUri: place?.googleMapsUri ?? null });
     }
 
     const photoName = place.photos[0].name;
     const authorAttribution = place.photos[0].authorAttributions?.[0];
     const attribution = authorAttribution?.displayName ?? null;
+    const attributionUri = authorAttribution?.uri ?? null;
+    const googleMapsUri = place.googleMapsUri ?? null;
 
     // Step 2: Get photo URL
     const photoRes = await fetch(
@@ -83,18 +85,18 @@ export async function GET(req: NextRequest) {
     );
 
     if (!photoRes.ok) {
-      return NextResponse.json({ photoUri: null, attribution: null });
+      return NextResponse.json({ photoUri: null, attribution: null, attributionUri: null, googleMapsUri });
     }
 
     const photoData = await photoRes.json();
     const photoUri = photoData.photoUri ?? null;
 
     if (photoUri) {
-      setCacheEntry(cacheKey, { photoUri, attribution: attribution ?? "", cachedAt: Date.now() });
+      setCacheEntry(cacheKey, { photoUri, attribution: attribution ?? "", attributionUri: attributionUri ?? "", googleMapsUri: googleMapsUri ?? "", cachedAt: Date.now() });
     }
 
     return NextResponse.json(
-      { photoUri, attribution },
+      { photoUri, attribution, attributionUri, googleMapsUri },
       {
         headers: {
           "Cache-Control": "public, max-age=82800, stale-while-revalidate=3600",
@@ -103,6 +105,6 @@ export async function GET(req: NextRequest) {
     );
   } catch (err) {
     console.error("place-photo API error:", err);
-    return NextResponse.json({ photoUri: null, attribution: null });
+    return NextResponse.json({ photoUri: null, attribution: null, attributionUri: null, googleMapsUri: null });
   }
 }

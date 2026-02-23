@@ -168,7 +168,7 @@ export default async function FeatureDetailPage({ params }: PageProps) {
                       {index + 1}
                     </span>
                     <div>
-                      <h2 className="text-xl font-bold">{spot.name}</h2>
+                      <h2 className="text-xl font-bold"><a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.name + " " + spot.area)}`} target="_blank" rel="noopener noreferrer" className="hover:underline">{spot.name}</a></h2>
                       <div className="flex items-center gap-2 text-sm text-gray-400">
                         <span>{spot.area}</span>
                         <span className="text-gray-600">|</span>
