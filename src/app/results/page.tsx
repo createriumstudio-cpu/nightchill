@@ -7,6 +7,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SocialEmbedSection from "@/components/SocialEmbed";
 import { type DatePlan, occasionLabels, moodLabels } from "@/lib/types";
+import SectionNav from "@/components/SectionNav";
 import { getRelevantPosts, type UGCPost } from "@/lib/ugc-data";
 import { decodePlan, buildShareUrl } from "@/lib/plan-encoder";
 import type { VenueFactData } from "@/lib/google-places";
@@ -357,7 +358,7 @@ export default function ResultsPage() {
         )}
 
         {/* Title */}
-        <div className="text-center">
+        <div id="overview" className="text-center scroll-mt-32">
           <div className="mb-4 flex items-center justify-center gap-3">
             <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
               {occasionLabels[plan.occasion]}
@@ -372,6 +373,8 @@ export default function ResultsPage() {
           <p className="mt-3 text-muted">{plan.summary}</p>
         </div>
 
+        {/* Section Nav */}
+        <SectionNav />
         {/* Weather Section */}
         {plan.weather && (
           <section className="mt-10">
@@ -382,7 +385,7 @@ export default function ResultsPage() {
 
         {/* Venue Info Section */}
         {plan.venues && plan.venues.length > 0 && (
-          <section className="mt-12">
+          <section id="venues" className="mt-12 scroll-mt-28">
             <h2 className="mb-6 text-xl font-bold">店舗情報</h2>
             <div className="space-y-4">
               {plan.venues.map((venue, i) => (
@@ -415,7 +418,7 @@ export default function ResultsPage() {
           </section>
         )}
         {/* Timeline */}
-        <section className="mt-12">
+        <section id="timeline" className="mt-12 scroll-mt-28">
           <h2 className="mb-6 text-xl font-bold">タイムライン</h2>
           <div className="space-y-6">
             {plan.timeline.map((item, index) => (
@@ -443,7 +446,7 @@ export default function ResultsPage() {
         </section>
 
         {/* Fashion Advice */}
-        <section className="mt-12 rounded-2xl border border-border bg-surface p-6">
+        <section id="advice" className="mt-12 scroll-mt-28 rounded-2xl border border-border bg-surface p-6">
           <h2 className="mb-3 text-xl font-bold">服装アドバイス</h2>
           <p className="text-sm leading-relaxed text-muted">
             {plan.fashionAdvice}
