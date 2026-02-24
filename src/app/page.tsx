@@ -91,7 +91,7 @@ export default function Home() {
         <JsonLd type="organization" />
 
       {/* Hero */}
-      <section className="relative flex min-h-screen items-end justify-center overflow-hidden px-6 pb-24">
+      <section className="relative flex min-h-[80vh] md:min-h-screen items-end justify-center overflow-hidden px-4 md:px-6 pb-12 md:pb-24">
         <div className="absolute inset-0">
             <Image
               src="/images/daikanyama-stylish-date-hero.png"
@@ -104,22 +104,22 @@ export default function Home() {
             <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/50 to-black/80" />
           </div>
         <div className="relative mx-auto max-w-4xl text-center drop-shadow-lg">
-          <p className="mb-4 text-sm font-semibold tracking-widest text-[#c9a96e] uppercase">
+          <p className="mb-2 md:mb-4 text-xs md:text-sm font-semibold tracking-widest text-[#c9a96e] uppercase [text-shadow:_0_1px_6px_rgba(0,0,0,0.6)]">
             デート視点の東京カルチャーガイド
           </p>
-          <h1 className="text-5xl font-bold leading-tight tracking-tight text-white md:text-7xl">
+          <h1 className="text-3xl sm:text-5xl font-bold leading-tight tracking-tight text-white md:text-7xl [text-shadow:_0_2px_12px_rgba(0,0,0,0.8)]">
             ふたりの時間を、
             <br />
             もっとおもしろく。
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-white/80 md:text-xl">
+          <p className="mx-auto mt-4 md:mt-6 max-w-2xl text-sm md:text-lg leading-relaxed text-white/90 [text-shadow:_0_1px_8px_rgba(0,0,0,0.7)]">
             「どこに行くか」ではなく「どうデートするか」。
             <br className="hidden sm:block" />
             エリアの魅力・お店の動線・会話のきっかけまで
             <br className="hidden sm:block" />
             ふたりのデートをもっと楽しく。
           </p>
-          <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+          <div className="mt-6 md:mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <Link
               href="/plan"
               className="rounded-full bg-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-primary/25 transition-all hover:bg-primary-dark hover:shadow-xl hover:shadow-primary/30"
@@ -128,12 +128,12 @@ export default function Home() {
             </Link>
             <a
               href="#how-it-works"
-              className="rounded-full border border-border px-8 py-3.5 text-base font-semibold transition-colors hover:bg-surface"
+              className="rounded-full border border-white/30 px-8 py-3.5 text-base font-semibold text-white/90 transition-colors hover:bg-white/10"
             >
               使い方を見る
             </a>
           </div>
-          <p className="mt-6 text-xs text-white/60">
+          <p className="mt-4 md:mt-6 text-xs text-white/60 [text-shadow:_0_1px_4px_rgba(0,0,0,0.5)]">
             登録不要・完全無料・30秒で完成
           </p>
         </div>
