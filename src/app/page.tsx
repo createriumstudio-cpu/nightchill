@@ -97,7 +97,7 @@ export default function Home() {
               src="/images/daikanyama-stylish-date-hero.png"
               alt="東京デートシーン"
               fill
-              className="object-cover scale-110"
+              className="object-cover scale-110 object-[35%_center] md:object-center"
               sizes="100vw"
               priority
             />
