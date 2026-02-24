@@ -16,7 +16,7 @@ export default function Footer() {
               デート視点の東京カルチャーガイド
             </p>
             <p className="mt-1 text-xs text-gray-600">
-              ふたりの時間を、もっとおもしろく。
+              ふたりの時間を もっとおもしろく
             </p>
           </div>
 

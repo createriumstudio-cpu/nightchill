@@ -60,7 +60,7 @@ export const uiTranslations = {
   ja: {
     siteName: "futatabito",
     tagline: "デート視点の東京カルチャーガイド",
-    catchphrase: "ふたりの時間を、もっとおもしろく。",
+    catchphrase: "ふたりの時間を もっとおもしろく",
     features: "特集",
     backToFeatures: "← 特集一覧に戻る",
     spots: "スポット",
@@ -74,7 +74,7 @@ export const uiTranslations = {
   en: {
     siteName: "futatabito",
     tagline: "Tokyo Culture Guide for Date Planning",
-    catchphrase: "Make your time together more exciting.",
+    catchphrase: "Make your time together more exciting",
     features: "Features",
     backToFeatures: "← Back to Features",
     spots: "Spots",
