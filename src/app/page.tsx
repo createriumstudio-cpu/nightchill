@@ -108,9 +108,9 @@ export default function Home() {
             デート視点の東京カルチャーガイド
           </p>
           <h1 className="text-3xl sm:text-5xl font-bold leading-tight tracking-tight text-white md:text-7xl [text-shadow:_0_2px_12px_rgba(0,0,0,0.8)]">
-            ふたりの時間を、
+            ふたりの時間を
             <br />
-            もっとおもしろく。
+            もっとおもしろく
           </h1>
           <p className="mx-auto mt-4 md:mt-6 max-w-2xl text-sm md:text-lg leading-relaxed text-white/90 [text-shadow:_0_1px_8px_rgba(0,0,0,0.7)]">
             「どこに行くか」ではなく「どうデートするか」。
@@ -319,7 +319,7 @@ export default function Home() {
             次のデートを、もっと楽しく。
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-white/80">
-            ふたりの時間を、もっとおもしろく。デートという視点で東京のカルチャーを提案します。
+            ふたりの時間をもっとおもしろくデートという視点で東京のカルチャーを提案します。
           </p>
           <Link
             href="/plan"
