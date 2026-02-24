@@ -1,5 +1,5 @@
 # HANDOFF.md — futatabito プロジェクト引き継ぎドキュメント
-最終更新: 2026-02-22 16:35
+最終更新: 2026-02-24 11:25
 
 ## プロジェクト概要
 - **ブランド名**: futatabito（ふたたびと）
@@ -36,6 +36,9 @@
 | #41 | Fix: render FeaturedPicks + JsonLd in JSX | ✅ Merged |
 | #42 | Fix: remove duplicate Footer from layout.tsx | ✅ Merged |
 | #43 | Fix: add Footer to pages missing it | ✅ Merged |
+| #44-#47 | Date type, age verification, GBP photos, alcohol badges | ✅ Merged |
+| #48 | Weather API integration (OpenWeatherMap) | ✅ Merged |
+| #49 | UX Enhancement: Step wizard + Section nav | ✅ Merged |
 
 ## 本番サイト現在の状態
 ### ホームページ (/)
@@ -66,11 +69,18 @@
 - ✅ Footer追加済み
 
 ### その他ページ
-- ✅ /plan - デートプラン作成
+- ✅ /plan - デートプラン作成（3ステップウィザード）
+  - 年齢確認（20歳未満/20歳以上）
+  - デート種類選択（食事のみ/半日/終日/お泊まり）
+  - 天気情報自動取得（OpenWeatherMap）
 - ✅ /chat - コンシェルジュ
 - ✅ /about - サイト概要
 - ✅ /privacy - プライバシーポリシー
 - ✅ /results - 検索結果
+  - スティッキーセクションナビ（概要/店舗/タイムライン/アドバイス）
+  - VenueCard: 店舗写真・営業時間・予約CTA
+  - 天気カード表示
+  - アルコール会場バッジ（🔞 20歳以上対象）
 - ✅ /admin - 管理画面（UGC/Sponsored/Original Content）
 
 ## DB情報

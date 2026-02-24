@@ -7,6 +7,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SocialEmbedSection from "@/components/SocialEmbed";
 import { type DatePlan, occasionLabels, moodLabels } from "@/lib/types";
+import SectionNav from "@/components/SectionNav";
 import { getRelevantPosts, type UGCPost } from "@/lib/ugc-data";
 import { decodePlan, buildShareUrl } from "@/lib/plan-encoder";
 import type { VenueFactData } from "@/lib/google-places";
@@ -372,6 +373,8 @@ export default function ResultsPage() {
           <p className="mt-3 text-muted">{plan.summary}</p>
         </div>
 
+        {/* Section Nav */}
+        <SectionNav />
         {/* Weather Section */}
         {plan.weather && (
           <section className="mt-10">
