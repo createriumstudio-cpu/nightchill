@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
@@ -105,12 +106,12 @@ export default function Home() {
           <p className="mb-4 text-sm font-semibold tracking-widest text-[#c9a96e] uppercase">
             デート視点の東京カルチャーガイド
           </p>
-          <h1 className="text-5xl font-bold leading-tight tracking-tight md:text-7xl">
+          <h1 className="text-5xl font-bold leading-tight tracking-tight text-white md:text-7xl">
             ふたりの時間を、
             <br />
-            <span className="text-primary">もっとおもしろく</span>。
+            もっとおもしろく。
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted md:text-xl">
+          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-white/80 md:text-xl">
             「どこに行くか」ではなく「どうデートするか」。
             <br className="hidden sm:block" />
             エリアの魅力・お店の動線・会話のきっかけまで
@@ -131,7 +132,7 @@ export default function Home() {
               使い方を見る
             </a>
           </div>
-          <p className="mt-6 text-xs text-muted">
+          <p className="mt-6 text-xs text-white/60">
             登録不要・完全無料・30秒で完成
           </p>
         </div>
