@@ -91,7 +91,7 @@ export default function Home() {
         <JsonLd type="organization" />
 
       {/* Hero */}
-      <section className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 pt-16">
+      <section className="relative flex min-h-screen items-end justify-center overflow-hidden px-6 pb-24">
         <div className="absolute inset-0">
             <Image
               src="/images/daikanyama-stylish-date-hero.png"
@@ -101,9 +101,9 @@ export default function Home() {
               sizes="100vw"
               priority
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-background" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/50 to-black/80" />
           </div>
-        <div className="relative mx-auto max-w-4xl text-center">
+        <div className="relative mx-auto max-w-4xl text-center drop-shadow-lg">
           <p className="mb-4 text-sm font-semibold tracking-widest text-[#c9a96e] uppercase">
             デート視点の東京カルチャーガイド
           </p>

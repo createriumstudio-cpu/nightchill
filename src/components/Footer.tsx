@@ -10,9 +10,9 @@ export default function Footer() {
           {/* Brand */}
           <div className="md:col-span-1">
             <Link href="/" className="text-xl font-bold">
-              <span className="text-orange-400">futa</span>tabito
+              <span className="text-orange-400">futa</span><span className="text-white">tabito</span>
             </Link>
-            <p className="mt-2 text-sm text-gray-500">
+            <p className="mt-2 text-sm text-gray-400">
               デート視点の東京カルチャーガイド
             </p>
             <p className="mt-1 text-xs text-gray-600">
@@ -55,7 +55,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-10 pt-6 border-t border-gray-800 text-center">
-          <p className="text-xs text-gray-600">
+          <p className="text-xs text-gray-500">
             &copy; {new Date().getFullYear()} futatabito. All rights reserved.
           </p>
         </div>
