@@ -83,3 +83,19 @@
 - **Problem**: Created a todo for Weather API integration, but it was already fully implemented and merged to main
 - **Fix**: Always check current codebase (`grep -rn`) before starting a feature implementation
 - **Rule**: Search for existing implementations before writing new code
+
+
+## Lesson: Gemini Image Download Limitation (2026-02-24)
+- Gemini image URLs (lh3.googleusercontent.com/gg/) are session-authenticated
+- Cannot download via curl from external environments (returns HTML login page)
+- Canvas toDataURL fails (tainted canvas from cross-origin images)
+- Fetch with credentials fails (CORS blocks cross-origin fetch)
+- **Workaround**: User must manually download images from Gemini lightbox (click image → download icon in top-right)
+- Alternative: Use the Gemini download button in the UI, then upload to repo manually
+
+## Lesson: Gemini Multi-line Prompt Sending (2026-02-24)
+- Enter key adds newline in Gemini input (does not send)
+- Must click the send arrow button (▶) at bottom-right of input area
+- In image creation mode, send button appears as blue arrow when text is present
+- Stop button (■) appears while generating - can be confused with send button
+- For reliability, send one image prompt at a time rather than multi-image prompts

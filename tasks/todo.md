@@ -22,7 +22,13 @@
 - [x] Close redundant PR #47 (fix/place-photo-debug)
 
 ## Pending
-- [ ] Swap hero image with Gemini-generated centered couple image (user to download from Gemini session)
+- [ ] Swap hero image with Gemini-generated 4K centered couple image (user to download from Gemini session: gemini.google.com/app/36f13b3edd5eda72)
+  - Hero: couple in red lantern Tokyo alley at twilight (1024x687)
+  - Omotesando feature card: tree-lined avenue at golden hour (1024x572)  
+  - Ginza feature card: luxurious evening scene with crystal-lit buildings (1024x572)
+  - Shibuya feature card: vibrant crossing + cozy izakaya window (1024x572)
+  - Download each image, rename to match: daikanyama-stylish-date-hero.png, omotesando-date-hero.png, ginza-luxury-date-hero.png, shibuya-casual-date-hero.png
+  - Place in public/images/ and commit
 - [ ] Hero video option (user may create video: 1920x1080, 16:9, 10-15s loop, <5MB WebM)
 - [ ] Verify OPENWEATHERMAP_API_KEY is set in Vercel env vars
 - [ ] Mobile responsiveness full audit (cannot test 390px in this browser)
