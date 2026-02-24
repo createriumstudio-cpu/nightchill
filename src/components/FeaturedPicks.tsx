@@ -45,28 +45,28 @@ export default function FeaturedPicks() {
               href={`/features/${pick.slug}`}
               className="group block rounded-2xl overflow-hidden relative h-64 md:h-72 shadow-md hover:shadow-xl transition-all duration-300"
             >
-              {/* Background Image */}
+              {/* Background Image - scale-110 to crop out letterbox bars */}
               <Image
                 src={pick.image}
                 alt={pick.title}
                 fill
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                className="object-cover scale-110 transition-transform duration-500 group-hover:scale-[1.15]"
                 sizes="(max-width: 768px) 100vw, 33vw"
               />
 
               {/* Dark Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10 group-hover:from-black/90 transition-all duration-300" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent group-hover:from-black/90 transition-all duration-300" />
 
-              {/* Content */}
+              {/* Content - all white text for consistency */}
               <div className="absolute inset-0 flex flex-col justify-end p-6">
-                <p className="text-xs font-semibold text-primary tracking-wider mb-1">
+                <p className="text-xs font-semibold text-white/80 tracking-wider mb-1">
                   {pick.area}
                 </p>
-                <h3 className="text-xl font-bold text-white group-hover:text-primary transition-colors">
+                <h3 className="text-xl font-bold text-white">
                   {pick.title}
                 </h3>
                 <p className="text-sm text-white/70 mt-1">{pick.desc}</p>
-                <span className="inline-block mt-3 text-xs text-primary font-semibold group-hover:translate-x-1 transition-transform">
+                <span className="inline-block mt-3 text-xs text-white/90 font-semibold group-hover:translate-x-1 transition-transform">
                   詳しく見る →
                 </span>
               </div>
