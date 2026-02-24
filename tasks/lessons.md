@@ -69,3 +69,17 @@
 ### Codespace management
 - Codespace auto-stops after inactivity — click "Restart codespace" button
 - Always verify git branch (`main` vs feature branches) before making changes
+
+### Responsive object-position for hero images
+- **Problem**: Hero image couple cropped out on mobile portrait viewports (object-cover centers by default)
+- **Fix**: Use `object-[Xpct_center]` on mobile where X = subject horizontal position, `md:object-center` for desktop
+- **Rule**: Always consider how `object-cover` crops on portrait vs landscape viewports. If the subject is off-center, add responsive object-position
+
+### Browser window minimum size limitation
+- **Problem**: `resize_window` tool cannot actually achieve narrow mobile widths (390px) — browser has minimum window size
+- **Rule**: Cannot visually verify mobile layouts directly. Verify CSS logic is correct instead, and ask user to test on their device
+
+### Check existing code before implementing features
+- **Problem**: Created a todo for Weather API integration, but it was already fully implemented and merged to main
+- **Fix**: Always check current codebase (`grep -rn`) before starting a feature implementation
+- **Rule**: Search for existing implementations before writing new code
