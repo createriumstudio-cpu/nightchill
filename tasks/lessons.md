@@ -122,3 +122,18 @@
 - **Problem**: After adding `dateSchedule` to `PlanRequest` type, all mock objects in test files also needed the field
 - **Fix**: Used glob-based Python script to find and patch all test files
 - **Rule**: When modifying a TypeScript type, search all `*.test.ts` files for mock objects of that type and update them too
+
+## Lesson: Python File Manipulation Size Check (2026-02-25)
+- **Problem**: Python `re.sub` with DOTALL on large files can cause catastrophic duplication (ai-planner.ts grew to 1.5GB)
+- **Fix**: Always check output file size before writing: `if len(content) > 100000: raise Error`
+- **Rule**: Never use regex replacement for multi-line code blocks. Use `readlines()` + line-by-line scanning instead
+
+## Lesson: CompactPlan/Encoder Must Match DatePlan Interface (2026-02-25)
+- **Problem**: When removing fields from DatePlan (occasion, mood), CompactPlan interface and toCompact/fromCompact must also be updated
+- **Fix**: Use `grep -n` to find exact line numbers and `sed -i 'Nd'` to delete specific lines
+- **Rule**: After modifying an interface, grep for all references across the codebase: `grep -rn 'fieldName' src/`
+
+## Lesson: TypeScript Record Indexing Requires Exact Key Type (2026-02-25)
+- **Problem**: `Record<DateSchedule, string>[request.dateStr]` fails when dateStr is `string` not `DateSchedule`
+- **Fix**: Cast to `Record<string, string>` or add fallback: `(labels as Record<string, string>)[key] || key`
+- **Rule**: When changing a field's type (e.g., from enum to free-form string), check all Record lookups using that field

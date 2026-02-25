@@ -43,3 +43,23 @@
 - Weather API removed; replaced with dateSchedule field (today/tomorrow/this-weekend/next-week/undecided) + Claude prompt context
 - PR #47 closed as redundant
 - Gemini image generated: centered couple, navy jacket + beige outfit, Tokyo evening street (session: gemini.google.com/app/36f13b3edd5eda72)
+
+- [x] ~~Form UI redesign: 5-step flow (いつ→どこで→誰と→何をしたい→詳細)~~ (commit 87c6c5a)
+  - Rewrote types.ts: new PlanRequest with dateStr/startTime/endTime/relationship/activities[]
+  - Rewrote plan/page.tsx: 5-step wizard with progress indicator
+  - Rewrote ai-planner.ts: improved system prompt for diversity, weather, minimum spot count
+  - Rewrote route.ts: new validation for activities[] and relationship fields
+  - Rewrote planner.ts: template fallback with new PlanRequest
+  - Updated plan-encoder.ts: removed occasion/mood from CompactPlan
+  - Updated results/page.tsx: removed occasion/mood display
+  - Updated test files: new mock objects matching VenueFactData
+  - Added globals.css: fadeIn animation + scroll-behavior smooth
+  - Temperature increased to 0.95 for AI diversity
+  - 10 files changed, 648 insertions(+), 1023 deletions(-)
+
+## Review Notes (Phase 2)
+- Latest deploy: commit 87c6c5a (2026-02-25)
+- Production URL: https://nightchill-sr5g.vercel.app/plan
+- All TypeScript checks passing (EXIT_CODE=0)
+- Verified 5-step form on production: all steps render correctly
+- Backup tag: v1.1.0-pre-form-refactor
