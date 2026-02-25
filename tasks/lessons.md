@@ -99,3 +99,26 @@
 - In image creation mode, send button appears as blue arrow when text is present
 - Stop button (■) appears while generating - can be confused with send button
 - For reliability, send one image prompt at a time rather than multi-image prompts
+
+## Lesson: Question API Necessity Before Implementation (2026-02-25)
+- **Problem**: OpenWeatherMap API was fetching only current weather (not forecast), making it potentially misleading for date planning
+- **Insight**: User pointed out that if you know the date and area, Claude can infer weather context from its training data (seasonal patterns, Tokyo climate)
+- **Fix**: Removed OpenWeatherMap entirely. Added `dateSchedule` field (today/tomorrow/this-weekend/next-week/undecided) to the plan form. Claude's prompt now includes date context for weather-aware recommendations
+- **Rule**: Before implementing/fixing an API integration, ask "Is this API actually necessary?" — sometimes the AI model itself can handle the context
+- **Result**: Eliminated an external dependency, removed API key management overhead, and improved UX (user picks a date range instead of seeing weather data)
+
+## Lesson: sed -i Syntax Differs Between macOS and Linux (2026-02-25)
+- `sed -i '' 'command' file` — macOS (BSD sed, requires empty string for in-place)
+- `sed -i 'command' file` — Linux (GNU sed, no empty string needed)
+- GitHub Codespaces runs Linux, so use the Linux syntax
+- **Rule**: For cross-platform scripts, prefer Python over sed for file manipulation
+
+## Lesson: Python str.replace Fails on Multi-line Code Patterns (2026-02-25)
+- **Problem**: `str.replace()` with hardcoded multi-line strings often fails because the actual file has different whitespace, line breaks, or formatting
+- **Fix**: Use line-by-line iteration with pattern detection for surgical code modifications
+- **Rule**: For multi-line code patches in terminals, use Python with `readlines()` + line-by-line scanning rather than whole-string `.replace()`
+
+## Lesson: TypeScript Test Files Need Full Type Compliance (2026-02-25)
+- **Problem**: After adding `dateSchedule` to `PlanRequest` type, all mock objects in test files also needed the field
+- **Fix**: Used glob-based Python script to find and patch all test files
+- **Rule**: When modifying a TypeScript type, search all `*.test.ts` files for mock objects of that type and update them too

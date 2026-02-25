@@ -30,7 +30,7 @@
   - Download each image, rename to match: daikanyama-stylish-date-hero.png, omotesando-date-hero.png, ginza-luxury-date-hero.png, shibuya-casual-date-hero.png
   - Place in public/images/ and commit
 - [ ] Hero video option (user may create video: 1920x1080, 16:9, 10-15s loop, <5MB WebM)
-- [ ] Verify OPENWEATHERMAP_API_KEY is set in Vercel env vars
+- [x] ~~Verify OPENWEATHERMAP_API_KEY is set in Vercel env vars~~ → Removed OpenWeatherMap dependency entirely. Replaced with dateSchedule field + Claude prompt injection (commit 4a558af)
 - [ ] Mobile responsiveness full audit (cannot test 390px in this browser)
 - [ ] Cleanup unused mapEmbedUrl field (low priority, minimal impact)
 
@@ -40,6 +40,6 @@
 - All TypeScript checks passing
 - Hero image with responsive object-position for mobile
 - Feature cards: no black bars, consistent white text
-- Weather API fully integrated in ai-planner.ts
+- Weather API removed; replaced with dateSchedule field (today/tomorrow/this-weekend/next-week/undecided) + Claude prompt context
 - PR #47 closed as redundant
 - Gemini image generated: centered couple, navy jacket + beige outfit, Tokyo evening street (session: gemini.google.com/app/36f13b3edd5eda72)
