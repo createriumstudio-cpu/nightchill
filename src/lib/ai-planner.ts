@@ -1,14 +1,12 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type { PlanRequest, DatePlan } from "./types";
-import { occasionLabels, moodLabels, budgetLabels, dateTypeLabels, ageGroupLabels } from "./types";
+import { occasionLabels, moodLabels, budgetLabels, dateTypeLabels, ageGroupLabels, dateScheduleLabels } from "./types";
 import { env } from "./env";
 import { searchVenue, formatVenueForPrompt } from "./google-places";
 import type { VenueFactData } from "./google-places";
 import { getWalkingRoute, formatRouteForPrompt } from "./google-maps";
 import type { WalkingRoute } from "./google-maps";
 import { findRelevantPR, formatPRForPrompt } from "./contextual-pr";
-import { getWeather, formatWeatherForPrompt } from "./weather";
-import type { WeatherData } from "./weather";
 
 let client: Anthropic | null = null;
 function getClient(): Anthropic {
@@ -82,7 +80,6 @@ function buildUserPrompt(
   venues: VenueFactData[],
   route: WalkingRoute | null,
   prText: string,
-  weather: WeatherData | null,
 ): string {
   const parts = [
     `シチュエーション: ${occasionLabels[request.occasion]}`,
@@ -123,10 +120,12 @@ function buildUserPrompt(
     parts.push(prText);
   }
 
-  // 天気情報注入
-  if (weather) {
+  // デート予定日の注入
+  if (request.dateSchedule && request.dateSchedule !== "undecided") {
     parts.push("");
-    parts.push(formatWeatherForPrompt(weather));
+    parts.push(`=== デート予定日 ===`);
+    parts.push(`予定: ${dateScheduleLabels[request.dateSchedule]}`);
+    parts.push("※ 予定日の季節・天候傾向を考慮したプランを提案してください（雨天の場合の屋内代替案も含めて）");
   }
 
   return parts.join("\n");
@@ -384,8 +383,6 @@ export async function generateAIPlan(request: PlanRequest): Promise<DatePlan> {
   const venueResults = await Promise.all(venuePromises);
   const venues = venueResults.filter((v): v is VenueFactData => v !== null);
 
-  // Step 1.5: 天気情報取得
-  const weather = await getWeather(area);
 
   // Step 2: 徒歩ルート取得（2軒見つかった場合）
   let walkingRoute: WalkingRoute | null = null;
@@ -418,7 +415,7 @@ export async function generateAIPlan(request: PlanRequest): Promise<DatePlan> {
         messages: [
           {
             role: "user",
-            content: buildUserPrompt(request, venues, walkingRoute, prText, weather),
+            content: buildUserPrompt(request, venues, walkingRoute, prText),
           },
         ],
       });
@@ -444,8 +441,7 @@ export async function generateAIPlan(request: PlanRequest): Promise<DatePlan> {
         warnings: parsed.warnings as string[],
         venues,
         walkingRoute: walkingRoute ?? undefined,
-          weather: weather ?? undefined,
-      };
+        };
     } catch (error) {
       lastError = error as Error;
       console.error(

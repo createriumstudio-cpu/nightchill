@@ -1,4 +1,3 @@
-import type { WeatherData } from "./weather";
 import type { VenueFactData } from "./google-places";
 import type { WalkingRoute } from "./google-maps";
 
@@ -18,12 +17,15 @@ export type DateType = "dinner-only" | "half-day" | "full-day" | "overnight";
 
 export type AgeGroup = "under-20" | "20-plus";
 
+export type DateSchedule = "today" | "tomorrow" | "this-weekend" | "next-week" | "undecided";
+
 export interface PlanRequest {
   occasion: Occasion;
   mood: Mood;
   budget: Budget;
   dateType: DateType;
   ageGroup: AgeGroup;
+  dateSchedule: DateSchedule;
   location: string;
   partnerInterests: string;
   additionalNotes: string;
@@ -48,7 +50,6 @@ export interface DatePlan {
   // Phase 1: ファクトデータ & ルート情報
   venues?: VenueFactData[];
   walkingRoute?: WalkingRoute;
-  weather?: WeatherData;
 }
 
 export const occasionLabels: Record<Occasion, string> = {
@@ -78,6 +79,14 @@ export const dateTypeLabels: Record<DateType, string> = {
 export const ageGroupLabels: Record<AgeGroup, string> = {
   "under-20": "20歳未満",
   "20-plus": "20歳以上",
+};
+
+export const dateScheduleLabels: Record<DateSchedule, string> = {
+  today: "今日",
+  tomorrow: "明日",
+  "this-weekend": "今週末",
+  "next-week": "来週",
+  undecided: "未定",
 };
 
 export const budgetLabels: Record<Budget, string> = {

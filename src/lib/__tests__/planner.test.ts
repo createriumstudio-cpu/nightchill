@@ -8,6 +8,7 @@ describe("generateDatePlan", () => {
     budget: "medium",
     dateType: "half-day",
     ageGroup: "20-plus",
+    dateSchedule: "undecided",
     location: "渋谷",
     partnerInterests: "カフェ巡り",
     additionalNotes: "",

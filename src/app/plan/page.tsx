@@ -10,11 +10,13 @@ import {
   type Budget,
   type DateType,
   type AgeGroup,
+  type DateSchedule,
   occasionLabels,
   moodLabels,
   budgetLabels,
   dateTypeLabels,
   ageGroupLabels,
+  dateScheduleLabels,
 } from "@/lib/types";
 
 const TOTAL_STEPS = 3;
@@ -63,6 +65,7 @@ export default function PlanPage() {
   const [budget, setBudget] = useState<Budget | "">("");
   const [dateType, setDateType] = useState<DateType | "">("");
   const [ageGroup, setAgeGroup] = useState<AgeGroup | "">("");
+  const [dateSchedule, setDateSchedule] = useState<DateSchedule>("undecided");
   const [location, setLocation] = useState("");
   const [partnerInterests, setPartnerInterests] = useState("");
   const [additionalNotes, setAdditionalNotes] = useState("");
@@ -80,7 +83,7 @@ export default function PlanPage() {
       if (s === 2) return !!budget && !!dateType && !!ageGroup;
       return true; // step 3 has only optional fields
     },
-    [occasion, mood, budget, dateType, ageGroup],
+    [occasion, mood, budget, dateType, ageGroup, dateSchedule],
   );
 
   const canProceed = stepValid(step);
@@ -122,6 +125,7 @@ export default function PlanPage() {
           budget,
           dateType,
           ageGroup,
+          dateSchedule,
           location: location || "東京",
           partnerInterests,
           additionalNotes,
@@ -356,6 +360,26 @@ export default function PlanPage() {
                     ))}
                   </div>
                 </fieldset>
+
+              {/* デート予定日 */}
+              <fieldset>
+                <legend className="text-sm font-medium mb-2">
+                  いつのデート？
+                </legend>
+                <div className="grid grid-cols-3 gap-3">
+                  {(
+                    Object.entries(dateScheduleLabels) as [DateSchedule, string][]
+                  ).map(([value, label]) => (
+                    <Chip
+                      key={value}
+                      selected={dateSchedule === value}
+                      onClick={() => setDateSchedule(value)}
+                    >
+                      {label}
+                    </Chip>
+                  ))}
+                </div>
+              </fieldset>
               </div>
             )}
 

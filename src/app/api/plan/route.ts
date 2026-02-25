@@ -117,6 +117,7 @@ export async function POST(request: Request) {
       budget: body.budget,
       dateType: body.dateType,
       ageGroup: body.ageGroup,
+      dateSchedule: body.dateSchedule || "undecided",
       location: sanitizeText(body.location || "東京", 50),
       partnerInterests: sanitizeText(body.partnerInterests || "", 200),
       additionalNotes: sanitizeText(body.additionalNotes || "", 500),
