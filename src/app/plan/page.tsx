@@ -28,6 +28,7 @@ export default function PlanPage() {
 
   // Step 1: いつ？
   const [dateStr, setDateStr] = useState("");
+  const [endDateStr, setEndDateStr] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
 
@@ -171,13 +172,37 @@ export default function PlanPage() {
                 <input
                   type="date"
                   value={dateStr}
-                  onChange={(e) => setDateStr(e.target.value)}
+                  onChange={(e) => { setDateStr(e.target.value); if (!e.target.value) setEndDateStr(""); }}
                   min={today}
                   className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              {/* 帰りの日（宿泊プラン用） */}
+            {dateStr && (
+              <div className="mt-3">
+                <label className="block text-sm font-medium text-gray-700 mb-1">帰りの日<span className="text-gray-400 text-xs ml-1">（宿泊する場合）</span></label>
+                <input
+                  type="date"
+                  value={endDateStr}
+                  onChange={(e) => setEndDateStr(e.target.value)}
+                  min={dateStr}
+                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
+                />
+                {endDateStr && dateStr && endDateStr > dateStr && (
+                  <p className="text-sm text-orange-600 mt-1 font-medium">
+                    {(() => {
+                      const start = new Date(dateStr);
+                      const end = new Date(endDateStr);
+                      const nights = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+                      return `🌙 ${nights}泊${nights + 1}日のプラン`;
+                    })()}
+                  </p>
+                )}
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">合流時間</label>
                   <input
