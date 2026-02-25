@@ -108,7 +108,8 @@ export default function PlanPage() {
       }
 
       const data = await res.json();
-      sessionStorage.setItem("datePlan", JSON.stringify(data));
+      sessionStorage.setItem("futatabito-plan", JSON.stringify(data));
+      sessionStorage.setItem("futatabito-location", location);
       router.push("/results");
     } catch (err) {
       setError(err instanceof Error ? err.message : "エラーが発生しました");
