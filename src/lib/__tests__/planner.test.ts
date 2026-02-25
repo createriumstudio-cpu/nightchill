@@ -3,6 +3,7 @@ import type { PlanRequest } from "../types";
 
 const mockRequest: PlanRequest = {
   dateStr: "",
+    endDateStr: "",
   startTime: "",
   endTime: "",
   location: "渋谷",

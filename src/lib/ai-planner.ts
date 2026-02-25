@@ -19,36 +19,54 @@ function getClient(): Anthropic {
 const SYSTEM_PROMPT = `あなたは東京のデートプランニングの専門家です。
 ユーザーの条件に合わせて、具体的で実在する店舗・スポットを使ったデートプランを提案します。
 
-【最重要ルール — 多様性と重複禁止】
+【最重要ルール ― 多様性と重複禁止】
 - 同じ店舗名を2回以上提案に含めてはならない
 - 毎回異なるプランを生成すること。定番だけでなく隠れた名店や新しい店も積極的に提案する
 - 同じエリアでもリクエストごとに違う店を推薦する。ランダム性を持たせること
 - チェーン店より個人店・独立店を優先する
+- 同じジャンルの店が連続しないようにする（例: レストラン→カフェ→散歩→バー）
 
 【タイムライン設計ルール】
-- 合流〜解散の時間帯が指定されている場合、その範囲内で計画する
-- 時間帯が長い（4時間以上）場合: 最低4スポット以上を含める
-- 時間帯が短い（2時間以下）場合: 2〜3スポット
-- 時間指定がない場合: デフォルト4〜6スポットのプランを作成
-- 各タイムラインのtimeは "HH:MM" 形式で記載
+- 合流～解散の時間帯が指定されている場合、その範囲内で計画する
+- 時間帯が長い（4時間以上）場合：最低4スポット以上を含める
+- 終日（6時間以上）場合：最低5〜7スポットを含める
+- 宿泊・旅行の場合：日ごとにセクション分けし、各日3〜5スポットを含める
+- 短時間（2時間以下）場合でも最低2スポットを含める
+- スポット間の移動時間も考慮し、現実的な時間配分にする
 
-【天気・季節の考慮 — 厳守】
-- 日付が指定されている場合、その日の東京の季節・天候傾向を必ず考慮する
-- 雨の可能性がある場合: 屋内スポット中心にし、テラス席・公園散歩は避ける。warningsに傘持参を含める
-- 冬（12-2月）: 防寒対策をfashionAdviceに含める。暖かい室内スポット優先
-- 夏（6-8月）: 涼しい場所、水分補給のtipを含める
-- 梅雨（6月中旬〜7月中旬）: 屋内プラン中心
+【天気・季節の考慮 ― 必須】
+- 日付から季節を判定し、季節に合った提案をする
+- 春（3-5月）：花見スポット、テラス席のあるカフェ、散策コース
+- 夏（6-8月）：涼しい屋内スポット中心、水分補給できるカフェ、夕方以降の屋外
+- 秋（9-11月）：紅葉スポット、食欲の秋をテーマにしたグルメ、散歩コース
+- 冬（12-2月）：暖かい屋内中心、イルミネーション、温かい食事
+- 梅雨（6月中旬～7月中旬）：完全屋内プラン。テラス席・公園散歩は絶対に避ける
+- 雨の可能性がある場合：屋内スポット中心にし、warningsに傘持参を含める
+- テラス席・屋外スポットを提案する場合は必ず「天候による代替案」をtipに記載する
 
-【年齢制限ルール — 厳守】
-- 「20歳未満」の場合: バー、居酒屋、シーシャ、ナイトクラブ、アルコールを提供する店は絶対に推薦しない
-- 「20歳以上」の場合: 全ての店舗を推薦可能
+【関係性×雰囲気のマッチングルール ― 重要】
+- 恋人 × ロマンチック：夜景レストラン、キャンドルディナー、プラネタリウム、展望台
+- 恋人 × 楽しい：テーマパーク、ゲームセンター、カラオケ、食べ歩き
+- 恋人 × リラックス：スパ、温泉、静かなカフェ、公園散策
+- 夫婦 × ロマンチック：高級レストラン、ワインバー、クルーズディナー
+- 夫婦 × リラックス：美術館、庭園、ブックカフェ、マッサージ
+- まだ友達 × 楽しい：アクティビティ（ボルダリング、卓球）、フードフェス、映画
+- まだ友達 × カジュアル：気軽なカフェ、ランチ、ショッピング、水族館
+- 関係が浅い場合は個室やムーディーすぎる場所を避け、オープンで会話が弾む場所を選ぶ
 
-【関係性の考慮】
-- 恋人: 距離が近くなれるスポット、ムードのある場所
-- 夫婦: リラックスできる大人の空間、質の高い体験
-- まだ友達: カジュアルで気軽な場所、会話が弾むスポット
+【好み・追加リクエストの反映 ― 必須】
+- additionalNotesに書かれた内容は最優先で反映する
+- 「カフェ好き」→ おしゃれなカフェを2件以上含める
+- 「写真映え」→ フォトジェニックなスポットを優先
+- 「静か」→ にぎやかな場所を避ける
+- 「アクティブ」→ 体を動かせるスポットを含める
+- 相手の好みが書かれていたら、それに合わせてスポットを選ぶ
 
-【JSON出力ルール — 厳守】
+【年齢制限ルール ― 厳守】
+- 「20歳未満」の場合：バー、居酒屋、シーシャ、ナイトクラブ、アルコールを提供する店は絶対に推薦しない
+- 「20歳以上」の場合：全ての店舗を推薦可能
+
+【JSON出力ルール ― 厳守】
 1. 純粋なJSONのみ出力。マークダウンのコードブロックで囲まない
 2. 全ての文字列値は1行で書く。改行を入れない
 3. 文字列値の中にダブルクォートを使わない。必要なら「」を使う
@@ -72,61 +90,149 @@ const SYSTEM_PROMPT = `あなたは東京のデートプランニングの専門
   "warnings": ["注意点1", "注意点2"]
 }`;
 
+
 function buildUserPrompt(
   request: PlanRequest,
   venues: VenueFactData[],
   route: WalkingRoute | null,
   prText: string,
 ): string {
-  const parts = [
-    `シチュエーション: ${occasionLabels[request.activities[0] || "dinner"]}`,
-    `雰囲気: ${moodLabels[request.mood]}`,
-    `予算: ${budgetLabels[request.budget]}`,
-    `デートの種類: ${dateTypeLabels["full-day"]}`,
-    `年齢: ${ageGroupLabels[request.ageGroup]}`,
-    `エリア: ${request.location || "東京"}`,
-  ];
+  const parts: string[] = [];
 
-  if (request.additionalNotes) {
-    parts.push(`相手の趣味・好み: ${request.additionalNotes}`);
+  // ランダム性のためのシード
+  const randomSeed = Math.floor(Math.random() * 1000);
+  parts.push(`[リクエストID: ${randomSeed}] ※毎回異なるプランを生成してください`);
+  parts.push("");
+
+  // 基本情報
+  const activityLabelsMap: Record<string, string> = {
+    birthday: "誕生日", anniversary: "記念日", lunch: "ランチ",
+    dinner: "ディナー", cafe: "カフェ巡り", shopping: "ショッピング",
+    active: "アクティブ", nightlife: "バー・夜遊び", chill: "まったり", travel: "おでかけ・旅行"
+  };
+  const selectedActivities = request.activities.map(a => activityLabelsMap[a] || a).join("、");
+
+  const moodLabelsMap: Record<string, string> = {
+    romantic: "ロマンチック", fun: "楽しい", relaxed: "リラックス",
+    luxurious: "ラグジュアリー", adventurous: "アドベンチャー"
+  };
+
+  const relationshipLabelsMap: Record<string, string> = {
+    lover: "恋人", spouse: "夫婦", "not-yet": "まだ友達（関係が浅い）"
+  };
+
+  const budgetLabelsMap: Record<string, string> = {
+    low: "〜5,000円", medium: "5,000〜15,000円", high: "15,000〜30,000円", unlimited: "予算は気にしない"
+  };
+
+  parts.push("=== デートの条件 ===");
+  parts.push(`やりたいこと: ${selectedActivities}`);
+  parts.push(`雰囲気: ${moodLabelsMap[request.mood] || request.mood}`);
+  parts.push(`関係性: ${relationshipLabelsMap[request.relationship] || request.relationship}`);
+  parts.push(`予算: ${budgetLabelsMap[request.budget] || request.budget}`);
+  parts.push(`エリア: ${request.location || "東京"}`);
+  parts.push(`年齢: ${request.ageGroup === "under-20" ? "20歳未満" : "20歳以上"}`);
+
+  // 時間帯情報
+  if (request.startTime || request.endTime) {
+    parts.push("");
+    parts.push("=== 時間帯 ===");
+    if (request.startTime) parts.push(`合流時間: ${request.startTime}`);
+    if (request.endTime) parts.push(`解散時間: ${request.endTime}`);
+
+    // 時間帯の長さを計算して最低スポット数を指示
+    if (request.startTime && request.endTime) {
+      const startH = parseInt(request.startTime.split(":")[0]);
+      const endH = parseInt(request.endTime.split(":")[0]);
+      const duration = endH > startH ? endH - startH : (24 - startH) + endH;
+      if (duration >= 6) {
+        parts.push(`※ ${duration}時間のデートです。最低5〜7スポットを提案してください`);
+      } else if (duration >= 4) {
+        parts.push(`※ ${duration}時間のデートです。最低4スポットを提案してください`);
+      } else {
+        parts.push(`※ ${duration}時間のデートです。最低2〜3スポットを提案してください`);
+      }
+    }
   }
+
+  // 日付・季節・天気情報
+  if (request.dateStr && request.dateStr !== "undecided") {
+    parts.push("");
+    parts.push("=== デート予定日 ===");
+    parts.push(`日付: ${request.dateStr}`);
+
+    // 宿泊・旅行の場合
+    if (request.endDateStr) {
+      parts.push(`終了日: ${request.endDateStr}`);
+      parts.push("※ 複数日のプランです。日ごとにセクション分けして提案してください");
+    }
+
+    // 月から季節・天気を推定
+    const month = parseInt(request.dateStr.split("-")[1]);
+    if (month >= 3 && month <= 5) {
+      parts.push("季節: 春 → 花見や散策が楽しめる時期。テラス席もおすすめ");
+    } else if (month === 6) {
+      parts.push("季節: 梅雨 → 雨の可能性が高い。完全屋内プランを推奨。テラス席・公園散歩は避けること");
+    } else if (month >= 7 && month <= 8) {
+      parts.push("季節: 夏 → 暑い時期。涼しい屋内中心に。水分補給のためカフェを多めに");
+    } else if (month >= 9 && month <= 11) {
+      parts.push("季節: 秋 → 紅葉やグルメが楽しめる時期。散歩も気持ちいい");
+    } else {
+      parts.push("季節: 冬 → 寒い時期。暖かい屋内中心に。イルミネーションスポットも検討");
+    }
+  }
+
+  // 関係性に応じた具体的指示
+  parts.push("");
+  parts.push("=== 関係性に応じた注意点 ===");
+  if (request.relationship === "not-yet") {
+    parts.push("まだ友達の段階です。以下を守ってください：");
+    parts.push("- 個室やムーディーすぎる場所は避ける");
+    parts.push("- オープンで会話が弾みやすい場所を選ぶ");
+    parts.push("- 程よい距離感を保てるカジュアルなスポットを優先");
+    parts.push("- 長すぎないプランにする（相手が疲れないように）");
+  } else if (request.relationship === "lover") {
+    parts.push("恋人同士です。以下を考慮してください：");
+    parts.push("- 二人の距離が近くなれるスポットを含める");
+    parts.push("- 記念になるような特別感のある場所もOK");
+    parts.push("- ムードのある場所と楽しい場所をバランスよく");
+  } else {
+    parts.push("夫婦です。以下を考慮してください：");
+    parts.push("- リラックスできる大人の空間を優先");
+    parts.push("- 質の高い体験（食事、アート、自然）を重視");
+    parts.push("- 新鮮さを感じられる普段行かないような場所も含める");
+  }
+
+  // 好み・追加リクエスト
   if (request.additionalNotes) {
-    parts.push(`その他の要望: ${request.additionalNotes}`);
+    parts.push("");
+    parts.push("=== ユーザーの追加リクエスト（最優先で反映） ===");
+    parts.push(request.additionalNotes);
   }
 
   // ファクトデータ注入
   if (venues.length > 0) {
     parts.push("");
     parts.push("=== 以下はGoogle Places APIから取得したファクトデータです ===");
-    parts.push("※ 店名・住所・営業時間は絶対に改変しないでください");
-    for (const venue of venues) {
-      parts.push("");
-      parts.push(formatVenueForPrompt(venue));
-    }
+    parts.push("参考にしてもよいが、これに限定せず自分の知識も活用して多様な店を提案すること：");
+    venues.forEach((v) => {
+      parts.push(`- ${v.name}（${v.address}）評価:${v.rating ?? "不明"} 価格帯:${"$".repeat(v.priceLevel ?? 0) || "不明"}`);
+    });
   }
 
-  // 徒歩ルート情報注入
   if (route) {
     parts.push("");
-    parts.push(formatRouteForPrompt(route));
+    parts.push(`徒歩ルート情報: ${route.distanceText}（${route.durationText}）`);
   }
 
-  // PR情報注入（あれば）
   if (prText) {
     parts.push("");
     parts.push(prText);
   }
 
-  // デート予定日の注入
-  if (request.dateStr && request.dateStr !== "undecided") {
-    parts.push("");
-    parts.push(`=== デート予定日 ===`);
-    parts.push(`予定: ${(dateScheduleLabels as Record<string, string>)[request.dateStr] || request.dateStr}`);
-    parts.push("※ 予定日の季節・天候傾向を考慮したプランを提案してください（雨天の場合の屋内代替案も含めて）");
-  }
-
   return parts.join("\n");
 }
+
 
 /**
  * AIレスポンスからJSONを抽出・修正
@@ -354,6 +460,12 @@ function robustJsonParse(text: string): Record<string, unknown> {
 /**
  * ファクトデータを収集してからAIプランを生成
  */
+const activityLabelsMap: Record<string, string> = {
+  birthday: "誕生日", anniversary: "記念日", lunch: "ランチ",
+  dinner: "ディナー", cafe: "カフェ", shopping: "ショッピング",
+  active: "アクティブ", nightlife: "バー", chill: "まったり", travel: "旅行"
+};
+
 export async function generateAIPlan(request: PlanRequest): Promise<DatePlan> {
   const area = request.location || "東京";
 
@@ -362,15 +474,15 @@ export async function generateAIPlan(request: PlanRequest): Promise<DatePlan> {
   const isOvernight = request.endTime ? parseInt(request.endTime.split(":")[0]) < parseInt(request.startTime.split(":")[0]) : false;
   
   const venuePromises: Promise<VenueFactData | null>[] = [
-    searchVenue(`${area} デート レストラン`, area),
+    searchVenue(`${area} ${request.activities.map(a => activityLabelsMap[a] || a).slice(0, 2).join(" ")} デート`, area),
   ];
   
   if (isUnder20) {
     // 20歳未満: カフェやアミューズメント系を検索
-    venuePromises.push(searchVenue(`${area} デート カフェ`, area));
+    venuePromises.push(searchVenue(`${area} ${["カフェ", "レストラン", "おしゃれ", "人気"][Math.floor(Math.random() * 4)]} デート`, area));
   } else {
     // 20歳以上: バーも含む
-    venuePromises.push(searchVenue(`${area} デート バー カフェ`, area));
+    venuePromises.push(searchVenue(`${area} ${["バー", "ワインバー", "ダイニング", "レストラン"][Math.floor(Math.random() * 4)]} 人気`, area));
   }
   
   if (isOvernight) {

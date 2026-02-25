@@ -30,6 +30,7 @@ export type Mood = "romantic" | "fun" | "relaxed" | "luxurious" | "adventurous";
 export interface PlanRequest {
   // いつ？
   dateStr: string;         // "2026-02-28" or "" (undecided)
+  endDateStr: string;    // "2026-03-01" or "" (same day / undecided)
   startTime: string;       // "11:00" or ""
   endTime: string;         // "21:00" or ""
   // どこで？

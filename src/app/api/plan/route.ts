@@ -84,6 +84,7 @@ export async function POST(request: Request) {
 
     const sanitizedRequest: PlanRequest = {
       dateStr: sanitizeText(body.dateStr || "", 20),
+      endDateStr: sanitizeText(body.endDateStr || "", 20),
       startTime: sanitizeText(body.startTime || "", 10),
       endTime: sanitizeText(body.endTime || "", 10),
       location: sanitizeText(body.location || "東京", 50),

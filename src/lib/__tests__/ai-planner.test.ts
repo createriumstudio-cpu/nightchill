@@ -4,6 +4,7 @@ import type { VenueFactData } from "../google-places";
 
 const mockRequest: PlanRequest = {
   dateStr: "2026-03-01",
+    endDateStr: "",
   startTime: "12:00",
   endTime: "20:00",
   location: "渋谷",
@@ -77,6 +78,7 @@ describe("buildUserPrompt", () => {
     const winterReq: PlanRequest = {
       ...mockRequest,
       dateStr: "2026-12-15",
+    endDateStr: "",
     };
     const prompt = buildUserPrompt(winterReq, [], null, "");
     expect(prompt).toContain("冬季");
