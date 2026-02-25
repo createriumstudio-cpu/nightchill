@@ -1,14 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import SocialEmbedSection from "@/components/SocialEmbed";
 import { type DatePlan } from "@/lib/types";
-import SectionNav from "@/components/SectionNav";
-import { getRelevantPosts, type UGCPost } from "@/lib/ugc-data";
 import { decodePlan, buildShareUrl } from "@/lib/plan-encoder";
 import type { VenueFactData } from "@/lib/google-places";
 
@@ -59,11 +56,6 @@ function planToText(plan: DatePlan): string {
   l.push("");
   l.push("--- 服装アドバイス ---");
   l.push(plan.fashionAdvice);
-  l.push("");
-  l.push("--- 会話のネタ ---");
-  for (const [i, topic] of plan.conversationTopics.entries()) {
-    l.push(`${i + 1}. ${topic}`);
-  }
   l.push("");
   l.push("--- 注意ポイント ---");
   for (const warning of plan.warnings) {
@@ -203,6 +195,44 @@ function VenueCard({ venue, index }: { venue: VenueFactData; index: number }) {
 }
 
 // ============================================================
+// Google Maps 埋め込み (Embed API / フォールバック)
+// ============================================================
+const MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
+
+function VenueMap({ venueName, area }: { venueName: string; area: string }) {
+  const query = encodeURIComponent(`${venueName} ${area}`);
+
+  if (MAPS_API_KEY) {
+    return (
+      <div className="mt-2 overflow-hidden rounded-lg border border-border">
+        <iframe
+          title={`${venueName} の地図`}
+          width="100%"
+          height="150"
+          style={{ border: 0 }}
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          src={`https://www.google.com/maps/embed/v1/place?key=${MAPS_API_KEY}&q=${query}`}
+        />
+      </div>
+    );
+  }
+
+  // フォールバック: Google Maps URLリンク
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
+  return (
+    <a
+      href={mapsUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs font-medium text-primary transition-colors hover:bg-surface"
+    >
+      🗺️ Google Mapsで見る
+    </a>
+  );
+}
+
+// ============================================================
 // メインコンポーネント
 // ============================================================
 export default function ResultsPage() {
@@ -238,11 +268,6 @@ export default function ResultsPage() {
       if (!cancelled) setShareUrl(url);
     });
     return () => { cancelled = true; };
-  }, [plan, location]);
-
-  const ugcPosts: UGCPost[] = useMemo(() => {
-    if (!plan) return [];
-    return getRelevantPosts(location, undefined as any, 4);
   }, [plan, location]);
 
   useEffect(() => {
@@ -356,10 +381,6 @@ export default function ResultsPage() {
           <p className="mt-3 text-muted">{plan.summary}</p>
         </div>
 
-        {/* Section Nav */}
-        <SectionNav />
-
-        {/* Venue Info Section */}
         {/* Timeline with integrated venue info */}
         <section id="timeline" className="mt-12 scroll-mt-28">
           <h2 className="mb-6 text-xl font-bold">タイムライン</h2>
@@ -462,6 +483,10 @@ export default function ResultsPage() {
                           )}
                         </div>
                       )}
+                      {/* Google Map 埋め込み */}
+                      {item.venue && (
+                        <VenueMap venueName={item.venue} area={location} />
+                      )}
                     </div>
                   </div>
                 </div>
@@ -478,21 +503,6 @@ export default function ResultsPage() {
           </p>
         </section>
 
-        {/* Conversation Topics */}
-        <section className="mt-8 rounded-2xl border border-border bg-surface p-6">
-          <h2 className="mb-4 text-xl font-bold">会話のネタ</h2>
-          <ul className="space-y-3">
-            {plan.conversationTopics.map((topic, index) => (
-              <li key={index} className="flex items-start gap-3 text-sm">
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                  {index + 1}
-                </span>
-                <span className="text-muted">{topic}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-
         {/* Warnings */}
         <section className="mt-8 rounded-2xl border border-amber-200 bg-amber-50 p-6 dark:border-amber-900 dark:bg-amber-950">
           <h2 className="mb-4 text-xl font-bold text-amber-900 dark:text-amber-200">
@@ -507,19 +517,6 @@ export default function ResultsPage() {
             ))}
           </ul>
         </section>
-
-        {/* UGC Social Embed Section */}
-        {ugcPosts.length > 0 && (
-          <SocialEmbedSection
-            posts={ugcPosts}
-            title="みんなのデート体験"
-            subtitle={
-              location
-                ? `${location}エリアで話題のデートスポット`
-                : "SNSで話題のデートスポット・体験をチェック"
-            }
-          />
-        )}
 
         {/* Share */}
         <section className="mt-12 rounded-2xl border border-border bg-surface p-6">

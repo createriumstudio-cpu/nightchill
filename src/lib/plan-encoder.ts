@@ -18,7 +18,7 @@ interface CompactPlan {
   s: string;       // summary
   tl: { t: string; a: string; v?: string; d?: string; p: string }[]; // timeline
   f: string;       // fashionAdvice
-  c: string[];     // conversationTopics
+  c?: string[];    // conversationTopics (optional)
   w: string[];     // warnings
 }
 
@@ -41,7 +41,7 @@ function toCompact(plan: DatePlan): CompactPlan {
       p: item.tip,
     })),
     f: plan.fashionAdvice,
-    c: plan.conversationTopics,
+    c: plan.conversationTopics ?? [],
     w: plan.warnings,
   };
 }
@@ -59,7 +59,7 @@ function fromCompact(compact: CompactPlan): DatePlan {
       tip: item.p,
     })),
     fashionAdvice: compact.f,
-    conversationTopics: compact.c,
+    conversationTopics: compact.c ?? [],
     warnings: compact.w,
   };
 }

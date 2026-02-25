@@ -62,7 +62,7 @@ export interface DatePlan {
   summary: string;
   timeline: TimelineItem[];
   fashionAdvice: string;
-  conversationTopics: string[];
+  conversationTopics?: string[];
   warnings: string[];
   // Phase 1: ファクトデータ & ルート情報
   venues?: VenueFactData[];

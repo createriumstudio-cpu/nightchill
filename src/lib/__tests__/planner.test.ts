@@ -23,7 +23,7 @@ describe("generateDatePlan", () => {
     expect(plan.summary).toBeDefined();
     expect(plan.timeline.length).toBeGreaterThan(0);
     expect(plan.fashionAdvice).toBeDefined();
-    expect(plan.conversationTopics.length).toBeGreaterThan(0);
+    expect((plan.conversationTopics ?? []).length).toBeGreaterThan(0);
   });
 
   it("should include location in plan", () => {
