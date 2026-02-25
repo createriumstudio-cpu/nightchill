@@ -357,7 +357,7 @@ function extractFieldsWithRegex(text: string): Record<string, unknown> | null {
   const fashionMatch = text.match(/"fashionAdvice"\s*:\s*"([^"]+)"/);
 
   // timeline抽出 - 個々のtimelineアイテムを抽出
-  const timelineItems: Array<{ time: string; activity: string; tip: string }> = [];
+  const timelineItems: Array<{ time: string; activity: string; venue: string; description: string; tip: string }> = [];
   const timePattern = /"time"\s*:\s*"([^"]+)"/g;
   const activityPattern = /"activity"\s*:\s*"([^"]+)"/g;
   const tipPattern = /"tip"\s*:\s*"([^"]+)"/g;
@@ -381,6 +381,8 @@ function extractFieldsWithRegex(text: string): Record<string, unknown> | null {
     timelineItems.push({
       time: times[i],
       activity: activities[i],
+        venue: "",
+        description: "",
       tip: tips[i] || "",
     });
   }
