@@ -137,3 +137,13 @@
 - **Problem**: `Record<DateSchedule, string>[request.dateStr]` fails when dateStr is `string` not `DateSchedule`
 - **Fix**: Cast to `Record<string, string>` or add fallback: `(labels as Record<string, string>)[key] || key`
 - **Rule**: When changing a field's type (e.g., from enum to free-form string), check all Record lookups using that field
+
+## Lesson: AI Prompt Engineering for Diversity (2026-02-25)
+- **Problem**: AI generates the same 2 stores every time despite temperature=0.95
+- **Fix**: Added random seed to prompt, explicit diversity rules, relationship×mood cross-matching rules, minimum spot count by duration, season/weather rules
+- **Rule**: High temperature alone doesn't guarantee diversity. The system prompt needs explicit "vary your output" instructions, and the user prompt needs a random element
+
+## Lesson: Multi-day Date Form Design (2026-02-25)
+- **Problem**: Travel/overnight dates need start and end dates, but endDate field is in Step 1 while travel selection is in Step 4
+- **Fix**: Conditionally show endDate when travel activity is selected. User can go back to Step 1 to fill it in
+- **Rule**: Consider form flow order when adding conditional fields that depend on later steps
