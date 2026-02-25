@@ -315,6 +315,16 @@ export default function ResultsPage() {
     );
   }
 
+  // Venue matching: timeline.venue -> VenueFactData
+  const findMatchingVenue = (venueName: string): VenueFactData | null => {
+    if (!plan?.venues || !venueName) return null;
+    const lower = venueName.toLowerCase();
+    return plan.venues.find((v: VenueFactData) => {
+      const vLower = v.name.toLowerCase();
+      return vLower.includes(lower) || lower.includes(vLower);
+    }) || null;
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -350,74 +360,113 @@ export default function ResultsPage() {
         <SectionNav />
 
         {/* Venue Info Section */}
-        {plan.venues && plan.venues.length > 0 && (
-          <section id="venues" className="mt-12 scroll-mt-28">
-            <h2 className="mb-6 text-xl font-bold">店舗情報</h2>
-            <div className="space-y-4">
-              {plan.venues.map((venue, i) => (
-                <VenueCard key={venue.placeId || i} venue={venue} index={i} />
-              ))}
-            </div>
-
-            {/* Walking Route */}
-            {plan.walkingRoute && plan.venues.length >= 2 && (
-              <div className="mt-4 rounded-2xl border border-primary/20 bg-primary/5 p-4">
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">🚶</span>
-                  <div>
-                    <p className="font-semibold text-primary">
-                      1軒目 → 2軒目: {plan.walkingRoute.durationText}
-                    </p>
-                    <p className="text-sm text-muted">
-                      {plan.walkingRoute.distanceText} — {plan.walkingRoute.summary}
-                    </p>
-                  </div>
-                </div>
-
-                {plan.walkingRoute.source === "fallback" && (
-                  <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
-                    ※ 正確なルートはGoogle Maps API設定後に表示されます
-                  </p>
-                )}
-              </div>
-            )}
-          </section>
-        )}
-        {/* Timeline */}
+        {/* Timeline with integrated venue info */}
         <section id="timeline" className="mt-12 scroll-mt-28">
           <h2 className="mb-6 text-xl font-bold">タイムライン</h2>
           <div className="space-y-6">
-            {plan.timeline.map((item, index) => (
-              <div key={index} className="flex gap-4">
-                <div className="flex flex-col items-center">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
-                    {item.time.split(":")[0]}
-                  </span>
+            {plan.timeline.map((item, index) => {
+              const matchedVenue = findMatchingVenue(item.venue);
+              return (
+                <div key={index} className="relative">
+                  {/* Timeline connector */}
                   {index < plan.timeline.length - 1 && (
-                    <div className="mt-2 h-full w-px bg-border" />
+                    <div className="absolute left-5 top-12 bottom-0 w-0.5 bg-gray-200" />
                   )}
-                </div>
-                <div className="rounded-2xl border border-border bg-surface p-5 flex-1">
-                  <div className="flex items-baseline justify-between">
-                    <h3 className="font-semibold">{item.activity}</h3>
-                    <span className="text-sm text-muted">{item.time}</span>
+                  <div className="flex gap-4">
+                    {/* Time badge */}
+                    <div className="flex flex-col items-center">
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
+                        {item.time.split(":")[0]}
+                      </span>
+                      <span className="text-xs text-muted mt-0.5">{item.time}</span>
+                    </div>
+                    {/* Content */}
+                    <div className="flex-1 pb-6">
+                      <h3 className="font-bold text-base">{item.activity}</h3>
+                      {item.venue && (
+                        <p className="text-sm text-primary font-medium mt-0.5">
+                          {matchedVenue?.googleMapsUrl ? (
+                            <a href={matchedVenue.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                              📍 {item.venue}
+                            </a>
+                          ) : (
+                            <>📍 {item.venue}</>
+                          )}
+                        </p>
+                      )}
+                      {item.description && (
+                        <p className="text-sm text-muted mt-1">{item.description}</p>
+                      )}
+                      {item.tip && (
+                        <p className="text-xs italic text-muted/70 mt-1">💡 {item.tip}</p>
+                      )}
+                      {/* Embedded venue card */}
+                      {matchedVenue && (
+                        <div className="mt-3 rounded-xl border border-border bg-surface p-3">
+                          <div className="flex gap-3">
+                            {matchedVenue.photoUrl && (
+                              <a href={matchedVenue.googleMapsUrl || "#"} target="_blank" rel="noopener noreferrer" className="shrink-0">
+                                <img
+                                  src={matchedVenue.photoUrl}
+                                  alt={matchedVenue.name}
+                                  className="h-20 w-20 rounded-lg object-cover"
+                                />
+                              </a>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                {matchedVenue.rating && (
+                                  <span className="text-sm font-medium">⭐ {matchedVenue.rating}</span>
+                                )}
+                                {matchedVenue.priceLevel !== null && matchedVenue.priceLevel !== undefined && (
+                                  <span className="text-xs text-muted">{"¥".repeat(matchedVenue.priceLevel)}</span>
+                                )}
+                              </div>
+                              <p className="text-xs text-muted mt-0.5 truncate">{matchedVenue.address}</p>
+                              <div className="flex gap-2 mt-2 flex-wrap">
+                                {matchedVenue.googleMapsUrl && (
+                                  <a
+                                    href={matchedVenue.googleMapsUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 text-xs font-medium transition-colors hover:bg-surface"
+                                  >
+                                    🗺️ 地図
+                                  </a>
+                                )}
+                                {matchedVenue.website && (
+                                  <a
+                                    href={matchedVenue.website}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 text-xs font-medium transition-colors hover:bg-surface"
+                                  >
+                                    🌐 HP
+                                  </a>
+                                )}
+                                {matchedVenue.phoneNumber && (
+                                  <a
+                                    href={`tel:${matchedVenue.phoneNumber}`}
+                                    className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 text-xs font-medium transition-colors hover:bg-surface"
+                                  >
+                                    📞 電話
+                                  </a>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          {matchedVenue.source === "google_places" && (
+                            <p className="mt-2 text-[11px] text-muted">
+                              店舗情報提供: <span translate="no" className="font-normal" style={{ fontFamily: "Roboto, sans-serif" }}>Google Maps</span>
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  {item.venue && (
-                    <p className="mt-1 text-sm font-medium text-primary">
-                      📍 {item.venue}
-                    </p>
-                  )}
-                  {item.description && (
-                    <p className="mt-1 text-sm leading-relaxed text-muted">
-                      {item.description}
-                    </p>
-                  )}
-                  <p className="mt-2 text-xs leading-relaxed text-muted/70 italic">
-                    💡 {item.tip}
-                  </p>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
 
