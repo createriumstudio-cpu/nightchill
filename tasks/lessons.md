@@ -147,3 +147,14 @@
 - **Problem**: Travel/overnight dates need start and end dates, but endDate field is in Step 1 while travel selection is in Step 4
 - **Fix**: Conditionally show endDate when travel activity is selected. User can go back to Step 1 to fill it in
 - **Rule**: Consider form flow order when adding conditional fields that depend on later steps
+
+## Lesson: Shell Heredoc + Backtick Safety (2026-02-25)
+- **Problem**: Python heredoc (`<< 'PYEOF'`) with `\`` for backticks outputs literal `\` + backtick, not just backtick
+- **Rule**: For TypeScript template literals with backticks, write content to separate temp files using bash `<< 'EOF'` (quoted EOF prevents shell interpretation including backticks), then use Python to splice them into the target file
+- **Rule**: Always use `chr(96)` for backtick in Python `python3 -c "..."` commands
+
+## Lesson: TypeScript Interface Field Addition (2026-02-25)
+- **Problem**: Adding required fields to an interface breaks all existing object literals that don't include them
+- **Rule**: After adding fields to TypeScript interfaces, search all usages with `grep -rn "InterfaceName\|fieldName" src/` and update every instance
+- **Rule**: For inline object literals, use regex `re.sub()` to insert new fields before a known field like `tip:`
+- **Rule**: For compact/encoded types, also update the compact interface definition
