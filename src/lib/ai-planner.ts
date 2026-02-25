@@ -87,6 +87,9 @@ const SYSTEM_PROMPT = `あなたは東京のデートプランニングの専門
 3. 文字列値の中にダブルクォートを使わない。必要なら「」を使う
 4. 文字列値の中に { } を使わない
 5. 文字列値は短く簡潔に（各50文字以内を目安）
+6. timeline の venue は絶対に空文字にしない。必ず実在する具体的な店舗名やスポット名を入れること
+7. venue の例: "ABOUT LIFE COFFEE BREWERS", "代々木公園", "恵比寿ガーデンプレイス", "森美術館"
+8. 「カフェで休憩」のような一般名ではなく、具体的な実在店舗名を必ず入れる
 
 以下のJSON構造で応答してください：
 {
@@ -96,7 +99,7 @@ const SYSTEM_PROMPT = `あなたは東京のデートプランニングの専門
     {
       "time": "HH:MM",
       "activity": "アクティビティの内容（50文字以内）",
-      "venue": "具体的な店舗名やスポット名",
+      "venue": "【必須】具体的な実在する店舗名・スポット名（例：ABOUT LIFE COFFEE BREWERS）。絶対に空にしない",
       "description": "この店の特徴やおすすめポイント（80文字以内）",
       "tip": "成功のためのコツ（50文字以内）"
     }
@@ -191,7 +194,6 @@ function buildUserPrompt(
     else if (durationH >= 4) minSpots = 4;
     else if (durationH >= 3) minSpots = 3;
     parts.push(`→ ${minSpots}スポット以上のタイムラインを作成してください`);
-    parts.push("→ 各スポットには必ず実在する店舗名をvenueに含めてください");
   } else if (request.startTime) {
     parts.push(`開始時間：${request.startTime}`);
   }
@@ -199,6 +201,9 @@ function buildUserPrompt(
   if (request.endDateStr) {
     parts.push(`終了日：${request.endDateStr}（複数日プラン）`);
   }
+
+  // venue必須指示（時間指定の有無にかかわらず常に追加）
+  parts.push("→ 【重要】timeline各項目のvenueには必ず実在する店舗名を入れてください。空にしないでください");
 
   // Season-specific prompt additions
   if (month >= 3 && month <= 5) {
@@ -212,7 +217,7 @@ function buildUserPrompt(
   }
 
   // Clothing-specific weather instruction
-  parts.push(`→ fashionAdviceには「${weatherContext}」を踏まえた具体的な服装を提案してください`);
+  parts.push(`→ fashionAdviceには「${weatherContext}」を踏まえた具体的な服装を提案してください。必ず具体的な気温（例：5〜10℃）と季節名を含めること`);
 
   // Relationship-specific detailed instructions
   parts.push("");
@@ -366,15 +371,21 @@ function extractFieldsWithRegex(text: string): Record<string, unknown> | null {
   const timelineItems: Array<{ time: string; activity: string; venue: string; description: string; tip: string }> = [];
   const timePattern = /"time"\s*:\s*"([^"]+)"/g;
   const activityPattern = /"activity"\s*:\s*"([^"]+)"/g;
+  const venuePattern = /"venue"\s*:\s*"([^"]*)"/g;
+  const descPattern = /"description"\s*:\s*"([^"]*)"/g;
   const tipPattern = /"tip"\s*:\s*"([^"]+)"/g;
 
   const times: string[] = [];
   const activities: string[] = [];
+  const venues: string[] = [];
+  const descriptions: string[] = [];
   const tips: string[] = [];
 
   let m;
   while ((m = timePattern.exec(text)) !== null) times.push(m[1]);
   while ((m = activityPattern.exec(text)) !== null) activities.push(m[1]);
+  while ((m = venuePattern.exec(text)) !== null) venues.push(m[1]);
+  while ((m = descPattern.exec(text)) !== null) descriptions.push(m[1]);
   while ((m = tipPattern.exec(text)) !== null) tips.push(m[1]);
 
   const count = Math.min(times.length, activities.length);
@@ -387,8 +398,8 @@ function extractFieldsWithRegex(text: string): Record<string, unknown> | null {
     timelineItems.push({
       time: times[i],
       activity: activities[i],
-        venue: "",
-        description: "",
+      venue: venues[i] || "",
+      description: descriptions[i] || "",
       tip: tips[i] || "",
     });
   }
