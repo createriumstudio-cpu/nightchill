@@ -51,7 +51,8 @@ export interface PlanRequest {
 export interface TimelineItem {
   time: string;
   activity: string;
-  venue?: string;
+  venue: string;
+  description: string;
   tip: string;
 }
 

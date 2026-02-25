@@ -20,51 +20,59 @@ const SYSTEM_PROMPT = `あなたは東京のデートプランニングの専門
 ユーザーの条件に合わせて、具体的で実在する店舗・スポットを使ったデートプランを提案します。
 
 【最重要ルール ― 多様性と重複禁止】
-- 同じ店舗名を2回以上提案に含めてはならない
-- 毎回異なるプランを生成すること。定番だけでなく隠れた名店や新しい店も積極的に提案する
-- 同じエリアでもリクエストごとに違う店を推薦する。ランダム性を持たせること
-- チェーン店より個人店・独立店を優先する
-- 同じジャンルの店が連続しないようにする（例: レストラン→カフェ→散歩→バー）
+− 同じ店舗名を2回以上提案に含めてはならない
+− 毎回異なるプランを生成すること。定番だけでなく隠れた名店や新しい店も積極的に提案する
+− 同じエリアでもリクエストごとに違う店を推薦する。ランダム性を持たせること
+− チェーン店より個人店・独立店を優先する
+− 同じジャンルの店が連続しないようにする（例：レストラン→カフェ→散歩→バー）
 
-【タイムライン設計ルール】
-- 合流～解散の時間帯が指定されている場合、その範囲内で計画する
-- 時間帯が長い（4時間以上）場合：最低4スポット以上を含める
-- 終日（6時間以上）場合：最低5〜7スポットを含める
-- 宿泊・旅行の場合：日ごとにセクション分けし、各日3〜5スポットを含める
-- 短時間（2時間以下）場合でも最低2スポットを含める
-- スポット間の移動時間も考慮し、現実的な時間配分にする
+【タイムライン設計ルール ― 店舗紹介付き】
+− 合流〜解散の時間帯が指定されている場合、その範囲内で計画する
+− タイムラインの各ステップには必ず具体的な店舗名・スポット名を含める
+− 各ステップにはその店を選んだ理由や特徴を description に書く
+− 所要時間の目安：2時間→2〜3スポット、4時間→3〜5スポット、6時間以上→5〜7スポット
+− 移動も考慮する（徒歩圏内が望ましい。移動が必要な場合はそれも記載）
+− 各ステップの time は "HH:MM" 形式で記載する
 
-【天気・季節の考慮 ― 必須】
-- 日付から季節を判定し、季節に合った提案をする
-- 春（3-5月）：花見スポット、テラス席のあるカフェ、散策コース
-- 夏（6-8月）：涼しい屋内スポット中心、水分補給できるカフェ、夕方以降の屋外
-- 秋（9-11月）：紅葉スポット、食欲の秋をテーマにしたグルメ、散歩コース
-- 冬（12-2月）：暖かい屋内中心、イルミネーション、温かい食事
-- 梅雨（6月中旬～7月中旬）：完全屋内プラン。テラス席・公園散歩は絶対に避ける
-- 雨の可能性がある場合：屋内スポット中心にし、warningsに傘持参を含める
-- テラス席・屋外スポットを提案する場合は必ず「天候による代替案」をtipに記載する
+【曜日・日時を考慮したプランニング ― 厳守】
+− 平日の場合：ランチ営業の店、オフィス街の隠れ家などを活用
+− 土日祝の場合：混雑を避ける時間帯の提案、予約推奨の記載
+− 時間帯を考慮する：
+  - 午前（〜12:00）：モーニング、カフェ、公園散歩
+  - 昼（12:00〜14:00）：ランチメインの店
+  - 午後（14:00〜17:00）：カフェ、美術館、ショッピング
+  - 夕方（17:00〜19:00）：サンセットスポット、早めディナー
+  - 夜（19:00〜）：ディナー、バー、夜景
 
-【関係性×雰囲気のマッチングルール ― 重要】
-- 恋人 × ロマンチック：夜景レストラン、キャンドルディナー、プラネタリウム、展望台
-- 恋人 × 楽しい：テーマパーク、ゲームセンター、カラオケ、食べ歩き
-- 恋人 × リラックス：スパ、温泉、静かなカフェ、公園散策
-- 夫婦 × ロマンチック：高級レストラン、ワインバー、クルーズディナー
-- 夫婦 × リラックス：美術館、庭園、ブックカフェ、マッサージ
-- まだ友達 × 楽しい：アクティビティ（ボルダリング、卓球）、フードフェス、映画
-- まだ友達 × カジュアル：気軽なカフェ、ランチ、ショッピング、水族館
-- 関係が浅い場合は個室やムーディーすぎる場所を避け、オープンで会話が弾む場所を選ぶ
+【天気・気温・季節を考慮 ― 厳守】
+− 季節と推定気温に応じた屋内/屋外バランスを調整する
+− 雨天リスクがある場合：屋内中心のプランにする。屋外は代替案も記載
+− 夏（6〜8月・25℃以上）：涼しい屋内スポット多め。かき氷やアイスの店も。長時間の屋外は避ける
+− 冬（12〜2月・10℃以下）：暖かい屋内中心。イルミネーションや温泉も。防寒対策を服装に
+− 春（3〜5月）：花見スポット、テラス席、公園。花粉症注意を記載
+− 秋（9〜11月）：紅葉スポット、屋外散策。過ごしやすい気候を活かす
+− 梅雨（6月中旬〜7月中旬）：完全屋内プラン。美術館、デパ地下、映画館
 
-【好み・追加リクエストの反映 ― 必須】
-- additionalNotesに書かれた内容は最優先で反映する
-- 「カフェ好き」→ おしゃれなカフェを2件以上含める
-- 「写真映え」→ フォトジェニックなスポットを優先
-- 「静か」→ にぎやかな場所を避ける
-- 「アクティブ」→ 体を動かせるスポットを含める
-- 相手の好みが書かれていたら、それに合わせてスポットを選ぶ
+【服装アドバイス ― 気温・天気・季節を反映 ― 厳守】
+− fashionAdvice には必ず季節・推定気温を踏まえた具体的な服装を提案する
+− 例：「2月の東京は平均5〜10℃。厚手のコートとマフラー必須。室内は暖房が効いているので脱ぎ着しやすいレイヤードがおすすめ」
+− 雨の可能性がある場合：折り畳み傘、撥水素材の靴を推奨
+− 歩きが多いプランの場合：歩きやすい靴を推奨
+− デートの雰囲気に合わせたコーディネート提案も含める
+
+【関係性 × ムードのクロスマッチング】
+− 「まだ友達」× ロマンチック → カジュアルだけど特別感のあるスポット
+− 「恋人」× アドベンチャー → 二人の思い出になるアクティブなスポット
+− 「夫婦」× リラックス → 日常を離れたゆったり空間
+
+【好みの反映 ― 厳守】
+− 「静か」→ にぎやかな場所を避ける
+− 「アクティブ」→ 体を動かせるスポットを含める
+− 相手や自分の好みが書かれていたら、それに合わせてスポットを選ぶ
 
 【年齢制限ルール ― 厳守】
-- 「20歳未満」の場合：バー、居酒屋、シーシャ、ナイトクラブ、アルコールを提供する店は絶対に推薦しない
-- 「20歳以上」の場合：全ての店舗を推薦可能
+− 「20歳未満」の場合：バー、居酒屋、シーシャ、ナイトクラブ、アルコールを提供する店は絶対に推薦しない
+− 「20歳以上」の場合：全ての店舗を推薦可能
 
 【JSON出力ルール ― 厳守】
 1. 純粋なJSONのみ出力。マークダウンのコードブロックで囲まない
@@ -82,13 +90,16 @@ const SYSTEM_PROMPT = `あなたは東京のデートプランニングの専門
       "time": "HH:MM",
       "activity": "アクティビティの内容（50文字以内）",
       "venue": "具体的な店舗名やスポット名",
+      "description": "この店の特徴やおすすめポイント（80文字以内）",
       "tip": "成功のためのコツ（50文字以内）"
     }
   ],
-  "fashionAdvice": "服装アドバイス（100文字以内）",
+  "fashionAdvice": "季節・気温・天気を考慮した具体的な服装アドバイス（150文字以内）",
   "conversationTopics": ["会話のネタ1", "会話のネタ2", "会話のネタ3"],
   "warnings": ["注意点1", "注意点2"]
-}`;
+}
+`;
+
 
 
 function buildUserPrompt(
@@ -99,130 +110,145 @@ function buildUserPrompt(
 ): string {
   const parts: string[] = [];
 
-  // ランダム性のためのシード
-  const randomSeed = Math.floor(Math.random() * 1000);
-  parts.push(`[リクエストID: ${randomSeed}] ※毎回異なるプランを生成してください`);
-  parts.push("");
+  const randomSeed = Math.random().toString(36).substring(2, 10);
+  parts.push(`[リクエストID: ${randomSeed}] ※ 毎回異なるプランを生成してください`);
 
-  // 基本情報
-  const activityLabelsMap: Record<string, string> = {
-    birthday: "誕生日", anniversary: "記念日", lunch: "ランチ",
-    dinner: "ディナー", cafe: "カフェ巡り", shopping: "ショッピング",
-    active: "アクティブ", nightlife: "バー・夜遊び", chill: "まったり", travel: "おでかけ・旅行"
+  const activityLabels: Record<string, string> = {
+    dinner: "ディナー・食事", cafe: "カフェ", bar: "バー・お酒",
+    entertainment: "エンタメ・遊び", culture: "アート・文化", outdoor: "散歩・アウトドア",
+    shopping: "ショッピング", wellness: "リラクゼーション・癒し",
   };
-  const selectedActivities = request.activities.map(a => activityLabelsMap[a] || a).join("、");
+  const selectedActivities = request.activities.map(a => activityLabels[a] || a).join("、");
 
   const moodLabelsMap: Record<string, string> = {
     romantic: "ロマンチック", fun: "楽しい", relaxed: "リラックス",
     luxurious: "ラグジュアリー", adventurous: "アドベンチャー"
   };
-
   const relationshipLabelsMap: Record<string, string> = {
     lover: "恋人", spouse: "夫婦", "not-yet": "まだ友達（関係が浅い）"
   };
-
   const budgetLabelsMap: Record<string, string> = {
     low: "〜5,000円", medium: "5,000〜15,000円", high: "15,000〜30,000円", unlimited: "予算は気にしない"
   };
 
+  // Day of week calculation
+  let dayOfWeekStr = "";
+  if (request.dateStr) {
+    const dateObj = new Date(request.dateStr);
+    const dayNames = ["日曜日", "月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日"];
+    dayOfWeekStr = dayNames[dateObj.getDay()];
+    const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+    parts.push(`日付: ${request.dateStr}（${dayOfWeekStr}）${isWeekend ? "← 週末" : "← 平日"}`);
+  }
+
+  // Determine month and season for weather/temperature estimation
+  let month = new Date().getMonth() + 1;
+  if (request.dateStr) {
+    month = parseInt(request.dateStr.split("-")[1], 10);
+  }
+
+  // Estimated temperature and weather context by month (Tokyo averages)
+  const monthlyContext: Record<number, string> = {
+    1: "1月・冬：平均気温2〜10℃。寒い。晴れの日が多いが風が冷たい。防寒必須",
+    2: "2月・冬：平均気温3〜11℃。寒い。乾燥している。まだ防寒が必要",
+    3: "3月・春：平均気温6〜15℃。寒暖差大。桜の開花時期。花粉注意",
+    4: "4月・春：平均気温11〜20℃。過ごしやすい。桜満開〜散り。花粉注意",
+    5: "5月・春：平均気温15〜24℃。快適。新緑が美しい。紫外線注意",
+    6: "6月・梅雨：平均気温19〜26℃。雨が多い。湿度高い。折り畳み傘必須。屋内プラン推奨",
+    7: "7月・夏：平均気温23〜31℃。暑い。梅雨明け後は猛暑。熱中症注意。涼しい場所を選ぶ",
+    8: "8月・夏：平均気温24〜32℃。猛暑。屋外は短時間に。花火大会シーズン",
+    9: "9月・秋：平均気温20〜28℃。残暑あり。台風シーズン。雨の可能性高い",
+    10: "10月・秋：平均気温14〜22℃。過ごしやすい。紅葉の始まり",
+    11: "11月・秋：平均気温9〜17℃。涼しい〜寒い。紅葉見頃。日が短くなる",
+    12: "12月・冬：平均気温4〜12℃。寒い。イルミネーションシーズン。防寒必須",
+  };
+  const weatherContext = monthlyContext[month] || "気温・天気は不明";
+  parts.push(`季節・気候: ${weatherContext}`);
+
   parts.push("=== デートの条件 ===");
-  parts.push(`やりたいこと: ${selectedActivities}`);
-  parts.push(`雰囲気: ${moodLabelsMap[request.mood] || request.mood}`);
-  parts.push(`関係性: ${relationshipLabelsMap[request.relationship] || request.relationship}`);
-  parts.push(`予算: ${budgetLabelsMap[request.budget] || request.budget}`);
-  parts.push(`エリア: ${request.location || "東京"}`);
-  parts.push(`年齢: ${request.ageGroup === "under-20" ? "20歳未満" : "20歳以上"}`);
+  parts.push(`やりたいこと：${selectedActivities}`);
+  parts.push(`雰囲気：${moodLabelsMap[request.mood] || request.mood}`);
+  parts.push(`関係性：${relationshipLabelsMap[request.relationship] || request.relationship}`);
+  parts.push(`予算：${budgetLabelsMap[request.budget] || request.budget}`);
+  parts.push(`エリア：${request.location || "指定なし"}`);
+  parts.push(`年齢層：${request.ageGroup}`);
 
-  // 時間帯情報
-  if (request.startTime || request.endTime) {
-    parts.push("");
-    parts.push("=== 時間帯 ===");
-    if (request.startTime) parts.push(`合流時間: ${request.startTime}`);
-    if (request.endTime) parts.push(`解散時間: ${request.endTime}`);
+  // Time/duration info
+  if (request.startTime && request.endTime) {
+    const startH = parseInt(request.startTime.split(":")[0], 10);
+    const endH = parseInt(request.endTime.split(":")[0], 10);
+    const durationH = endH - startH;
+    parts.push(`時間帯：${request.startTime}〜${request.endTime}（約${durationH}時間）`);
 
-    // 時間帯の長さを計算して最低スポット数を指示
-    if (request.startTime && request.endTime) {
-      const startH = parseInt(request.startTime.split(":")[0]);
-      const endH = parseInt(request.endTime.split(":")[0]);
-      const duration = endH > startH ? endH - startH : (24 - startH) + endH;
-      if (duration >= 6) {
-        parts.push(`※ ${duration}時間のデートです。最低5〜7スポットを提案してください`);
-      } else if (duration >= 4) {
-        parts.push(`※ ${duration}時間のデートです。最低4スポットを提案してください`);
-      } else {
-        parts.push(`※ ${duration}時間のデートです。最低2〜3スポットを提案してください`);
-      }
-    }
+    let minSpots = 2;
+    if (durationH >= 6) minSpots = 5;
+    else if (durationH >= 4) minSpots = 4;
+    else if (durationH >= 3) minSpots = 3;
+    parts.push(`→ ${minSpots}スポット以上のタイムラインを作成してください`);
+    parts.push("→ 各スポットには必ず実在する店舗名をvenueに含めてください");
+  } else if (request.startTime) {
+    parts.push(`開始時間：${request.startTime}`);
   }
 
-  // 日付・季節・天気情報
-  if (request.dateStr && request.dateStr !== "undecided") {
-    parts.push("");
-    parts.push("=== デート予定日 ===");
-    parts.push(`日付: ${request.dateStr}`);
-
-    // 宿泊・旅行の場合
-    if (request.endDateStr) {
-      parts.push(`終了日: ${request.endDateStr}`);
-      parts.push("※ 複数日のプランです。日ごとにセクション分けして提案してください");
-    }
-
-    // 月から季節・天気を推定
-    const month = parseInt(request.dateStr.split("-")[1]);
-    if (month >= 3 && month <= 5) {
-      parts.push("季節: 春 → 花見や散策が楽しめる時期。テラス席もおすすめ");
-    } else if (month === 6) {
-      parts.push("季節: 梅雨 → 雨の可能性が高い。完全屋内プランを推奨。テラス席・公園散歩は避けること");
-    } else if (month >= 7 && month <= 8) {
-      parts.push("季節: 夏 → 暑い時期。涼しい屋内中心に。水分補給のためカフェを多めに");
-    } else if (month >= 9 && month <= 11) {
-      parts.push("季節: 秋 → 紅葉やグルメが楽しめる時期。散歩も気持ちいい");
-    } else {
-      parts.push("季節: 冬 → 寒い時期。暖かい屋内中心に。イルミネーションスポットも検討");
-    }
+  if (request.endDateStr) {
+    parts.push(`終了日：${request.endDateStr}（複数日プラン）`);
   }
 
-  // 関係性に応じた具体的指示
+  // Season-specific prompt additions
+  if (month >= 3 && month <= 5) {
+    parts.push("季節：春 → テラス席や公園散歩がおすすめ。花見スポットも検討");
+  } else if (month >= 6 && month <= 8) {
+    parts.push("季節：夏 → 涼しい屋内中心に。冷たいスイーツの店も。長時間の屋外は避ける");
+  } else if (month >= 9 && month <= 11) {
+    parts.push("季節：秋 → 紅葉スポットや散策がおすすめ。屋外も快適");
+  } else {
+    parts.push("季節：冬 → 暖かい屋内中心に。イルミネーションスポットも検討");
+  }
+
+  // Clothing-specific weather instruction
+  parts.push(`→ fashionAdviceには「${weatherContext}」を踏まえた具体的な服装を提案してください`);
+
+  // Relationship-specific detailed instructions
   parts.push("");
   parts.push("=== 関係性に応じた注意点 ===");
   if (request.relationship === "not-yet") {
     parts.push("まだ友達の段階です。以下を守ってください：");
-    parts.push("- 個室やムーディーすぎる場所は避ける");
-    parts.push("- オープンで会話が弾みやすい場所を選ぶ");
-    parts.push("- 程よい距離感を保てるカジュアルなスポットを優先");
-    parts.push("- 長すぎないプランにする（相手が疲れないように）");
+    parts.push("− 個室やムーディーすぎる場所は避ける");
+    parts.push("− オープンで会話が弾みやすい場所を選ぶ");
+    parts.push("− 程よい距離感を保てるカジュアルなスポットを優先");
+    parts.push("− 長すぎないプランにする（相手が疲れないように）");
   } else if (request.relationship === "lover") {
     parts.push("恋人同士です。以下を考慮してください：");
-    parts.push("- 二人の距離が近くなれるスポットを含める");
-    parts.push("- 記念になるような特別感のある場所もOK");
-    parts.push("- ムードのある場所と楽しい場所をバランスよく");
+    parts.push("− 二人の距離が近くなれるスポットを含める");
+    parts.push("− 記念になるような特別感のある場所も含める");
+    parts.push("− ムードのある場所と楽しい場所をバランスよく");
   } else {
     parts.push("夫婦です。以下を考慮してください：");
-    parts.push("- リラックスできる大人の空間を優先");
-    parts.push("- 質の高い体験（食事、アート、自然）を重視");
-    parts.push("- 新鮮さを感じられる普段行かないような場所も含める");
+    parts.push("− 日常を離れた特別感のある場所を提案");
+    parts.push("− ゆったり過ごせる場所を多めに");
+    parts.push("− 新しい発見があるようなスポットを含める");
   }
 
-  // 好み・追加リクエスト
+  // Additional notes (user preferences)
   if (request.additionalNotes) {
     parts.push("");
-    parts.push("=== ユーザーの追加リクエスト（最優先で反映） ===");
+    parts.push("=== ユーザーの追加リクエスト（最優先で反映）===");
     parts.push(request.additionalNotes);
   }
 
-  // ファクトデータ注入
+  // Venue fact data injection
   if (venues.length > 0) {
     parts.push("");
     parts.push("=== 以下はGoogle Places APIから取得したファクトデータです ===");
     parts.push("参考にしてもよいが、これに限定せず自分の知識も活用して多様な店を提案すること：");
     venues.forEach((v) => {
-      parts.push(`- ${v.name}（${v.address}）評価:${v.rating ?? "不明"} 価格帯:${"$".repeat(v.priceLevel ?? 0) || "不明"}`);
+      parts.push(`− ${v.name} (${v.address}) 評価:${v.rating ?? "不明"} 価格帯:${"$".repeat(v.priceLevel ?? 0) || "不明"}`);
     });
   }
 
   if (route) {
     parts.push("");
-    parts.push(`徒歩ルート情報: ${route.distanceText}（${route.durationText}）`);
+    parts.push(`徒歩ルート情報：${route.distanceText} (${route.durationText})`);
   }
 
   if (prText) {
@@ -232,6 +258,7 @@ function buildUserPrompt(
 
   return parts.join("\n");
 }
+
 
 
 /**

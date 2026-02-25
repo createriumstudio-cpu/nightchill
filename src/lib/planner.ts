@@ -17,29 +17,29 @@ export function generateDatePlan(request: PlanRequest): DatePlan {
 
     if (hours <= 3) {
       timeline.push(
-        { time: request.startTime, activity: `${area}でカフェタイム`, tip: "予約しておくとスムーズ" },
-        { time: `${sh + 1}:30`, activity: `${area}周辺を散策`, tip: "写真スポットをチェック" },
+        { time: request.startTime, activity: `${area}でカフェタイム`, venue: "", description: "", tip: "予約しておくとスムーズ" },
+        { time: `${sh + 1}:30`, activity: `${area}周辺を散策`, venue: "", description: "", tip: "写真スポットをチェック" },
       );
     } else {
       timeline.push(
-        { time: request.startTime, activity: `${area}エリアで合流`, tip: "早めに到着して余裕を持とう" },
-        { time: `${sh + 1}:00`, activity: `${area}のおすすめカフェでランチ`, tip: "人気店は予約がベター" },
-        { time: `${sh + 2}:30`, activity: `${area}周辺でショッピング`, tip: "相手の好みに合わせて" },
-        { time: `${sh + 4}:00`, activity: "カフェで休憩", tip: "疲れたら無理せず休もう" },
+        { time: request.startTime, activity: `${area}エリアで合流`, venue: "", description: "", tip: "早めに到着して余裕を持とう" },
+        { time: `${sh + 1}:00`, activity: `${area}のおすすめカフェでランチ`, venue: "", description: "", tip: "人気店は予約がベター" },
+        { time: `${sh + 2}:30`, activity: `${area}周辺でショッピング`, venue: "", description: "", tip: "相手の好みに合わせて" },
+        { time: `${sh + 4}:00`, activity: "カフェで休憩", venue: "", description: "", tip: "疲れたら無理せず休もう" },
       );
       if (hours >= 6) {
         timeline.push(
-          { time: `${eh - 2}:00`, activity: `${area}のレストランでディナー`, tip: "予約は必須" },
+          { time: `${eh - 2}:00`, activity: `${area}のレストランでディナー`, venue: "", description: "", tip: "予約は必須" },
         );
       }
     }
   } else {
     // Default 4-spot plan
     timeline.push(
-      { time: "12:00", activity: `${area}で待ち合わせ・ランチ`, tip: "おしゃれなお店を選ぼう" },
-      { time: "14:00", activity: `${area}エリアを散策`, tip: "天気をチェックして" },
-      { time: "16:00", activity: "カフェでまったり", tip: "会話を楽しむ時間に" },
-      { time: "18:30", activity: `${area}のレストランでディナー`, tip: "予約しておくと安心" },
+      { time: "12:00", activity: `${area}で待ち合わせ・ランチ`, venue: "", description: "", tip: "おしゃれなお店を選ぼう" },
+      { time: "14:00", activity: `${area}エリアを散策`, venue: "", description: "", tip: "天気をチェックして" },
+      { time: "16:00", activity: "カフェでまったり", venue: "", description: "", tip: "会話を楽しむ時間に" },
+      { time: "18:30", activity: `${area}のレストランでディナー`, venue: "", description: "", tip: "予約しておくと安心" },
     );
   }
 

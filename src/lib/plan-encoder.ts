@@ -16,7 +16,7 @@ interface CompactPlan {
   i: string;       // id
   t: string;       // title
   s: string;       // summary
-  tl: { t: string; a: string; p: string }[]; // timeline
+  tl: { t: string; a: string; v?: string; d?: string; p: string }[]; // timeline
   f: string;       // fashionAdvice
   c: string[];     // conversationTopics
   w: string[];     // warnings
@@ -36,6 +36,8 @@ function toCompact(plan: DatePlan): CompactPlan {
     tl: plan.timeline.map((item) => ({
       t: item.time,
       a: item.activity,
+        v: item.venue || "",
+        d: item.description || "",
       p: item.tip,
     })),
     f: plan.fashionAdvice,
@@ -52,6 +54,8 @@ function fromCompact(compact: CompactPlan): DatePlan {
     timeline: compact.tl.map((item) => ({
       time: item.t,
       activity: item.a,
+        venue: item.v || "",
+        description: item.d || "",
       tip: item.p,
     })),
     fashionAdvice: compact.f,

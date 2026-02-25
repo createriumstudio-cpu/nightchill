@@ -402,8 +402,18 @@ export default function ResultsPage() {
                     <h3 className="font-semibold">{item.activity}</h3>
                     <span className="text-sm text-muted">{item.time}</span>
                   </div>
-                  <p className="mt-2 text-sm leading-relaxed text-muted">
-                    {item.tip}
+                  {item.venue && (
+                    <p className="mt-1 text-sm font-medium text-primary">
+                      📍 {item.venue}
+                    </p>
+                  )}
+                  {item.description && (
+                    <p className="mt-1 text-sm leading-relaxed text-muted">
+                      {item.description}
+                    </p>
+                  )}
+                  <p className="mt-2 text-xs leading-relaxed text-muted/70 italic">
+                    💡 {item.tip}
                   </p>
                 </div>
               </div>
