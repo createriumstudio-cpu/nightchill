@@ -195,39 +195,24 @@ function VenueCard({ venue, index }: { venue: VenueFactData; index: number }) {
 }
 
 // ============================================================
-// Google Maps 埋め込み (Embed API / フォールバック)
+// Google Maps 地図画像 (Static Map API プロキシ)
 // ============================================================
-const MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
-
 function VenueMap({ venueName, area }: { venueName: string; area: string }) {
-  const query = encodeURIComponent(`${venueName} ${area}`);
+  const query = `${venueName} ${area}`;
+  const staticMapUrl = `/api/static-map?q=${encodeURIComponent(query)}`;
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
 
-  if (MAPS_API_KEY) {
-    return (
-      <div className="mt-2 overflow-hidden rounded-lg border border-border">
-        <iframe
-          title={`${venueName} の地図`}
-          width="100%"
-          height="150"
-          style={{ border: 0 }}
+  return (
+    <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="mt-3 block group">
+      <div className="overflow-hidden rounded-xl border border-border">
+        <img
+          src={staticMapUrl}
+          alt={`${venueName} の地図`}
+          className="w-full h-[200px] object-cover transition-transform duration-300 group-hover:scale-105"
           loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-          src={`https://www.google.com/maps/embed/v1/place?key=${MAPS_API_KEY}&q=${query}`}
         />
       </div>
-    );
-  }
-
-  // フォールバック: Google Maps URLリンク
-  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
-  return (
-    <a
-      href={mapsUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs font-medium text-primary transition-colors hover:bg-surface"
-    >
-      🗺️ Google Mapsで見る
+      <p className="mt-1 text-xs text-muted text-center">📍 タップして Google Maps で開く</p>
     </a>
   );
 }
@@ -423,64 +408,63 @@ export default function ResultsPage() {
                       )}
                       {/* Embedded venue card */}
                       {matchedVenue && (
-                        <div className="mt-3 rounded-xl border border-border bg-surface p-3">
-                          <div className="flex gap-3">
-                            {matchedVenue.photoUrl && (
-                              <a href={matchedVenue.googleMapsUrl || "#"} target="_blank" rel="noopener noreferrer" className="shrink-0">
+                        <div className="mt-3 rounded-xl border border-border bg-surface overflow-hidden">
+                          {matchedVenue.photoUrl && (
+                            <a href={matchedVenue.googleMapsUrl || "#"} target="_blank" rel="noopener noreferrer" className="block group">
+                              <div className="relative h-48 w-full overflow-hidden">
                                 <img
                                   src={matchedVenue.photoUrl}
                                   alt={matchedVenue.name}
-                                  className="h-20 w-20 rounded-lg object-cover"
+                                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                  loading="lazy"
                                 />
-                              </a>
-                            )}
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 flex-wrap">
                                 {matchedVenue.rating && (
-                                  <span className="text-sm font-medium">⭐ {matchedVenue.rating}</span>
-                                )}
-                                {matchedVenue.priceLevel !== null && matchedVenue.priceLevel !== undefined && (
-                                  <span className="text-xs text-muted">{"¥".repeat(matchedVenue.priceLevel)}</span>
-                                )}
-                              </div>
-                              <p className="text-xs text-muted mt-0.5 truncate">{matchedVenue.address}</p>
-                              <div className="flex gap-2 mt-2 flex-wrap">
-                                {matchedVenue.googleMapsUrl && (
-                                  <a
-                                    href={matchedVenue.googleMapsUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 text-xs font-medium transition-colors hover:bg-surface"
-                                  >
-                                    🗺️ 地図
-                                  </a>
-                                )}
-                                {matchedVenue.website && (
-                                  <a
-                                    href={matchedVenue.website}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 text-xs font-medium transition-colors hover:bg-surface"
-                                  >
-                                    🌐 HP
-                                  </a>
-                                )}
-                                {matchedVenue.phoneNumber && (
-                                  <a
-                                    href={`tel:${matchedVenue.phoneNumber}`}
-                                    className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 text-xs font-medium transition-colors hover:bg-surface"
-                                  >
-                                    📞 電話
-                                  </a>
+                                  <div className="absolute top-3 right-3 flex items-center gap-1 rounded-lg bg-black/70 px-2 py-1 backdrop-blur-sm">
+                                    <span className="text-xs">⭐</span>
+                                    <span className="text-sm font-semibold text-white">{matchedVenue.rating}</span>
+                                  </div>
                                 )}
                               </div>
-                            </div>
-                          </div>
-                          {matchedVenue.source === "google_places" && (
-                            <p className="mt-2 text-[11px] text-muted">
-                              店舗情報提供: <span translate="no" className="font-normal" style={{ fontFamily: "Roboto, sans-serif" }}>Google Maps</span>
-                            </p>
+                            </a>
                           )}
+                          <div className="p-4">
+                            <p className="text-xs text-muted truncate">{matchedVenue.address}</p>
+                            <div className="flex gap-2 mt-2 flex-wrap">
+                              {matchedVenue.googleMapsUrl && (
+                                <a
+                                  href={matchedVenue.googleMapsUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 text-xs font-medium transition-colors hover:bg-surface"
+                                >
+                                  🗺️ 地図
+                                </a>
+                              )}
+                              {matchedVenue.website && (
+                                <a
+                                  href={matchedVenue.website}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 text-xs font-medium transition-colors hover:bg-surface"
+                                >
+                                  🌐 HP
+                                </a>
+                              )}
+                              {matchedVenue.phoneNumber && (
+                                <a
+                                  href={`tel:${matchedVenue.phoneNumber}`}
+                                  className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 text-xs font-medium transition-colors hover:bg-surface"
+                                >
+                                  📞 電話
+                                </a>
+                              )}
+                            </div>
+                            {matchedVenue.source === "google_places" && (
+                              <p className="mt-2 text-[11px] text-muted">
+                                店舗情報提供: <span translate="no" className="font-normal" style={{ fontFamily: "Roboto, sans-serif" }}>Google Maps</span>
+                              </p>
+                            )}
+                          </div>
                         </div>
                       )}
                       {/* Google Map 埋め込み */}
