@@ -55,10 +55,17 @@ const SYSTEM_PROMPT = `あなたは東京のデートプランニングの専門
 
 【服装アドバイス ― 気温・天気・季節を反映 ― 厳守】
 − fashionAdvice には必ず季節・推定気温を踏まえた具体的な服装を提案する
+− 必ず「○月の東京は平均○〜○℃」のように具体的な気温を記載する
 − 例：「2月の東京は平均5〜10℃。厚手のコートとマフラー必須。室内は暖房が効いているので脱ぎ着しやすいレイヤードがおすすめ」
 − 雨の可能性がある場合：折り畳み傘、撥水素材の靴を推奨
 − 歩きが多いプランの場合：歩きやすい靴を推奨
 − デートの雰囲気に合わせたコーディネート提案も含める
+
+【注意ポイント（warnings）― 季節・天気・気温を必ず含める ― 厳守】
+− warnings の最初の項目は必ず季節の特徴と推定気温に関する注意にする
+− 天気リスク（雨、猛暑、寒波など）がある季節は、それに対する具体的な対策を含める
+− 例：「2月は平均5〜10℃で寒さが厳しい。防寒対策を万全に」「6月は梅雨時期で雨が多い。折り畳み傘を忘れずに」
+− 季節のイベント情報も注意点として含める（花粉、台風、混雑時期など）
 
 【関係性 × ムードのクロスマッチング】
 − 「まだ友達」× ロマンチック → カジュアルだけど特別感のあるスポット
@@ -95,8 +102,7 @@ const SYSTEM_PROMPT = `あなたは東京のデートプランニングの専門
     }
   ],
   "fashionAdvice": "季節・気温・天気を考慮した具体的な服装アドバイス（150文字以内）",
-  "conversationTopics": ["会話のネタ1", "会話のネタ2", "会話のネタ3"],
-  "warnings": ["注意点1", "注意点2"]
+  "warnings": ["季節の特徴や推定気温に関する注意", "天気リスクの注意点", "その他の注意点"]
 }
 `;
 
@@ -573,7 +579,7 @@ export async function generateAIPlan(request: PlanRequest): Promise<DatePlan> {
         summary: parsed.summary as string,
         timeline: parsed.timeline as DatePlan["timeline"],
         fashionAdvice: parsed.fashionAdvice as string,
-        conversationTopics: parsed.conversationTopics as string[],
+        conversationTopics: (parsed.conversationTopics as string[] | undefined) ?? [],
         warnings: parsed.warnings as string[],
         venues,
         walkingRoute: walkingRoute ?? undefined,

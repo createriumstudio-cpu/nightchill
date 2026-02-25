@@ -32,8 +32,9 @@ export default function PlanPage() {
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
 
-  // Step 2: どこで？
-  const [location, setLocation] = useState("");
+  // Step 2: どこで？（複数選択可）
+  const [locations, setLocations] = useState<string[]>([]);
+  const [customLocation, setCustomLocation] = useState("");
 
   // Step 3: 誰と？
   const [relationship, setRelationship] = useState<Relationship | "">("");
@@ -55,6 +56,12 @@ export default function PlanPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [step]);
 
+  const toggleLocation = (area: string) => {
+    setLocations((prev) =>
+      prev.includes(area) ? prev.filter((x) => x !== area) : [...prev, area]
+    );
+  };
+
   const toggleActivity = (a: Activity) => {
     setActivities((prev) =>
       prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a]
@@ -64,7 +71,7 @@ export default function PlanPage() {
   const canProceed = (): boolean => {
     switch (step) {
       case 1: return true; // 日時は任意
-      case 2: return location.trim().length > 0;
+      case 2: return locations.length > 0 || customLocation.trim().length > 0;
       case 3: return relationship !== "";
       case 4: return activities.length > 0 && mood !== "";
       case 5: return budget !== "" && ageGroup !== "";
@@ -85,6 +92,10 @@ export default function PlanPage() {
     setError("");
 
     try {
+      const combinedLocation = customLocation.trim()
+        ? [...locations, customLocation.trim()].join(", ")
+        : locations.join(", ");
+
       const res = await fetch("/api/plan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -92,7 +103,7 @@ export default function PlanPage() {
           dateStr,
           startTime,
           endTime,
-          location,
+          location: combinedLocation,
           relationship,
           activities,
           mood,
@@ -109,7 +120,7 @@ export default function PlanPage() {
 
       const data = await res.json();
       sessionStorage.setItem("futatabito-plan", JSON.stringify(data));
-      sessionStorage.setItem("futatabito-location", location);
+      sessionStorage.setItem("futatabito-location", combinedLocation);
       router.push("/results");
     } catch (err) {
       setError(err instanceof Error ? err.message : "エラーが発生しました");
@@ -226,20 +237,20 @@ export default function PlanPage() {
             </div>
           )}
 
-          {/* Step 2: どこで？ */}
+          {/* Step 2: どこで？（複数選択可） */}
           {step === 2 && (
             <div className="space-y-6 animate-fadeIn">
               <h2 className="text-xl font-bold">📍 どこでデートする？</h2>
-              <p className="text-sm text-gray-500">エリアを選ぶか、自由に入力してください</p>
+              <p className="text-sm text-gray-500">複数選択OK（タップで追加/削除）</p>
 
               <div className="flex flex-wrap gap-2">
                 {locationPresets.map((area) => (
                   <button
                     key={area}
                     type="button"
-                    onClick={() => setLocation(area)}
+                    onClick={() => toggleLocation(area)}
                     className={`px-4 py-2 rounded-full text-sm border transition-colors ${
-                      location === area
+                      locations.includes(area)
                         ? "bg-orange-500 text-white border-orange-500"
                         : "bg-white text-gray-700 border-gray-300 hover:border-orange-300"
                     }`}
@@ -249,15 +260,21 @@ export default function PlanPage() {
                 ))}
               </div>
 
+              {locations.length > 0 && (
+                <p className="text-sm text-orange-600 font-medium">
+                  選択中: {locations.join(", ")}
+                </p>
+              )}
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  または自由入力
+                  その他のエリア（任意）
                 </label>
                 <input
                   type="text"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  placeholder="例: 横浜みなとみらい、決まってない"
+                  value={customLocation}
+                  onChange={(e) => setCustomLocation(e.target.value)}
+                  placeholder="例: 横浜みなとみらい"
                   className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
                 />
               </div>
