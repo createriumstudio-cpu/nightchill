@@ -1,34 +1,22 @@
 import { NextResponse } from "next/server";
 import { generateDatePlan } from "@/lib/planner";
 import { generateAIPlan } from "@/lib/ai-planner";
-import type { PlanRequest, Occasion, Mood, Budget, DateType, AgeGroup } from "@/lib/types";
+import type { PlanRequest, Mood, Budget, AgeGroup } from "@/lib/types";
 
-const validOccasions: Occasion[] = [
-  "first-date",
-  "anniversary",
-  "birthday",
-  "proposal",
-  "casual",
-  "makeup",
-];
-const validMoods: Mood[] = [
-  "romantic",
-  "fun",
-  "relaxed",
-  "luxurious",
-  "adventurous",
-];
+const validMoods: Mood[] = ["romantic", "fun", "relaxed", "luxurious", "adventurous"];
 const validBudgets: Budget[] = ["low", "medium", "high", "unlimited"];
-const validDateTypes: DateType[] = ["dinner-only", "half-day", "full-day", "overnight"];
 const validAgeGroups: AgeGroup[] = ["under-20", "20-plus"];
 
-// Simple in-memory rate limiting (per IP, 10 requests per minute)
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-const RATE_LIMIT_MAX = 10;
-const RATE_LIMIT_WINDOW_MS = 60_000;
-const RATE_LIMIT_CLEANUP_INTERVAL_MS = 5 * 60_000;
+function sanitizeText(text: string, maxLength: number): string {
+  return text.replace(/[<>]/g, "").trim().slice(0, maxLength);
+}
 
-// Periodically clean up expired entries to prevent memory leaks
+// Rate limiting
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const RATE_LIMIT_MAX_REQUESTS = 5;
+const RATE_LIMIT_CLEANUP_INTERVAL_MS = 5 * 60 * 1000;
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+
 let lastCleanup = Date.now();
 
 function cleanupRateLimitMap() {
@@ -53,73 +41,57 @@ function isRateLimited(ip: string): boolean {
   }
 
   entry.count++;
-  return entry.count > RATE_LIMIT_MAX;
-}
-
-function sanitizeText(input: string, maxLength: number): string {
-  return input
-    .slice(0, maxLength)
-    .replace(/<[^>]*>/g, "")
-    .trim();
+  return entry.count > RATE_LIMIT_MAX_REQUESTS;
 }
 
 export async function POST(request: Request) {
   try {
-    // Rate limiting
-    const forwarded = request.headers.get("x-forwarded-for");
-    const ip = forwarded?.split(",")[0]?.trim() || "unknown";
+    const ip = request.headers.get("x-forwarded-for") || "unknown";
     if (isRateLimited(ip)) {
       return NextResponse.json(
-        { error: "リクエストが多すぎます。しばらく待ってからお試しください。" },
+        { error: "リクエストが多すぎます。1分後に再試行してください。" },
         { status: 429 },
       );
     }
 
-    const body = (await request.json()) as PlanRequest;
+    const body = await request.json();
 
-    if (!body.occasion || !validOccasions.includes(body.occasion)) {
+    // Validate required fields
+    if (!body.activities || !Array.isArray(body.activities) || body.activities.length === 0) {
       return NextResponse.json(
-        { error: "有効なシチュエーションを選択してください" },
+        { error: "やりたいことを1つ以上選択してください" },
         { status: 400 },
       );
     }
     if (!body.mood || !validMoods.includes(body.mood)) {
       return NextResponse.json(
-        { error: "有効な雰囲気を選択してください" },
+        { error: "雰囲気を選択してください" },
         { status: 400 },
       );
     }
     if (!body.budget || !validBudgets.includes(body.budget)) {
       return NextResponse.json(
-        { error: "有効な予算を選択してください" },
+        { error: "予算を選択してください" },
         { status: 400 },
       );
     }
-
-    if (!body.dateType || !validDateTypes.includes(body.dateType)) {
-      return NextResponse.json(
-        { error: "有効なデートの種類を選択してください" },
-        { status: 400 },
-      );
-    }
-
     if (!body.ageGroup || !validAgeGroups.includes(body.ageGroup)) {
       return NextResponse.json(
-        { error: "年齢確認を選択してください" },
+        { error: "年齢確認が必要です" },
         { status: 400 },
       );
     }
 
-    // Sanitize free-text inputs
     const sanitizedRequest: PlanRequest = {
-      occasion: body.occasion,
+      dateStr: sanitizeText(body.dateStr || "", 20),
+      startTime: sanitizeText(body.startTime || "", 10),
+      endTime: sanitizeText(body.endTime || "", 10),
+      location: sanitizeText(body.location || "東京", 50),
+      relationship: body.relationship || "lover",
+      activities: body.activities,
       mood: body.mood,
       budget: body.budget,
-      dateType: body.dateType,
       ageGroup: body.ageGroup,
-      dateSchedule: body.dateSchedule || "undecided",
-      location: sanitizeText(body.location || "東京", 50),
-      partnerInterests: sanitizeText(body.partnerInterests || "", 200),
       additionalNotes: sanitizeText(body.additionalNotes || "", 500),
     };
 

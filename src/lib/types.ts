@@ -1,39 +1,56 @@
 import type { VenueFactData } from "./google-places";
 import type { WalkingRoute } from "./google-maps";
 
-export type Occasion =
-  | "first-date"
-  | "anniversary"
+// ── 誰と？ ──
+export type Relationship = "lover" | "spouse" | "not-yet";
+
+// ── 何をしたい？（複数選択可） ──
+export type Activity =
   | "birthday"
-  | "proposal"
-  | "casual"
-  | "makeup";
+  | "anniversary"
+  | "lunch"
+  | "dinner"
+  | "cafe"
+  | "shopping"
+  | "active"
+  | "nightlife"
+  | "chill"
+  | "travel";
 
-export type Mood = "romantic" | "fun" | "relaxed" | "luxurious" | "adventurous";
-
+// ── 予算 ──
 export type Budget = "low" | "medium" | "high" | "unlimited";
 
-export type DateType = "dinner-only" | "half-day" | "full-day" | "overnight";
-
+// ── 年齢確認 ──
 export type AgeGroup = "under-20" | "20-plus";
 
-export type DateSchedule = "today" | "tomorrow" | "this-weekend" | "next-week" | "undecided";
+// ── 雰囲気 ──
+export type Mood = "romantic" | "fun" | "relaxed" | "luxurious" | "adventurous";
 
+// ── フォームリクエスト ──
 export interface PlanRequest {
-  occasion: Occasion;
+  // いつ？
+  dateStr: string;         // "2026-02-28" or "" (undecided)
+  startTime: string;       // "11:00" or ""
+  endTime: string;         // "21:00" or ""
+  // どこで？
+  location: string;        // free text: "渋谷", "決まってない", etc.
+  // 誰と？
+  relationship: Relationship;
+  // 何をしたい？
+  activities: Activity[];
+  // 条件
   mood: Mood;
   budget: Budget;
-  dateType: DateType;
   ageGroup: AgeGroup;
-  dateSchedule: DateSchedule;
-  location: string;
-  partnerInterests: string;
+  // 自由記述
   additionalNotes: string;
 }
 
+// ── レスポンス ──
 export interface TimelineItem {
   time: string;
   activity: string;
+  venue?: string;
   tip: string;
 }
 
@@ -41,8 +58,6 @@ export interface DatePlan {
   id: string;
   title: string;
   summary: string;
-  occasion: Occasion;
-  mood: Mood;
   timeline: TimelineItem[];
   fashionAdvice: string;
   conversationTopics: string[];
@@ -52,13 +67,24 @@ export interface DatePlan {
   walkingRoute?: WalkingRoute;
 }
 
-export const occasionLabels: Record<Occasion, string> = {
-  "first-date": "初デート",
-  anniversary: "記念日",
+// ── ラベル定義 ──
+export const relationshipLabels: Record<Relationship, string> = {
+  lover: "恋人",
+  spouse: "夫婦",
+  "not-yet": "まだ友達",
+};
+
+export const activityLabels: Record<Activity, string> = {
   birthday: "誕生日",
-  proposal: "プロポーズ",
-  casual: "カジュアル",
-  makeup: "仲直り",
+  anniversary: "記念日",
+  lunch: "ランチ",
+  dinner: "ディナー",
+  cafe: "カフェ巡り",
+  shopping: "ショッピング",
+  active: "アクティブ",
+  nightlife: "バー・夜遊び",
+  chill: "まったり",
+  travel: "おでかけ・旅行",
 };
 
 export const moodLabels: Record<Mood, string> = {
@@ -69,11 +95,11 @@ export const moodLabels: Record<Mood, string> = {
   adventurous: "アドベンチャー",
 };
 
-export const dateTypeLabels: Record<DateType, string> = {
-  "dinner-only": "食事のみ",
-  "half-day": "半日デート",
-  "full-day": "終日デート",
-  overnight: "お泊まりデート",
+export const budgetLabels: Record<Budget, string> = {
+  low: "〜5,000円",
+  medium: "5,000〜15,000円",
+  high: "15,000〜30,000円",
+  unlimited: "予算は気にしない",
 };
 
 export const ageGroupLabels: Record<AgeGroup, string> = {
@@ -81,17 +107,21 @@ export const ageGroupLabels: Record<AgeGroup, string> = {
   "20-plus": "20歳以上",
 };
 
+// ── 後方互換（他ファイルが参照する旧型） ──
+export type Occasion = Activity;
+export type DateType = "dinner-only" | "half-day" | "full-day" | "overnight";
+export type DateSchedule = "today" | "tomorrow" | "this-weekend" | "next-week" | "undecided";
+export const occasionLabels = activityLabels;
+export const dateTypeLabels: Record<DateType, string> = {
+  "dinner-only": "食事のみ",
+  "half-day": "半日デート",
+  "full-day": "終日デート",
+  overnight: "お泊まりデート",
+};
 export const dateScheduleLabels: Record<DateSchedule, string> = {
   today: "今日",
   tomorrow: "明日",
   "this-weekend": "今週末",
   "next-week": "来週",
   undecided: "未定",
-};
-
-export const budgetLabels: Record<Budget, string> = {
-  low: "〜5,000円",
-  medium: "5,000〜15,000円",
-  high: "15,000〜30,000円",
-  unlimited: "予算は気にしない",
 };

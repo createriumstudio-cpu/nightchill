@@ -1,91 +1,84 @@
 import { buildUserPrompt } from "../ai-planner";
 import type { PlanRequest } from "../types";
+import type { VenueFactData } from "../google-places";
+
+const mockRequest: PlanRequest = {
+  dateStr: "2026-03-01",
+  startTime: "12:00",
+  endTime: "20:00",
+  location: "渋谷",
+  relationship: "lover",
+  activities: ["dinner", "cafe"],
+  mood: "romantic",
+  budget: "medium",
+  ageGroup: "20-plus",
+  additionalNotes: "カフェ好き",
+};
+
+const mockVenues: VenueFactData[] = [
+  {
+    placeId: "test-1",
+    name: "テストカフェ",
+    address: "渋谷区神南1-1-1",
+    rating: 4.5,
+    priceLevel: 2,
+    lat: 35.6612,
+    lng: 139.7010,
+    openingHours: null,
+    isOpenNow: null,
+    phoneNumber: null,
+    website: null,
+    types: ["cafe"],
+    photoReference: null,
+    photoUrl: null,
+    photoHtmlAttribution: null,
+    source: "google_places",
+    googleMapsUrl: null,
+    mapEmbedUrl: null,
+  },
+];
 
 describe("buildUserPrompt", () => {
-  const baseRequest: PlanRequest = {
-    occasion: "first-date",
-    mood: "romantic",
-    budget: "medium",
-    dateType: "half-day",
-    ageGroup: "20-plus",
-    dateSchedule: "undecided",
-    location: "渋谷",
-    partnerInterests: "カフェ巡り",
-    additionalNotes: "",
-  };
-
-  it("includes all required fields", () => {
-    const prompt = buildUserPrompt(baseRequest, [], null, "");
-    expect(prompt).toContain("初デート");
-    expect(prompt).toContain("ロマンチック");
-    expect(prompt).toContain("5,000〜15,000円");
+  it("should include location in prompt", () => {
+    const prompt = buildUserPrompt(mockRequest, [], null, "");
     expect(prompt).toContain("渋谷");
   });
 
-  it("includes partner interests when provided", () => {
-    const prompt = buildUserPrompt(baseRequest, [], null, "");
+  it("should include activities in prompt", () => {
+    const prompt = buildUserPrompt(mockRequest, [], null, "");
+    expect(prompt).toContain("ディナー");
     expect(prompt).toContain("カフェ巡り");
   });
 
-  it("excludes partner interests when empty", () => {
-    const prompt = buildUserPrompt({ ...baseRequest, partnerInterests: "" }, [], null, "");
-    expect(prompt).not.toContain("趣味・好み");
+  it("should include date info when provided", () => {
+    const prompt = buildUserPrompt(mockRequest, [], null, "");
+    expect(prompt).toContain("2026-03-01");
+    expect(prompt).toContain("12:00");
+    expect(prompt).toContain("20:00");
   });
 
-  it("includes additional notes when provided", () => {
-    const prompt = buildUserPrompt(
-      { ...baseRequest, additionalNotes: "夜景が見えるところ" },
-      [],
-      null,
-      "",
-    );
-    expect(prompt).toContain("夜景が見えるところ");
+  it("should include venue data when provided", () => {
+    const prompt = buildUserPrompt(mockRequest, mockVenues, null, "");
+    expect(prompt).toContain("テストカフェ");
+    expect(prompt).toContain("★4.5");
   });
 
-  it("defaults location to 東京 when empty", () => {
-    const prompt = buildUserPrompt({ ...baseRequest, location: "" }, [], null, "");
-    expect(prompt).toContain("東京");
+  it("should include additional notes", () => {
+    const prompt = buildUserPrompt(mockRequest, [], null, "");
+    expect(prompt).toContain("カフェ好き");
   });
 
-  it("includes venue fact data when provided", () => {
-    const venue = {
-      placeId: "test123",
-      name: "テスト居酒屋",
-      address: "東京都渋谷区1-1-1",
-      lat: 35.6,
-      lng: 139.7,
-      rating: 4.2,
-      priceLevel: 2,
-      openingHours: ["月曜日: 17:00〜23:00"],
-      isOpenNow: true,
-      phoneNumber: "03-1234-5678",
-      website: null,
-      types: ["restaurant"],
-      photoReference: null,
-    photoUrl: null,
-    photoHtmlAttribution: null,
-      source: "google_places" as const,
-    googleMapsUrl: "https://www.google.com/maps/place/?q=place_id:test123",
-    mapEmbedUrl: "https://www.google.com/maps/embed/v1/place?key=test&q=place_id:test123",
+  it("should include relationship info", () => {
+    const prompt = buildUserPrompt(mockRequest, [], null, "");
+    expect(prompt).toContain("恋人");
+  });
+
+  it("should add winter note for December dates", () => {
+    const winterReq: PlanRequest = {
+      ...mockRequest,
+      dateStr: "2026-12-15",
     };
-    const prompt = buildUserPrompt(baseRequest, [venue], null, "");
-    expect(prompt).toContain("テスト居酒屋");
-    expect(prompt).toContain("改変厳禁");
-    expect(prompt).toContain("東京都渋谷区1-1-1");
-  });
-
-  it("includes walking route when provided", () => {
-    const route = {
-      durationText: "徒歩8分",
-      durationMinutes: 8,
-      distanceText: "650m",
-      distanceMeters: 650,
-      summary: "渋谷駅周辺",
-      mapEmbedUrl: null,
-      source: "google_maps" as const,
-    };
-    const prompt = buildUserPrompt(baseRequest, [], route, "");
-    expect(prompt).toContain("徒歩8分");
-    expect(prompt).toContain("650m");
+    const prompt = buildUserPrompt(winterReq, [], null, "");
+    expect(prompt).toContain("冬季");
   });
 });

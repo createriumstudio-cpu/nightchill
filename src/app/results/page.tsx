@@ -6,7 +6,7 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SocialEmbedSection from "@/components/SocialEmbed";
-import { type DatePlan, occasionLabels, moodLabels } from "@/lib/types";
+import { type DatePlan } from "@/lib/types";
 import SectionNav from "@/components/SectionNav";
 import { getRelevantPosts, type UGCPost } from "@/lib/ugc-data";
 import { decodePlan, buildShareUrl } from "@/lib/plan-encoder";
@@ -48,7 +48,6 @@ function getPlanHashFromUrl(): string | null {
 function planToText(plan: DatePlan): string {
   const l: string[] = [];
   l.push(`【${plan.title}】`);
-  l.push(`${occasionLabels[plan.occasion]} / ${moodLabels[plan.mood]}`);
   l.push("");
   l.push(plan.summary);
   l.push("");
@@ -243,7 +242,7 @@ export default function ResultsPage() {
 
   const ugcPosts: UGCPost[] = useMemo(() => {
     if (!plan) return [];
-    return getRelevantPosts(location, plan.occasion, 4);
+    return getRelevantPosts(location, undefined as any, 4);
   }, [plan, location]);
 
   useEffect(() => {
@@ -337,10 +336,8 @@ export default function ResultsPage() {
         <div id="overview" className="text-center scroll-mt-32">
           <div className="mb-4 flex items-center justify-center gap-3">
             <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-              {occasionLabels[plan.occasion]}
             </span>
             <span className="rounded-full bg-accent/10 px-3 py-1 text-xs font-semibold text-accent">
-              {moodLabels[plan.mood]}
             </span>
           </div>
           <h1 className="text-3xl font-bold tracking-tight md:text-4xl">

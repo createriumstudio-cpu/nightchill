@@ -6,7 +6,7 @@
  * URLハッシュフラグメントに格納するため、サーバーサイドは不要
  */
 
-import { type DatePlan, type Occasion, type Mood } from "./types";
+import { type DatePlan } from "./types";
 
 // ============================================================
 // キーの短縮マッピング（URL長の削減）
@@ -16,8 +16,6 @@ interface CompactPlan {
   i: string;       // id
   t: string;       // title
   s: string;       // summary
-  o: string;       // occasion
-  m: string;       // mood
   tl: { t: string; a: string; p: string }[]; // timeline
   f: string;       // fashionAdvice
   c: string[];     // conversationTopics
@@ -35,8 +33,6 @@ function toCompact(plan: DatePlan): CompactPlan {
     i: plan.id,
     t: plan.title,
     s: plan.summary,
-    o: plan.occasion,
-    m: plan.mood,
     tl: plan.timeline.map((item) => ({
       t: item.time,
       a: item.activity,
@@ -53,8 +49,6 @@ function fromCompact(compact: CompactPlan): DatePlan {
     id: compact.i,
     title: compact.t,
     summary: compact.s,
-    occasion: compact.o as Occasion,
-    mood: compact.m as Mood,
     timeline: compact.tl.map((item) => ({
       time: item.t,
       activity: item.a,
