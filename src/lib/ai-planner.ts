@@ -584,6 +584,23 @@ export async function generateAIPlan(request: PlanRequest): Promise<DatePlan> {
 
       const parsed = robustJsonParse(textBlock.text);
 
+      // Step 5: タイムラインの実際の店舗名でGoogle Placesを再検索
+      const timelineVenues = (parsed.timeline as Array<{ venue?: string }>)
+        .map(t => t.venue)
+        .filter((v): v is string => !!v && v.length > 0);
+      
+      const uniqueVenueNames = [...new Set(timelineVenues)];
+      const venueSearchPromises = uniqueVenueNames.map(name =>
+        searchVenue(name, area)
+      );
+      const venueSearchResults = await Promise.all(venueSearchPromises);
+      const enrichedVenues = venueSearchResults.filter(
+        (v): v is VenueFactData => v !== null && v.source === "google_places"
+      );
+      
+      // enrichedVenuesがあればそちらを優先、なければ事前検索結果を使用
+      const finalVenues = enrichedVenues.length > 0 ? enrichedVenues : venues;
+
       return {
         id: generateId(),
         title: parsed.title as string,
@@ -592,9 +609,9 @@ export async function generateAIPlan(request: PlanRequest): Promise<DatePlan> {
         fashionAdvice: parsed.fashionAdvice as string,
         conversationTopics: (parsed.conversationTopics as string[] | undefined) ?? [],
         warnings: parsed.warnings as string[],
-        venues,
+        venues: finalVenues,
         walkingRoute: walkingRoute ?? undefined,
-        };
+      };
     } catch (error) {
       lastError = error as Error;
       console.error(
