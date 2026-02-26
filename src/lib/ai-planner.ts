@@ -62,6 +62,14 @@ const SYSTEM_PROMPT = `あなたは東京のデートプランニングの専門
 − 「アクティブ」→ 体を動かせるスポットを含める
 − 相手や自分の好みが書かれていたら、それに合わせてスポットを選ぶ
 
+【宿泊（複数日）プランのルール ― 該当時のみ適用】
+− 宿泊プランの場合、タイムラインを日ごとに構成する
+− 各日の最初のステップの activity に「【Day N】」を付ける（例：「【Day 1】ランチからスタート」「【Day 2】ホテル周辺で朝食」）
+− チェックイン（15:00〜18:00目安）とチェックアウト（〜11:00目安）の時間を考慮する
+− 宿泊施設は venue に具体的なホテル名・旅館名を入れる（例：「MUJI HOTEL GINZA」「星のや東京」）
+− 2日目の朝〜チェックアウトまでのプランも含める
+− 1泊2日なら7〜10スポット、2泊3日なら12〜15スポットを目安にする
+
 【年齢制限ルール ― 厳守】
 − 「20歳未満」の場合：バー、居酒屋、シーシャ、ナイトクラブ、アルコールを提供する店は絶対に推薦しない
 − 「20歳以上」の場合：全ての店舗を推薦可能
@@ -181,7 +189,24 @@ function buildUserPrompt(
     parts.push(`開始時間：${request.startTime}`);
   }
 
-  if (request.endDateStr) {
+  if (request.endDateStr && request.dateStr && request.endDateStr > request.dateStr) {
+    const startDate = new Date(request.dateStr);
+    const endDate = new Date(request.endDateStr);
+    const nights = Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    parts.push(`終了日：${request.endDateStr}（${nights}泊${nights + 1}日の宿泊プラン）`);
+    parts.push("");
+    parts.push("=== 宿泊プラン構成の指示 ===");
+    parts.push(`− これは${nights}泊${nights + 1}日のお泊まりデートです`);
+    parts.push("− タイムラインを日ごとに構成してください");
+    parts.push("− 各日の最初のステップの activity に【Day N】を付けてください");
+    parts.push("− 宿泊施設（ホテル・旅館）も venue に具体名を入れてください");
+    parts.push("− 2日目以降の朝食〜チェックアウトのプランも含めてください");
+    if (nights === 1) {
+      parts.push("− 1泊2日：Day 1 に4〜5スポット + ホテル、Day 2 に3〜4スポットを目安に");
+    } else {
+      parts.push(`− ${nights}泊${nights + 1}日：各日に3〜5スポットを目安に`);
+    }
+  } else if (request.endDateStr) {
     parts.push(`終了日：${request.endDateStr}（複数日プラン）`);
   }
 

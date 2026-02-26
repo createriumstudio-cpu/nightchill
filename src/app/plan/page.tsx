@@ -101,6 +101,7 @@ export default function PlanPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           dateStr,
+          endDateStr,
           startTime,
           endTime,
           location: combinedLocation,
