@@ -131,6 +131,120 @@ export default async function EnglishHomePage() {
           </div>
         </section>
 
+        {/* Features */}
+        <section id="features" className="px-6 py-24">
+          <div className="mx-auto max-w-6xl">
+            <div className="text-center">
+              <p className="text-sm font-semibold tracking-widest text-[#c9a96e] uppercase">
+                Features
+              </p>
+              <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
+                What Makes futatabito Different
+              </h2>
+              <p className="mx-auto mt-4 max-w-2xl text-muted">
+                More than just place suggestions. From time management to venue details, we deliver the &ldquo;How&rdquo; of your date.
+              </p>
+            </div>
+
+            <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                {
+                  icon: "🗺️",
+                  title: "Timeline Planning",
+                  description:
+                    "Auto-generate date plans with time allocation from meetup to farewell. Get a concrete flow so you never feel lost.",
+                },
+                {
+                  icon: "📍",
+                  title: "Real Venue Info",
+                  description:
+                    "See real photos and business hours from linked venues. No more arriving to find a place closed.",
+                },
+                {
+                  icon: "📊",
+                  title: "Area Date Guides",
+                  description:
+                    "Analyze area characteristics for day or night dates. Find optimal meetup times and stay durations in our area guides.",
+                },
+                {
+                  icon: "✨",
+                  title: "Personalized",
+                  description:
+                    "Customize plans based on relationship, occasion, and budget. Perfect suggestions from first dates to anniversaries.",
+                },
+              ].map((feature) => (
+                <div
+                  key={feature.title}
+                  className="rounded-2xl border border-border bg-surface p-6 transition-shadow hover:shadow-lg"
+                >
+                  <span className="text-3xl">{feature.icon}</span>
+                  <h3 className="mt-4 text-lg font-semibold">{feature.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted">
+                    {feature.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Testimonials */}
+        <section className="bg-surface px-6 py-24">
+          <div className="mx-auto max-w-6xl">
+            <div className="text-center">
+              <p className="text-sm font-semibold tracking-widest text-[#c9a96e] uppercase">
+                Voice
+              </p>
+              <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
+                What Users Say
+              </h2>
+            </div>
+
+            <div className="mt-16 grid gap-8 sm:grid-cols-3">
+              {[
+                {
+                  text: "I was lost on where to go for a first date, but the timeline-based plan was super helpful. We even scheduled a second date!",
+                  author: "T.K.",
+                  age: "28",
+                  occasion: "First Date",
+                },
+                {
+                  text: "I was struggling with anniversary plans, and it perfectly suggested everything from the area vibe to time allocation. My girlfriend loved it.",
+                  author: "S.M.",
+                  age: "32",
+                  occasion: "Anniversary",
+                },
+                {
+                  text: "I was at a loss on how to plan a proposal, but being able to see the concrete flow and venue photos was truly reassuring.",
+                  author: "R.Y.",
+                  age: "35",
+                  occasion: "Proposal",
+                },
+              ].map((t) => (
+                <div
+                  key={t.author}
+                  className="rounded-2xl border border-border bg-surface p-6"
+                >
+                  <p className="text-sm leading-relaxed text-muted">
+                    &ldquo;{t.text}&rdquo;
+                  </p>
+                  <div className="mt-4 flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+                      {t.author[0]}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold">
+                        {t.author} (Age {t.age})
+                      </p>
+                      <p className="text-xs text-muted">{t.occasion}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* CTA */}
         <section className="py-12 text-center bg-gray-900">
           <p className="text-gray-400 mb-4">

@@ -7,28 +7,28 @@ import FeaturedPicks from "@/components/FeaturedPicks";
 
 const features = [
   {
-    icon: "🎯",
-    title: "Howを提案",
+    icon: "🗺️",
+    title: "タイムライン提案",
     description:
-      "「どこに行くか」ではなく「どうデートするか」。会話のテクニックからタイミングまで、成功への道筋をご案内。",
+      "集合から解散まで時間配分付きのデートプランを自動生成。迷わず動ける具体的な流れをお届け。",
+  },
+  {
+    icon: "📍",
+    title: "実在する店舗情報",
+    description:
+      "連携でリアルな写真・営業情報を表示。行ってみたら閉まっていた、をゼロに。",
+  },
+  {
+    icon: "📊",
+    title: "エリア別デートガイド",
+    description:
+      "昼向き・夜向きなどエリア特性を分析。最適な集合時間・滞在時間をエリアの特集で紹介。",
   },
   {
     icon: "✨",
     title: "パーソナライズ",
     description:
-      "お二人の性格・趣味・関係性を分析し、最適なデートプランをカスタマイズ。",
-  },
-  {
-    icon: "🌙",
-    title: "雰囲気づくり",
-    description:
-        "エリアの空気感、お店の動線、会話のきっかけまで。ふたりの時間をトータルにデザイン。",
-  },
-  {
-    icon: "💡",
-    title: "シーン別アドバイス",
-    description:
-      "初デート、記念日、プロポーズ。どんなシーンでも最適なアドバイスをお届け。",
+      "関係性・シーン・予算に応じてプランをカスタマイズ。初デートから記念日まで最適な提案を。",
   },
 ];
 
@@ -55,19 +55,19 @@ const steps = [
 
 const testimonials = [
   {
-    text: "初デートで何を話せばいいか不安だったけど、会話のネタまで提案してくれて助かった。おかげで2回目のデートも決まりました！",
+    text: "初デートでどこに行けばいいか迷っていたけど、タイムライン付きのプランがすごく助かった。おかげで2回目のデートも決まりました！",
     author: "T.K.",
     age: "28歳",
     occasion: "初デート",
   },
   {
-    text: "記念日のプランに悩んでいたところ、服装からタイムラインまで完璧に提案してくれました。彼女も大喜びでした。",
+    text: "記念日のプランに悩んでいたところ、エリアの雰囲気から時間配分まで完璧に提案してくれました。彼女も大喜びでした。",
     author: "S.M.",
     age: "32歳",
     occasion: "記念日",
   },
   {
-    text: "プロポーズの段取りをどうするか途方に暮れていましたが、具体的な流れと心構えまで教えてくれて本当に心強かったです。",
+    text: "プロポーズの段取りをどうするか途方に暮れていましたが、具体的な流れと店の写真まで見れて本当に心強かったです。",
     author: "R.Y.",
     age: "35歳",
     occasion: "プロポーズ",
@@ -174,7 +174,7 @@ export default function Home() {
               futatabitoの特徴
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-muted">
-              場所の提案だけではありません。デートを成功させるための「How」をお届けします。
+              場所の提案だけではありません。時間配分から店舗情報まで、デートの「How」をお届けします。
             </p>
           </div>
 
@@ -263,48 +263,6 @@ export default function Home() {
                     </p>
                     <p className="text-xs text-muted">{t.occasion}で利用</p>
                   </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* What You Get */}
-      <section className="bg-surface px-6 py-24">
-        <div className="mx-auto max-w-4xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
-            futatabitoが提案するもの
-          </h2>
-          <div className="mt-12 grid gap-6 sm:grid-cols-2">
-            {[
-              {
-                title: "タイムライン",
-                desc: "時間配分まで考え抜かれたデートの流れ",
-              },
-              {
-                title: "服装アドバイス",
-                desc: "シーンに合った最適なコーディネート",
-              },
-              {
-                title: "会話のネタ",
-                desc: "自然に盛り上がる話題を複数提案",
-              },
-              {
-                title: "成功のコツ",
-                desc: "各シーンで使える具体的なテクニック",
-              },
-            ].map((item) => (
-              <div
-                key={item.title}
-                className="flex items-start gap-3 rounded-xl border border-border p-4 text-left"
-              >
-                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs text-white">
-                  ✓
-                </span>
-                <div>
-                  <p className="font-semibold">{item.title}</p>
-                  <p className="text-sm text-muted">{item.desc}</p>
                 </div>
               </div>
             ))}

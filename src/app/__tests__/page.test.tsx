@@ -23,10 +23,10 @@ describe("Home", () => {
 
   it("renders feature cards", () => {
     render(<Home />);
-    expect(screen.getByText("Howを提案")).toBeInTheDocument();
+    expect(screen.getByText("タイムライン提案")).toBeInTheDocument();
+    expect(screen.getByText("実在する店舗情報")).toBeInTheDocument();
+    expect(screen.getByText("エリア別デートガイド")).toBeInTheDocument();
     expect(screen.getByText("パーソナライズ")).toBeInTheDocument();
-    expect(screen.getByText("雰囲気づくり")).toBeInTheDocument();
-    expect(screen.getByText("シーン別アドバイス")).toBeInTheDocument();
   });
 
   it("renders how-it-works steps", () => {
