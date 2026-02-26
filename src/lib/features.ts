@@ -122,6 +122,6 @@ function rowToArticle(row: typeof featuresTable.$inferSelect): FeaturedArticle {
     heroEmoji: row.heroEmoji,
     heroImage: row.heroImage || undefined,
     spots: (row.spots as FeaturedSpot[]) || [],
-    dateGuide: undefined,
+    dateGuide: jsonArticles.find(a => a.slug === row.slug)?.dateGuide,
   };
 }
