@@ -148,6 +148,36 @@ export default async function FeatureDetailPage({ params }: PageProps) {
           </div>
         </section>
 
+        {/* Date Guide Section */}
+        {feature.dateGuide && (
+          <section className="max-w-3xl mx-auto px-4 pb-6">
+            <div className="bg-gray-900/80 border border-gray-700 rounded-2xl p-5">
+              <h3 className="text-sm font-bold text-orange-400 mb-3">📊 このエリアのデートガイド</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                <div>
+                  <div className="text-xs text-gray-500">エリアタイプ</div>
+                  <div className="text-sm font-medium mt-1">{feature.dateGuide.areaTypeLabel}</div>
+                </div>
+                <div>
+                  <div className="text-xs text-gray-500">おすすめ集合</div>
+                  <div className="text-sm font-medium mt-1">{feature.dateGuide.recommendedMeetTime}</div>
+                </div>
+                <div>
+                  <div className="text-xs text-gray-500">滞在目安</div>
+                  <div className="text-sm font-medium mt-1">{feature.dateGuide.recommendedDuration}</div>
+                </div>
+                <div>
+                  <div className="text-xs text-gray-500">こんな人に</div>
+                  <div className="text-sm font-medium mt-1">{feature.dateGuide.bestFor}</div>
+                </div>
+              </div>
+              {feature.dateGuide.tip && (
+                <p className="text-xs text-gray-400 mt-3 text-center">💡 {feature.dateGuide.tip}</p>
+              )}
+            </div>
+          </section>
+        )}
+
         {/* Description */}
         <section className="max-w-3xl mx-auto px-4 pb-8">
           <p className="text-gray-300 leading-relaxed">{feature.description}</p>

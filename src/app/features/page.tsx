@@ -67,6 +67,11 @@ export default async function FeaturesPage() {
                       <span className="text-xs font-medium text-primary-light bg-black/40 px-2 py-1 rounded-full">
                         {feature.area}エリア
                       </span>
+                      {feature.dateGuide && (
+                        <span className="text-xs font-medium text-orange-300 bg-black/40 px-2 py-1 rounded-full ml-1">
+                          {feature.dateGuide.areaTypeLabel}
+                        </span>
+                      )}
                     </div>
                   </div>
                 ) : (
