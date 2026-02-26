@@ -121,7 +121,7 @@ function rowToArticle(row: typeof featuresTable.$inferSelect): FeaturedArticle {
     updatedAt: row.updatedAt.toISOString(),
     heroEmoji: row.heroEmoji,
     heroImage: row.heroImage || undefined,
-    spots: (row.spots as FeaturedSpot[]) || [],
+    spots: jsonArticles.find(a => a.slug === row.slug)?.spots || (row.spots as FeaturedSpot[]) || [],
     dateGuide: jsonArticles.find(a => a.slug === row.slug)?.dateGuide,
   };
 }
