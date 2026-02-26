@@ -1,8 +1,12 @@
 /**
- * Google Places API サービス
+ * Google Places API (New) サービス
  *
  * 店舗のファクトデータ（名前・住所・営業時間・定休日・緯度経度）を取得する。
  * APIデータは「絶対改変不可のファクト」としてAIプロンプトに注入される。
+ *
+ * Places API (New) — places.googleapis.com/v1 を使用。
+ * 1回のリクエストで全フィールドを取得（旧APIの2段階呼び出しを廃止）。
+ * 写真はCDN URLに解決し、APIキーをクライアントに露出させない。
  *
  * GOOGLE_PLACES_API_KEY が未設定の場合はフォールバックデータを返す。
  */
@@ -28,47 +32,120 @@ export interface VenueFactData {
   mapEmbedUrl: string | null;
 }
 
-interface PlacesTextSearchResponse {
-  results: Array<{
-    place_id: string;
-    name: string;
-    formatted_address: string;
-    geometry: { location: { lat: number; lng: number } };
+// ============================================================
+// Places API (New) 型定義
+// ============================================================
+
+interface PlacesNewSearchResponse {
+  places?: Array<{
+    id: string;
+    displayName?: { text: string; languageCode: string };
+    formattedAddress?: string;
+    location?: { latitude: number; longitude: number };
     rating?: number;
-    price_level?: number;
-    opening_hours?: { open_now?: boolean };
-    types?: string[];
-    photos?: Array<{ photo_reference: string; html_attributions?: string[] }>;
-  }>;
-  status: string;
-}
-
-interface PlaceDetailsResponse {
-  result: {
-    formatted_phone_number?: string;
-    website?: string;
-    opening_hours?: {
-      weekday_text?: string[];
-      open_now?: boolean;
+    priceLevel?: string;
+    regularOpeningHours?: {
+      weekdayDescriptions?: string[];
+      openNow?: boolean;
     };
-  };
-  status: string;
+    nationalPhoneNumber?: string;
+    websiteUri?: string;
+    types?: string[];
+    photos?: Array<{
+      name: string;
+      authorAttributions?: Array<{
+        displayName: string;
+        uri: string;
+      }>;
+    }>;
+    googleMapsUri?: string;
+  }>;
 }
 
-const PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place";
+interface PhotoMediaResponse {
+  photoUri?: string;
+}
 
-function getApiKey(): string | null {
+// ============================================================
+// 定数
+// ============================================================
+
+const PLACES_API_BASE = "https://places.googleapis.com/v1";
+
+/** 1リクエストで取得する全フィールド */
+const SEARCH_FIELD_MASK = [
+  "places.id",
+  "places.displayName",
+  "places.formattedAddress",
+  "places.location",
+  "places.rating",
+  "places.priceLevel",
+  "places.regularOpeningHours",
+  "places.nationalPhoneNumber",
+  "places.websiteUri",
+  "places.types",
+  "places.photos",
+  "places.googleMapsUri",
+].join(",");
+
+/** priceLevel 文字列 → 数値変換 */
+const PRICE_LEVEL_MAP: Record<string, number> = {
+  PRICE_LEVEL_FREE: 0,
+  PRICE_LEVEL_INEXPENSIVE: 1,
+  PRICE_LEVEL_MODERATE: 2,
+  PRICE_LEVEL_EXPENSIVE: 3,
+  PRICE_LEVEL_VERY_EXPENSIVE: 4,
+};
+
+// ============================================================
+// API キー取得
+// ============================================================
+
+function getPlacesApiKey(): string | null {
   return process.env.GOOGLE_PLACES_API_KEY || null;
 }
 
+function getMapsApiKey(): string | null {
+  return process.env.GOOGLE_MAPS_API_KEY || null;
+}
+
+// ============================================================
+// 写真CDN URL解決
+// ============================================================
+
 /**
- * テキスト検索で店舗を検索し、ファクトデータを取得
+ * 写真リソース名からCDN URLを取得する。
+ * skipHttpRedirect=true で直接URLを返させる。
+ */
+async function resolvePhotoUrl(
+  photoName: string,
+  apiKey: string,
+): Promise<string | null> {
+  try {
+    const res = await fetch(
+      `${PLACES_API_BASE}/${photoName}/media?maxHeightPx=400&maxWidthPx=600&skipHttpRedirect=true&key=${apiKey}`,
+    );
+    if (!res.ok) return null;
+    const data = (await res.json()) as PhotoMediaResponse;
+    return data.photoUri ?? null;
+  } catch {
+    return null;
+  }
+}
+
+// ============================================================
+// メイン検索関数
+// ============================================================
+
+/**
+ * テキスト検索で店舗を検索し、ファクトデータを取得。
+ * Places API (New) を使用: 1回のリクエストで全情報を取得。
  */
 export async function searchVenue(
   query: string,
   area: string,
 ): Promise<VenueFactData | null> {
-  const apiKey = getApiKey();
+  const apiKey = getPlacesApiKey();
 
   if (!apiKey) {
     console.log("[google-places] API key not set, using fallback");
@@ -76,64 +153,77 @@ export async function searchVenue(
   }
 
   try {
-    // Step 1: Text Search
-    const searchQuery = `${query} ${area}`;
-    const searchUrl = new URL(`${PLACES_API_BASE}/textsearch/json`);
-    searchUrl.searchParams.set("query", searchQuery);
-    searchUrl.searchParams.set("language", "ja");
-    searchUrl.searchParams.set("region", "jp");
-    searchUrl.searchParams.set("key", apiKey);
+    const searchRes = await fetch(`${PLACES_API_BASE}/places:searchText`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Goog-Api-Key": apiKey,
+        "X-Goog-FieldMask": SEARCH_FIELD_MASK,
+      },
+      body: JSON.stringify({
+        textQuery: `${query} ${area}`,
+        languageCode: "ja",
+        maxResultCount: 1,
+      }),
+    });
 
-    const searchRes = await fetch(searchUrl.toString());
     if (!searchRes.ok) {
-      throw new Error(`Places API search failed: ${searchRes.status}`);
-    }
-
-    const searchData = (await searchRes.json()) as PlacesTextSearchResponse;
-    if (searchData.status !== "OK" || searchData.results.length === 0) {
-      console.warn("[google-places] No results for:", searchQuery);
+      const errText = await searchRes.text();
+      console.error(`[google-places] Search failed ${searchRes.status}: ${errText}`);
       return createFallbackVenue(query, area);
     }
 
-    const place = searchData.results[0];
+    const data = (await searchRes.json()) as PlacesNewSearchResponse;
+    const place = data.places?.[0];
 
-    // Step 2: Place Details (for phone, website, weekday_text)
-    const detailsUrl = new URL(`${PLACES_API_BASE}/details/json`);
-    detailsUrl.searchParams.set("place_id", place.place_id);
-    detailsUrl.searchParams.set("fields", "formatted_phone_number,website,opening_hours");
-    detailsUrl.searchParams.set("language", "ja");
-    detailsUrl.searchParams.set("key", apiKey);
+    if (!place) {
+      console.warn("[google-places] No results for:", query);
+      return createFallbackVenue(query, area);
+    }
 
-    const detailsRes = await fetch(detailsUrl.toString());
-    let details: PlaceDetailsResponse["result"] = {};
-    if (detailsRes.ok) {
-      const detailsData = (await detailsRes.json()) as PlaceDetailsResponse;
-      if (detailsData.status === "OK") {
-        details = detailsData.result;
+    // 写真CDN URL解決（APIキーをクライアントに露出させない）
+    let photoUrl: string | null = null;
+    let photoReference: string | null = null;
+    let photoAttribution: string | null = null;
+
+    if (place.photos && place.photos.length > 0) {
+      const photo = place.photos[0];
+      photoReference = photo.name;
+      photoUrl = await resolvePhotoUrl(photo.name, apiKey);
+
+      const author = photo.authorAttributions?.[0];
+      if (author) {
+        photoAttribution = author.uri
+          ? `<a href="${author.uri}" target="_blank" rel="noopener noreferrer">${author.displayName}</a>`
+          : author.displayName;
       }
     }
 
+    // mapEmbedUrl は Maps Embed API なので GOOGLE_MAPS_API_KEY を使用
+    const mapsKey = getMapsApiKey();
+    const mapEmbedUrl = mapsKey
+      ? `https://www.google.com/maps/embed/v1/place?key=${mapsKey}&q=place_id:${place.id}`
+      : null;
+
     return {
-      placeId: place.place_id,
-      name: place.name,
-      address: place.formatted_address,
-      lat: place.geometry.location.lat,
-      lng: place.geometry.location.lng,
+      placeId: place.id,
+      name: place.displayName?.text ?? query,
+      address: place.formattedAddress ?? `${area}`,
+      lat: place.location?.latitude ?? 0,
+      lng: place.location?.longitude ?? 0,
       rating: place.rating ?? null,
-      priceLevel: place.price_level ?? null,
-      openingHours: details.opening_hours?.weekday_text ?? null,
-      isOpenNow: details.opening_hours?.open_now ?? place.opening_hours?.open_now ?? null,
-      phoneNumber: details.formatted_phone_number ?? null,
-      website: details.website ?? null,
+      priceLevel: place.priceLevel ? (PRICE_LEVEL_MAP[place.priceLevel] ?? null) : null,
+      openingHours: place.regularOpeningHours?.weekdayDescriptions ?? null,
+      isOpenNow: place.regularOpeningHours?.openNow ?? null,
+      phoneNumber: place.nationalPhoneNumber ?? null,
+      website: place.websiteUri ?? null,
       types: place.types ?? [],
-      photoReference: place.photos?.[0]?.photo_reference ?? null,
-      photoUrl: place.photos?.[0]?.photo_reference
-        ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=600&photo_reference=${place.photos[0].photo_reference}&key=${apiKey}`
-        : null,
-      photoHtmlAttribution: place.photos?.[0]?.html_attributions?.[0] ?? null,
+      photoReference,
+      photoUrl,
+      photoHtmlAttribution: photoAttribution,
       source: "google_places",
-      googleMapsUrl: `https://www.google.com/maps/place/?q=place_id:${place.place_id}`,
-      mapEmbedUrl: `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=place_id:${place.place_id}`,
+      googleMapsUrl: place.googleMapsUri ?? `https://www.google.com/maps/place/?q=place_id:${place.id}`,
+      mapEmbedUrl,
     };
   } catch (error) {
     console.error("[google-places] API error:", error);
@@ -141,9 +231,13 @@ export async function searchVenue(
   }
 }
 
+// ============================================================
+// フォールバック
+// ============================================================
+
 /**
- * APIキー未設定時のフォールバック
- * ファクトデータが不明であることを明示する
+ * APIキー未設定時のフォールバック。
+ * ファクトデータが不明であることを明示する。
  */
 function createFallbackVenue(name: string, area: string): VenueFactData {
   return {
@@ -168,9 +262,13 @@ function createFallbackVenue(name: string, area: string): VenueFactData {
   };
 }
 
+// ============================================================
+// プロンプト用フォーマット
+// ============================================================
+
 /**
- * ファクトデータをAIプロンプト用のテキストに変換
- * AIはこのデータを「絶対改変不可」として扱う
+ * ファクトデータをAIプロンプト用のテキストに変換。
+ * AIはこのデータを「絶対改変不可」として扱う。
  */
 export function formatVenueForPrompt(venue: VenueFactData): string {
   const parts: string[] = [];

@@ -65,8 +65,43 @@ function planToText(plan: DatePlan): string {
   l.push("futatabito - デート視点の東京カルチャーガイド");
   return l.join("\n");
 }
+
 // ============================================================
-// 店舗情報カード
+// 店舗写真の遅延読み込みフック
+// ============================================================
+interface PlacePhotoData {
+  photoUri: string | null;
+  attribution: string | null;
+  attributionUri: string | null;
+  googleMapsUri: string | null;
+}
+
+function useVenuePhoto(venueName: string | null, enabled: boolean) {
+  const [data, setData] = useState<PlacePhotoData | null>(null);
+  const fetchedRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!enabled || !venueName || fetchedRef.current === venueName) return;
+    fetchedRef.current = venueName;
+    let cancelled = false;
+
+    fetch(`/api/place-photo?q=${encodeURIComponent(venueName)}`)
+      .then(res => res.json())
+      .then((json: PlacePhotoData) => {
+        if (!cancelled) setData(json);
+      })
+      .catch(() => {
+        // photo fetch failed — leave data as null
+      });
+
+    return () => { cancelled = true; };
+  }, [venueName, enabled]);
+
+  return { data };
+}
+
+// ============================================================
+// 店舗情報カード（統合コンポーネント）
 // ============================================================
 const ALCOHOL_VENUE_TYPES = ["bar", "night_club", "liquor_store"];
 
@@ -74,19 +109,40 @@ function isAlcoholVenue(types: string[]): boolean {
   return types.some((t) => ALCOHOL_VENUE_TYPES.includes(t));
 }
 
-function VenueCard({ venue, index }: { venue: VenueFactData; index: number }) {
+function VenueCard({
+  venue,
+  index,
+  compact = false,
+}: {
+  venue: VenueFactData;
+  index: number;
+  compact?: boolean;
+}) {
   const gbpUrl = venue.googleMapsUrl || `https://www.google.com/maps/place/?q=place_id:${venue.placeId}`;
   const showAgeBadge = isAlcoholVenue(venue.types);
 
+  // 写真がない場合はクライアント側で取得を試みる
+  const needsPhoto = !venue.photoUrl && venue.source === "google_places";
+  const { data: lazyPhoto } = useVenuePhoto(
+    needsPhoto ? venue.name : null,
+    needsPhoto,
+  );
+  const photoUrl = venue.photoUrl || lazyPhoto?.photoUri || null;
+  const photoAttribution = venue.photoHtmlAttribution
+    || (lazyPhoto?.attribution && lazyPhoto?.attributionUri
+      ? `<a href="${lazyPhoto.attributionUri}" target="_blank" rel="noopener noreferrer">${lazyPhoto.attribution}</a>`
+      : lazyPhoto?.attribution)
+    || null;
+
   return (
-    <div className="rounded-2xl border border-border bg-surface overflow-hidden">
-      {/* Store Photo — clickable to Google Business Profile */}
-      {venue.photoUrl && (
+    <div className={`rounded-2xl border border-border bg-surface overflow-hidden ${compact ? "rounded-xl" : ""}`}>
+      {/* Store Photo */}
+      {photoUrl && (
         <a href={gbpUrl} target="_blank" rel="noopener noreferrer" className="block relative group">
           <div className="relative h-48 w-full overflow-hidden">
             <img
-              src={venue.photoUrl}
-              alt={`${venue.name} の店内写真`}
+              src={photoUrl}
+              alt={`${venue.name} の写真`}
               className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
               loading="lazy"
             />
@@ -105,24 +161,23 @@ function VenueCard({ venue, index }: { venue: VenueFactData; index: number }) {
               </div>
             )}
           </div>
-          {/* Photo Attribution (Required by Google Maps Platform Policy) */}
-          {venue.photoHtmlAttribution && (
+          {photoAttribution && (
             <p
               className="bg-black/60 px-3 py-1 text-[10px] text-white/80"
-              dangerouslySetInnerHTML={{ __html: `Photo: ${venue.photoHtmlAttribution}` }}
+              dangerouslySetInnerHTML={{ __html: `Photo: ${photoAttribution}` }}
             />
           )}
         </a>
       )}
 
       {/* Age badge for venues without photo */}
-      {!venue.photoUrl && showAgeBadge && (
+      {!photoUrl && showAgeBadge && (
         <div className="bg-red-50 px-4 py-2 dark:bg-red-950">
           <span className="text-xs font-bold text-red-600 dark:text-red-400">🔞 20歳以上対象</span>
         </div>
       )}
 
-      <div className="p-5">
+      <div className={compact ? "p-4" : "p-5"}>
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-2">
@@ -133,7 +188,7 @@ function VenueCard({ venue, index }: { venue: VenueFactData; index: number }) {
             </div>
             <p className="mt-1 text-sm text-muted">{venue.address}</p>
           </div>
-          {venue.rating !== null && !venue.photoUrl && (
+          {venue.rating !== null && !photoUrl && (
             <div className="flex items-center gap-1 rounded-lg bg-amber-50 px-2 py-1 dark:bg-amber-950">
               <span className="text-xs">⭐</span>
               <span className="text-sm font-semibold text-amber-700 dark:text-amber-300">
@@ -143,7 +198,7 @@ function VenueCard({ venue, index }: { venue: VenueFactData; index: number }) {
           )}
         </div>
 
-        {venue.openingHours && venue.openingHours.length > 0 && (
+        {!compact && venue.openingHours && venue.openingHours.length > 0 && (
           <details className="mt-3">
             <summary className="cursor-pointer text-sm font-medium text-primary">
               営業時間を見る
@@ -156,9 +211,19 @@ function VenueCard({ venue, index }: { venue: VenueFactData; index: number }) {
           </details>
         )}
 
-        {/* Reservation / Contact CTA */}
-        <div className="mt-4 flex flex-wrap gap-2">
-          {venue.website && (
+        {/* Action buttons */}
+        <div className="mt-3 flex flex-wrap gap-2">
+          {venue.googleMapsUrl && (
+            <a
+              href={venue.googleMapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 text-xs font-medium transition-colors hover:bg-surface"
+            >
+              🗺️ 地図
+            </a>
+          )}
+          {!compact && venue.website && (
             <a
               href={venue.website}
               target="_blank"
@@ -168,17 +233,27 @@ function VenueCard({ venue, index }: { venue: VenueFactData; index: number }) {
               予約・詳細を見る
             </a>
           )}
+          {compact && venue.website && (
+            <a
+              href={venue.website}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 text-xs font-medium transition-colors hover:bg-surface"
+            >
+              🌐 HP
+            </a>
+          )}
           {venue.phoneNumber && (
             <a
               href={`tel:${venue.phoneNumber}`}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-sm font-medium transition-colors hover:bg-surface"
+              className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 text-xs font-medium transition-colors hover:bg-surface"
             >
-              📞 電話で予約
+              📞 {compact ? "電話" : "電話で予約"}
             </a>
           )}
         </div>
 
-        {/* Google Maps Attribution (Required by Google Maps Platform Policy) */}
+        {/* Google Maps Attribution */}
         {venue.source === "google_places" && (
           <p className="mt-3 text-[11px] text-muted">
             店舗情報提供: <span translate="no" className="font-normal" style={{ fontFamily: "Roboto, sans-serif" }}>Google Maps</span>
@@ -200,7 +275,7 @@ function VenueCard({ venue, index }: { venue: VenueFactData; index: number }) {
 function VenueEmbed({ venue }: { venue: VenueFactData }) {
   const embedUrl = venue.mapEmbedUrl;
   const gbpUrl = venue.googleMapsUrl || `https://www.google.com/maps/place/?q=place_id:${venue.placeId}`;
-  
+
   if (!embedUrl) return null;
 
   return (
@@ -230,27 +305,12 @@ function VenueEmbed({ venue }: { venue: VenueFactData }) {
 }
 
 // ============================================================
-// 俯瞰マップ (Static Map API - 全ヴェニューピン表示)
+// 俯瞰マップ (Static Map API)
 // ============================================================
-function OverviewMap({ venues, area }: { venues: VenueFactData[]; area: string }) {
+function OverviewMap({ venues }: { venues: VenueFactData[] }) {
   const validVenues = venues.filter(v => v.lat !== 0 && v.lng !== 0);
   if (validVenues.length === 0) return null;
 
-  const markers = validVenues
-    .map((v, i) => `markers=color:red%7Clabel:${i + 1}%7C${v.lat},${v.lng}`)
-    .join("&");
-  
-  const staticMapUrl = `/api/static-map-multi?${markers}&area=${encodeURIComponent(area)}`;
-  
-  // Fallback: use Google Maps Embed API with directions/search
-  const center = validVenues.reduce(
-    (acc, v) => ({ lat: acc.lat + v.lat / validVenues.length, lng: acc.lng + v.lng / validVenues.length }),
-    { lat: 0, lng: 0 }
-  );
-  const markersParam = validVenues.map(v => `${v.lat},${v.lng}`).join("|");
-  const embedUrl = `https://www.google.com/maps/embed/v1/view?key=${typeof window !== "undefined" ? "" : ""}&center=${center.lat},${center.lng}&zoom=14`;
-
-  // Use a static map with all markers via our proxy
   const allMarkersQuery = validVenues.map(v => `${v.lat},${v.lng}`).join("|");
   const overviewStaticUrl = `/api/static-map-overview?markers=${encodeURIComponent(allMarkersQuery)}`;
   const googleMapsUrl = `https://www.google.com/maps/dir/${validVenues.map(v => `${v.lat},${v.lng}`).join("/")}`;
@@ -267,7 +327,6 @@ function OverviewMap({ venues, area }: { venues: VenueFactData[]; area: string }
           className="w-full h-[300px] object-cover"
           loading="lazy"
           onError={(e) => {
-            // Hide on error
             (e.target as HTMLImageElement).style.display = "none";
           }}
         />
@@ -394,6 +453,7 @@ export default function ResultsPage() {
     const url = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(xUrl)}`;
     window.open(url, "_blank", "noopener,noreferrer");
   }, [plan, shareUrl]);
+
   if (!plan) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
@@ -411,6 +471,15 @@ export default function ResultsPage() {
       return vLower.includes(lower) || lower.includes(vLower);
     }) || null;
   };
+
+  // 各タイムライン項目にvenueインデックスを割り当て
+  const venueIndexMap = new Map<string, number>();
+  let venueCounter = 0;
+  for (const item of plan.timeline) {
+    if (item.venue && !venueIndexMap.has(item.venue)) {
+      venueIndexMap.set(item.venue, venueCounter++);
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -449,6 +518,7 @@ export default function ResultsPage() {
           <div className="space-y-6">
             {plan.timeline.map((item, index) => {
               const matchedVenue = findMatchingVenue(item.venue);
+              const venueIdx = venueIndexMap.get(item.venue) ?? index;
               return (
                 <div key={index} className="relative">
                   {/* Timeline connector */}
@@ -483,71 +553,16 @@ export default function ResultsPage() {
                       {item.tip && (
                         <p className="text-xs italic text-muted/70 mt-1">💡 {item.tip}</p>
                       )}
-                      {/* Embedded venue card */}
+
+                      {/* Venue card (consolidated component) */}
                       {matchedVenue && (
-                        <div className="mt-3 rounded-xl border border-border bg-surface overflow-hidden">
-                          {matchedVenue.photoUrl && (
-                            <a href={matchedVenue.googleMapsUrl || "#"} target="_blank" rel="noopener noreferrer" className="block group">
-                              <div className="relative h-48 w-full overflow-hidden">
-                                <img
-                                  src={matchedVenue.photoUrl}
-                                  alt={matchedVenue.name}
-                                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                                  loading="lazy"
-                                />
-                                {matchedVenue.rating && (
-                                  <div className="absolute top-3 right-3 flex items-center gap-1 rounded-lg bg-black/70 px-2 py-1 backdrop-blur-sm">
-                                    <span className="text-xs">⭐</span>
-                                    <span className="text-sm font-semibold text-white">{matchedVenue.rating}</span>
-                                  </div>
-                                )}
-                              </div>
-                            </a>
-                          )}
-                          <div className="p-4">
-                            <p className="text-xs text-muted truncate">{matchedVenue.address}</p>
-                            <div className="flex gap-2 mt-2 flex-wrap">
-                              {matchedVenue.googleMapsUrl && (
-                                <a
-                                  href={matchedVenue.googleMapsUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 text-xs font-medium transition-colors hover:bg-surface"
-                                >
-                                  🗺️ 地図
-                                </a>
-                              )}
-                              {matchedVenue.website && (
-                                <a
-                                  href={matchedVenue.website}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 text-xs font-medium transition-colors hover:bg-surface"
-                                >
-                                  🌐 HP
-                                </a>
-                              )}
-                              {matchedVenue.phoneNumber && (
-                                <a
-                                  href={`tel:${matchedVenue.phoneNumber}`}
-                                  className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 text-xs font-medium transition-colors hover:bg-surface"
-                                >
-                                  📞 電話
-                                </a>
-                              )}
-                            </div>
-                            {matchedVenue.source === "google_places" && (
-                              <p className="mt-2 text-[11px] text-muted">
-                                店舗情報提供: <span translate="no" className="font-normal" style={{ fontFamily: "Roboto, sans-serif" }}>Google Maps</span>
-                              </p>
-                            )}
-                          </div>
+                        <div className="mt-3">
+                          <VenueCard venue={matchedVenue} index={venueIdx} compact />
                         </div>
                       )}
+
                       {/* Google Map 埋め込み */}
-                      {item.venue && (
-                        matchedVenue && <VenueEmbed venue={matchedVenue} />
-                      )}
+                      {matchedVenue && <VenueEmbed venue={matchedVenue} />}
                     </div>
                   </div>
                 </div>
@@ -558,7 +573,7 @@ export default function ResultsPage() {
 
         {/* Overview Map - 全ヴェニュー俯瞰マップ */}
         {plan.venues && plan.venues.length > 0 && (
-          <OverviewMap venues={plan.venues} area={location} />
+          <OverviewMap venues={plan.venues} />
         )}
 
         {/* Fashion Advice */}

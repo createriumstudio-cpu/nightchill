@@ -1,10 +1,9 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type { PlanRequest, DatePlan } from "./types";
-import { occasionLabels, moodLabels, budgetLabels, dateTypeLabels, ageGroupLabels, dateScheduleLabels } from "./types";
 import { env } from "./env";
-import { searchVenue, formatVenueForPrompt } from "./google-places";
+import { searchVenue } from "./google-places";
 import type { VenueFactData } from "./google-places";
-import { getWalkingRoute, formatRouteForPrompt } from "./google-maps";
+import { getWalkingRoute } from "./google-maps";
 import type { WalkingRoute } from "./google-maps";
 import { findRelevantPR, formatPRForPrompt } from "./contextual-pr";
 
@@ -109,7 +108,9 @@ const SYSTEM_PROMPT = `あなたは東京のデートプランニングの専門
 }
 `;
 
-
+// ============================================================
+// ユーザープロンプト構築
+// ============================================================
 
 function buildUserPrompt(
   request: PlanRequest,
@@ -140,23 +141,21 @@ function buildUserPrompt(
     low: "〜5,000円", medium: "5,000〜15,000円", high: "15,000〜30,000円", unlimited: "予算は気にしない"
   };
 
-  // Day of week calculation
-  let dayOfWeekStr = "";
+  // Day of week
   if (request.dateStr) {
     const dateObj = new Date(request.dateStr);
     const dayNames = ["日曜日", "月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日"];
-    dayOfWeekStr = dayNames[dateObj.getDay()];
+    const dayOfWeekStr = dayNames[dateObj.getDay()];
     const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
     parts.push(`日付: ${request.dateStr}（${dayOfWeekStr}）${isWeekend ? "← 週末" : "← 平日"}`);
   }
 
-  // Determine month and season for weather/temperature estimation
+  // Month & season context
   let month = new Date().getMonth() + 1;
   if (request.dateStr) {
     month = parseInt(request.dateStr.split("-")[1], 10);
   }
 
-  // Estimated temperature and weather context by month (Tokyo averages)
   const monthlyContext: Record<number, string> = {
     1: "1月・冬：平均気温2〜10℃。寒い。晴れの日が多いが風が冷たい。防寒必須",
     2: "2月・冬：平均気温3〜11℃。寒い。乾燥している。まだ防寒が必要",
@@ -182,7 +181,7 @@ function buildUserPrompt(
   parts.push(`エリア：${request.location || "指定なし"}`);
   parts.push(`年齢層：${request.ageGroup}`);
 
-  // Time/duration info
+  // Time/duration
   if (request.startTime && request.endTime) {
     const startH = parseInt(request.startTime.split(":")[0], 10);
     const endH = parseInt(request.endTime.split(":")[0], 10);
@@ -202,10 +201,9 @@ function buildUserPrompt(
     parts.push(`終了日：${request.endDateStr}（複数日プラン）`);
   }
 
-  // venue必須指示（時間指定の有無にかかわらず常に追加）
   parts.push("→ 【重要】timeline各項目のvenueには必ず実在する店舗名を入れてください。空にしないでください");
 
-  // Season-specific prompt additions
+  // Season-specific prompt
   if (month >= 3 && month <= 5) {
     parts.push("季節：春 → テラス席や公園散歩がおすすめ。花見スポットも検討");
   } else if (month >= 6 && month <= 8) {
@@ -216,10 +214,9 @@ function buildUserPrompt(
     parts.push("季節：冬 → 暖かい屋内中心に。イルミネーションスポットも検討");
   }
 
-  // Clothing-specific weather instruction
   parts.push(`→ fashionAdviceには「${weatherContext}」を踏まえた具体的な服装を提案してください。必ず具体的な気温（例：5〜10℃）と季節名を含めること`);
 
-  // Relationship-specific detailed instructions
+  // Relationship-specific
   parts.push("");
   parts.push("=== 関係性に応じた注意点 ===");
   if (request.relationship === "not-yet") {
@@ -240,20 +237,22 @@ function buildUserPrompt(
     parts.push("− 新しい発見があるようなスポットを含める");
   }
 
-  // Additional notes (user preferences)
+  // Additional notes
   if (request.additionalNotes) {
     parts.push("");
     parts.push("=== ユーザーの追加リクエスト（最優先で反映）===");
     parts.push(request.additionalNotes);
   }
 
-  // Venue fact data injection
+  // Venue fact data injection (pre-search results as reference)
   if (venues.length > 0) {
     parts.push("");
-    parts.push("=== 以下はGoogle Places APIから取得したファクトデータです ===");
+    parts.push("=== 以下はGoogle Places APIから取得した参考データです ===");
     parts.push("参考にしてもよいが、これに限定せず自分の知識も活用して多様な店を提案すること：");
     venues.forEach((v) => {
-      parts.push(`− ${v.name} (${v.address}) 評価:${v.rating ?? "不明"} 価格帯:${"$".repeat(v.priceLevel ?? 0) || "不明"}`);
+      const ratingStr = v.rating !== null ? `★${v.rating}` : "評価不明";
+      const priceStr = v.priceLevel !== null ? `${"¥".repeat(v.priceLevel || 1)}` : "価格不明";
+      parts.push(`− ${v.name} (${v.address}) ${ratingStr} ${priceStr}`);
     });
   }
 
@@ -270,11 +269,10 @@ function buildUserPrompt(
   return parts.join("\n");
 }
 
+// ============================================================
+// JSON パース（堅牢な4段階フォールバック）
+// ============================================================
 
-
-/**
- * AIレスポンスからJSONを抽出・修正
- */
 function sanitizeJsonResponse(text: string): string {
   let cleaned = text.trim();
 
@@ -290,30 +288,24 @@ function sanitizeJsonResponse(text: string): string {
     cleaned = cleaned.trim();
   }
 
-  // JSONオブジェクトの開始・終了位置を見つける
+  // JSONオブジェクトの開始・終了位置
   const firstBrace = cleaned.indexOf("{");
   const lastBrace = cleaned.lastIndexOf("}");
   if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
     cleaned = cleaned.slice(firstBrace, lastBrace + 1);
   }
 
-  // 末尾カンマの除去
+  // 末尾カンマ除去
   cleaned = cleaned.replace(/,\s*([\\]}])/g, "$1");
 
   return cleaned.trim();
 }
 
-/**
- * AIが生成する壊れたJSON文字列を積極的にクリーンアップ
- * JSX風の {'\n'} パターンや制御文字を除去
- */
 function cleanAIResponseText(text: string): string {
   let cleaned = text;
 
-  // JSX風パターン除去: {'\n'}, {'\n    '}, {"\n"} 等
+  // JSX風パターン除去
   cleaned = cleaned.replace(/\{\s*['"]\\n\s*['"]\s*\}/g, " ");
-
-  // JSX風パターン: {' '}, {"  "} 等（空白のみ）
   cleaned = cleaned.replace(/\{\s*['"]\s+['"]\s*\}/g, " ");
 
   // 文字列値内のリテラル制御文字をエスケープ
@@ -348,26 +340,18 @@ function cleanAIResponseText(text: string): string {
   return result;
 }
 
-/**
- * 正規表現でJSONフィールドを個別に抽出するフォールバック
- */
 function extractFieldsWithRegex(text: string): Record<string, unknown> | null {
   console.log("Attempting regex field extraction...");
 
-  // title抽出
   const titleMatch = text.match(/"title"\s*:\s*"([^"]+)"/);
   if (!titleMatch) {
     console.error("Regex: title not found");
     return null;
   }
 
-  // summary抽出
   const summaryMatch = text.match(/"summary"\s*:\s*"([^"]+)"/);
-
-  // fashionAdvice抽出
   const fashionMatch = text.match(/"fashionAdvice"\s*:\s*"([^"]+)"/);
 
-  // timeline抽出 - 個々のtimelineアイテムを抽出
   const timelineItems: Array<{ time: string; activity: string; venue: string; description: string; tip: string }> = [];
   const timePattern = /"time"\s*:\s*"([^"]+)"/g;
   const activityPattern = /"activity"\s*:\s*"([^"]+)"/g;
@@ -404,7 +388,6 @@ function extractFieldsWithRegex(text: string): Record<string, unknown> | null {
     });
   }
 
-  // conversationTopics抽出
   const topicsSection = text.match(/"conversationTopics"\s*:\s*\[([^\]]+)\]/);
   const topics: string[] = [];
   if (topicsSection) {
@@ -412,7 +395,6 @@ function extractFieldsWithRegex(text: string): Record<string, unknown> | null {
     for (const tm of topicMatches) topics.push(tm[1]);
   }
 
-  // warnings抽出
   const warningsSection = text.match(/"warnings"\s*:\s*\[([^\]]+)\]/);
   const warnings: string[] = [];
   if (warningsSection) {
@@ -436,13 +418,10 @@ function generateId(): string {
   return Math.random().toString(36).substring(2, 10);
 }
 
-/**
- * JSON.parseを堅牢に実行（4段階フォールバック）
- */
 function robustJsonParse(text: string): Record<string, unknown> {
   const sanitized = sanitizeJsonResponse(text);
 
-  // 1回目: AIレスポンスをクリーンアップしてパース
+  // 1回目: クリーンアップしてパース
   try {
     const cleaned = cleanAIResponseText(sanitized);
     return JSON.parse(cleaned) as Record<string, unknown>;
@@ -450,7 +429,6 @@ function robustJsonParse(text: string): Record<string, unknown> {
     const err = firstError as SyntaxError;
     console.error("First JSON parse attempt failed:", err.message);
 
-    // エラー位置周辺のコンテキストをログ
     const pos = parseInt(err.message.match(/position (\d+)/)?.[1] || "0");
     if (pos > 0) {
       const start = Math.max(0, pos - 40);
@@ -459,7 +437,7 @@ function robustJsonParse(text: string): Record<string, unknown> {
     }
   }
 
-  // 2回目: 全ての改行を空白に置換してクリーンアップ
+  // 2回目: 改行を空白に置換
   try {
     const noNewlines = sanitized.replace(/\n/g, " ").replace(/\r/g, " ");
     const cleaned = cleanAIResponseText(noNewlines);
@@ -468,16 +446,12 @@ function robustJsonParse(text: string): Record<string, unknown> {
     console.error("Second JSON parse attempt failed:", (secondError as Error).message);
   }
 
-  // 3回目: もっと積極的にクリーンアップ
+  // 3回目: 積極的クリーンアップ
   try {
     let aggressive = sanitized;
-    // 全ての改行を空白に
     aggressive = aggressive.replace(/[\n\r\t]/g, " ");
-    // 連続空白を1つに
     aggressive = aggressive.replace(/  +/g, " ");
-    // JSX風パターン除去（もっと広いマッチ）
     aggressive = aggressive.replace(/\{[^{}]*\}/g, (match) => {
-      // JSONの正規の {} は残す（キー:値を含むもの）
       if (match.includes(":")) return match;
       return " ";
     });
@@ -489,23 +463,19 @@ function robustJsonParse(text: string): Record<string, unknown> {
 
   // 4回目: 正規表現で個別フィールド抽出
   const regexResult = extractFieldsWithRegex(sanitized);
-  if (regexResult) {
-    return regexResult;
-  }
+  if (regexResult) return regexResult;
 
-  // 改行除去版でもregex試行
   const noNewlines = sanitized.replace(/[\n\r]/g, " ");
   const regexResult2 = extractFieldsWithRegex(noNewlines);
-  if (regexResult2) {
-    return regexResult2;
-  }
+  if (regexResult2) return regexResult2;
 
   throw new Error(`JSON parse failed after all attempts. Raw text (first 200 chars): ${text.slice(0, 200)}`);
 }
 
-/**
- * ファクトデータを収集してからAIプランを生成
- */
+// ============================================================
+// メイン生成関数
+// ============================================================
+
 const activityLabelsMap: Record<string, string> = {
   birthday: "誕生日", anniversary: "記念日", lunch: "ランチ",
   dinner: "ディナー", cafe: "カフェ", shopping: "ショッピング",
@@ -515,49 +485,24 @@ const activityLabelsMap: Record<string, string> = {
 export async function generateAIPlan(request: PlanRequest): Promise<DatePlan> {
   const area = request.location || "東京";
 
-  // Step 1: 店舗ファクトデータ取得（デート種類・年齢に応じて検索）
-  const isUnder20 = request.ageGroup === "under-20";
-  const isOvernight = request.endTime ? parseInt(request.endTime.split(":")[0]) < parseInt(request.startTime.split(":")[0]) : false;
-  
-  const venuePromises: Promise<VenueFactData | null>[] = [
-    searchVenue(`${area} ${request.activities.map(a => activityLabelsMap[a] || a).slice(0, 2).join(" ")} デート`, area),
-  ];
-  
-  if (isUnder20) {
-    // 20歳未満: カフェやアミューズメント系を検索
-    venuePromises.push(searchVenue(`${area} ${["カフェ", "レストラン", "おしゃれ", "人気"][Math.floor(Math.random() * 4)]} デート`, area));
-  } else {
-    // 20歳以上: バーも含む
-    venuePromises.push(searchVenue(`${area} ${["バー", "ワインバー", "ダイニング", "レストラン"][Math.floor(Math.random() * 4)]} 人気`, area));
-  }
-  
-  if (isOvernight) {
-    // お泊まり: ホテル情報も追加で取得
-    venuePromises.push(searchVenue(`${area} デート ホテル`, area));
-  }
-  const venueResults = await Promise.all(venuePromises);
-  const venues = venueResults.filter((v): v is VenueFactData => v !== null);
+  // ── Step 1: 事前に1件だけ検索して参考データを取得 ──
+  // AIの提案精度向上のための軽量な参考情報
+  const primaryActivity = request.activities
+    .map(a => activityLabelsMap[a] || a)
+    .slice(0, 2)
+    .join(" ");
+  const preSearchResult = await searchVenue(`${primaryActivity} デート`, area);
+  const preSearchVenues = preSearchResult ? [preSearchResult] : [];
 
-
-  // Step 2: 徒歩ルート取得（2軒見つかった場合）
+  // ── Step 2: 徒歩ルート取得（事前検索でエリアの座標を得た場合） ──
   let walkingRoute: WalkingRoute | null = null;
-  if (venues.length >= 2 && venues[0].lat !== 0 && venues[1].lat !== 0) {
-    walkingRoute = await getWalkingRoute(
-      { lat: venues[0].lat, lng: venues[0].lng },
-      { lat: venues[1].lat, lng: venues[1].lng },
-    );
-  } else if (venues.length >= 2) {
-    walkingRoute = await getWalkingRoute(
-      venues[0].name + " " + area,
-      venues[1].name + " " + area,
-    );
-  }
+  // 事前検索で座標が取れていればルート取得のベースにする（Post-searchで更新可能）
 
-  // Step 3: Contextual PR取得
+  // ── Step 3: Contextual PR取得 ──
   const prItems = findRelevantPR(request.activities[0] || "dinner", request.mood, area);
   const prText = formatPRForPrompt(prItems);
 
-  // Step 4: AI生成（最大2回リトライ）
+  // ── Step 4: AI生成（最大2回リトライ） ──
   const model = env().ANTHROPIC_MODEL;
   let lastError: Error | null = null;
 
@@ -570,7 +515,7 @@ export async function generateAIPlan(request: PlanRequest): Promise<DatePlan> {
         messages: [
           {
             role: "user",
-            content: buildUserPrompt(request, venues, walkingRoute, prText),
+            content: buildUserPrompt(request, preSearchVenues, walkingRoute, prText),
           },
         ],
       });
@@ -584,22 +529,37 @@ export async function generateAIPlan(request: PlanRequest): Promise<DatePlan> {
 
       const parsed = robustJsonParse(textBlock.text);
 
-      // Step 5: タイムラインの実際の店舗名でGoogle Placesを再検索
+      // ── Step 5: タイムラインの店舗名でGoogle Places検索 → ファクトデータ付与 ──
       const timelineVenues = (parsed.timeline as Array<{ venue?: string }>)
         .map(t => t.venue)
         .filter((v): v is string => !!v && v.length > 0);
-      
+
       const uniqueVenueNames = [...new Set(timelineVenues)];
-      const venueSearchPromises = uniqueVenueNames.map(name =>
-        searchVenue(name, "東京")
+
+      // 全店舗を並列検索
+      const venueSearchResults = await Promise.all(
+        uniqueVenueNames.map(name => searchVenue(name, area))
       );
-      const venueSearchResults = await Promise.all(venueSearchPromises);
       const enrichedVenues = venueSearchResults.filter(
-        (v): v is VenueFactData => v !== null && v.source === "google_places"
+        (v): v is VenueFactData => v !== null
       );
-      
-      // enrichedVenuesがあればそちらを優先、なければ事前検索結果を使用
-      const finalVenues = enrichedVenues.length > 0 ? enrichedVenues : venues;
+
+      // Google Places で見つかった実データを優先
+      const googleVenues = enrichedVenues.filter(v => v.source === "google_places");
+      const finalVenues = googleVenues.length > 0 ? googleVenues : enrichedVenues;
+
+      // ── Step 6: 徒歩ルート取得（最初と2番目の店舗間） ──
+      if (finalVenues.length >= 2 && finalVenues[0].lat !== 0 && finalVenues[1].lat !== 0) {
+        walkingRoute = await getWalkingRoute(
+          { lat: finalVenues[0].lat, lng: finalVenues[0].lng },
+          { lat: finalVenues[1].lat, lng: finalVenues[1].lng },
+        );
+      } else if (finalVenues.length >= 2) {
+        walkingRoute = await getWalkingRoute(
+          finalVenues[0].name + " " + area,
+          finalVenues[1].name + " " + area,
+        );
+      }
 
       return {
         id: generateId(),
