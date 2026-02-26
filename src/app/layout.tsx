@@ -1,7 +1,6 @@
 import { Noto_Sans_JP } from "next/font/google";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import FloatingChatButton from "@/components/FloatingChatButton";
 import { Analytics } from "@vercel/analytics/react";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://futatabito.com";
@@ -97,7 +96,6 @@ export default function RootLayout({
         />
       </head>
       <body className={`antialiased ${notoSansJP.className}`}>{children}
-          <FloatingChatButton />
           <Analytics /></body>
     </html>
   );

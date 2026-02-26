@@ -7,7 +7,6 @@ import { usePathname } from "next/navigation";
 const enRouteMap: Record<string, string> = {
   "/": "/en",
   "/features": "/en",  // No /en/features list page, fallback to /en
-  "/chat": "/en",
   "/about": "/en",
   "/privacy": "/en",
   "/plan": "/en",
