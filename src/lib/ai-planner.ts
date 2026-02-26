@@ -591,7 +591,7 @@ export async function generateAIPlan(request: PlanRequest): Promise<DatePlan> {
       
       const uniqueVenueNames = [...new Set(timelineVenues)];
       const venueSearchPromises = uniqueVenueNames.map(name =>
-        searchVenue(name, area)
+        searchVenue(name, "")
       );
       const venueSearchResults = await Promise.all(venueSearchPromises);
       const enrichedVenues = venueSearchResults.filter(
