@@ -80,7 +80,6 @@ const SEARCH_FIELD_MASK = [
   "places.location",
   "places.rating",
   "places.priceLevel",
-  "places.regularOpeningHours",
   "places.nationalPhoneNumber",
   "places.websiteUri",
   "places.types",

@@ -52,20 +52,6 @@ const SYSTEM_PROMPT = `あなたは東京のデートプランニングの専門
 − 秋（9〜11月）：紅葉スポット、屋外散策。過ごしやすい気候を活かす
 − 梅雨（6月中旬〜7月中旬）：完全屋内プラン。美術館、デパ地下、映画館
 
-【服装アドバイス ― 気温・天気・季節を反映 ― 厳守】
-− fashionAdvice には必ず季節・推定気温を踏まえた具体的な服装を提案する
-− 必ず「○月の東京は平均○〜○℃」のように具体的な気温を記載する
-− 例：「2月の東京は平均5〜10℃。厚手のコートとマフラー必須。室内は暖房が効いているので脱ぎ着しやすいレイヤードがおすすめ」
-− 雨の可能性がある場合：折り畳み傘、撥水素材の靴を推奨
-− 歩きが多いプランの場合：歩きやすい靴を推奨
-− デートの雰囲気に合わせたコーディネート提案も含める
-
-【注意ポイント（warnings）― 季節・天気・気温を必ず含める ― 厳守】
-− warnings の最初の項目は必ず季節の特徴と推定気温に関する注意にする
-− 天気リスク（雨、猛暑、寒波など）がある季節は、それに対する具体的な対策を含める
-− 例：「2月は平均5〜10℃で寒さが厳しい。防寒対策を万全に」「6月は梅雨時期で雨が多い。折り畳み傘を忘れずに」
-− 季節のイベント情報も注意点として含める（花粉、台風、混雑時期など）
-
 【関係性 × ムードのクロスマッチング】
 − 「まだ友達」× ロマンチック → カジュアルだけど特別感のあるスポット
 − 「恋人」× アドベンチャー → 二人の思い出になるアクティブなスポット
@@ -102,9 +88,7 @@ const SYSTEM_PROMPT = `あなたは東京のデートプランニングの専門
       "description": "この店の特徴やおすすめポイント（80文字以内）",
       "tip": "成功のためのコツ（50文字以内）"
     }
-  ],
-  "fashionAdvice": "季節・気温・天気を考慮した具体的な服装アドバイス（150文字以内）",
-  "warnings": ["季節の特徴や推定気温に関する注意", "天気リスクの注意点", "その他の注意点"]
+  ]
 }
 `;
 
@@ -213,8 +197,6 @@ function buildUserPrompt(
   } else {
     parts.push("季節：冬 → 暖かい屋内中心に。イルミネーションスポットも検討");
   }
-
-  parts.push(`→ fashionAdviceには「${weatherContext}」を踏まえた具体的な服装を提案してください。必ず具体的な気温（例：5〜10℃）と季節名を含めること`);
 
   // Relationship-specific
   parts.push("");
@@ -350,7 +332,6 @@ function extractFieldsWithRegex(text: string): Record<string, unknown> | null {
   }
 
   const summaryMatch = text.match(/"summary"\s*:\s*"([^"]+)"/);
-  const fashionMatch = text.match(/"fashionAdvice"\s*:\s*"([^"]+)"/);
 
   const timelineItems: Array<{ time: string; activity: string; venue: string; description: string; tip: string }> = [];
   const timePattern = /"time"\s*:\s*"([^"]+)"/g;
@@ -388,29 +369,12 @@ function extractFieldsWithRegex(text: string): Record<string, unknown> | null {
     });
   }
 
-  const topicsSection = text.match(/"conversationTopics"\s*:\s*\[([^\]]+)\]/);
-  const topics: string[] = [];
-  if (topicsSection) {
-    const topicMatches = topicsSection[1].matchAll(/"([^"]+)"/g);
-    for (const tm of topicMatches) topics.push(tm[1]);
-  }
-
-  const warningsSection = text.match(/"warnings"\s*:\s*\[([^\]]+)\]/);
-  const warnings: string[] = [];
-  if (warningsSection) {
-    const warnMatches = warningsSection[1].matchAll(/"([^"]+)"/g);
-    for (const wm of warnMatches) warnings.push(wm[1]);
-  }
-
   console.log(`Regex extraction success: title="${titleMatch[1]}", timeline items=${timelineItems.length}`);
 
   return {
     title: titleMatch[1],
     summary: summaryMatch ? summaryMatch[1] : "AIが生成したデートプラン",
     timeline: timelineItems,
-    fashionAdvice: fashionMatch ? fashionMatch[1] : "清潔感のあるカジュアルスタイルがおすすめ",
-    conversationTopics: topics.length > 0 ? topics : ["お互いの好きなこと", "最近の楽しかったこと", "行ってみたい場所"],
-    warnings: warnings.length > 0 ? warnings : ["予約の確認を忘れずに", "時間に余裕を持って行動"],
   };
 }
 
@@ -476,46 +440,28 @@ function robustJsonParse(text: string): Record<string, unknown> {
 // メイン生成関数
 // ============================================================
 
-const activityLabelsMap: Record<string, string> = {
-  birthday: "誕生日", anniversary: "記念日", lunch: "ランチ",
-  dinner: "ディナー", cafe: "カフェ", shopping: "ショッピング",
-  active: "アクティブ", nightlife: "バー", chill: "まったり", travel: "旅行"
-};
-
 export async function generateAIPlan(request: PlanRequest): Promise<DatePlan> {
   const area = request.location || "東京";
 
-  // ── Step 1: 事前に1件だけ検索して参考データを取得 ──
-  // AIの提案精度向上のための軽量な参考情報
-  const primaryActivity = request.activities
-    .map(a => activityLabelsMap[a] || a)
-    .slice(0, 2)
-    .join(" ");
-  const preSearchResult = await searchVenue(`${primaryActivity} デート`, area);
-  const preSearchVenues = preSearchResult ? [preSearchResult] : [];
-
-  // ── Step 2: 徒歩ルート取得（事前検索でエリアの座標を得た場合） ──
-  let walkingRoute: WalkingRoute | null = null;
-  // 事前検索で座標が取れていればルート取得のベースにする（Post-searchで更新可能）
-
-  // ── Step 3: Contextual PR取得 ──
+  // ── Step 1: Contextual PR取得 ──
   const prItems = findRelevantPR(request.activities[0] || "dinner", request.mood, area);
   const prText = formatPRForPrompt(prItems);
 
-  // ── Step 4: AI生成（最大2回リトライ） ──
+  // ── Step 2: AI生成（最大2回リトライ） ──
   const model = env().ANTHROPIC_MODEL;
   let lastError: Error | null = null;
+  let walkingRoute: WalkingRoute | null = null;
 
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
       const message = await getClient().messages.create({
         model,
-        max_tokens: 1024,
+        max_tokens: 768,
         system: SYSTEM_PROMPT,
         messages: [
           {
             role: "user",
-            content: buildUserPrompt(request, preSearchVenues, walkingRoute, prText),
+            content: buildUserPrompt(request, [], walkingRoute, prText),
           },
         ],
       });
@@ -529,7 +475,7 @@ export async function generateAIPlan(request: PlanRequest): Promise<DatePlan> {
 
       const parsed = robustJsonParse(textBlock.text);
 
-      // ── Step 5: タイムラインの店舗名でGoogle Places検索 → ファクトデータ付与 ──
+      // ── Step 3: タイムラインの店舗名でGoogle Places検索 → ファクトデータ付与 ──
       const timelineVenues = (parsed.timeline as Array<{ venue?: string }>)
         .map(t => t.venue)
         .filter((v): v is string => !!v && v.length > 0);
@@ -548,7 +494,7 @@ export async function generateAIPlan(request: PlanRequest): Promise<DatePlan> {
       const googleVenues = enrichedVenues.filter(v => v.source === "google_places");
       const finalVenues = googleVenues.length > 0 ? googleVenues : enrichedVenues;
 
-      // ── Step 6: 徒歩ルート取得（最初と2番目の店舗間） ──
+      // ── Step 4: 徒歩ルート取得（最初と2番目の店舗間） ──
       if (finalVenues.length >= 2 && finalVenues[0].lat !== 0 && finalVenues[1].lat !== 0) {
         walkingRoute = await getWalkingRoute(
           { lat: finalVenues[0].lat, lng: finalVenues[0].lng },
@@ -566,9 +512,8 @@ export async function generateAIPlan(request: PlanRequest): Promise<DatePlan> {
         title: parsed.title as string,
         summary: parsed.summary as string,
         timeline: parsed.timeline as DatePlan["timeline"],
-        fashionAdvice: parsed.fashionAdvice as string,
-        conversationTopics: (parsed.conversationTopics as string[] | undefined) ?? [],
-        warnings: parsed.warnings as string[],
+        fashionAdvice: (parsed.fashionAdvice as string | undefined) ?? "",
+        warnings: (parsed.warnings as string[] | undefined) ?? [],
         venues: finalVenues,
         walkingRoute: walkingRoute ?? undefined,
       };
