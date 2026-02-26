@@ -546,7 +546,7 @@ export default function ResultsPage() {
                       )}
                       {/* Google Map 埋め込み */}
                       {item.venue && (
-                        <VenueMap venueName={item.venue} area={location} />
+                        matchedVenue && <VenueEmbed venue={matchedVenue} />
                       )}
                     </div>
                   </div>
