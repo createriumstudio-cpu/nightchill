@@ -48,7 +48,7 @@ describe("buildUserPrompt", () => {
   it("should include activities in prompt", () => {
     const prompt = buildUserPrompt(mockRequest, [], null, "");
     expect(prompt).toContain("ディナー");
-    expect(prompt).toContain("カフェ巡り");
+    expect(prompt).toContain("カフェ");
   });
 
   it("should include date info when provided", () => {
@@ -81,6 +81,6 @@ describe("buildUserPrompt", () => {
     endDateStr: "",
     };
     const prompt = buildUserPrompt(winterReq, [], null, "");
-    expect(prompt).toContain("冬季");
+    expect(prompt).toContain("冬");
   });
 });

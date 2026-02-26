@@ -8,17 +8,39 @@ const CACHE_TTL = 1 * 60 * 60 * 1000; // 1 hour
 
 function setCacheEntry(key: string, value: { photoUri: string; attribution: string; attributionUri: string; googleMapsUri: string; cachedAt: number }) {
   if (photoCache.size >= MAX_CACHE_SIZE) {
-    // Remove oldest entry
     const firstKey = photoCache.keys().next().value;
     if (firstKey) photoCache.delete(firstKey);
   }
   photoCache.set(key, value);
 }
 
+const PLACES_API_BASE = "https://places.googleapis.com/v1";
+
+/**
+ * 写真リソース名から直接CDN URLを解決する
+ */
+async function resolvePhotoByName(
+  photoName: string,
+  apiKey: string,
+): Promise<{ photoUri: string | null }> {
+  try {
+    const res = await fetch(
+      `${PLACES_API_BASE}/${photoName}/media?maxHeightPx=400&maxWidthPx=600&skipHttpRedirect=true&key=${apiKey}`,
+    );
+    if (!res.ok) return { photoUri: null };
+    const data = await res.json();
+    return { photoUri: data.photoUri ?? null };
+  } catch {
+    return { photoUri: null };
+  }
+}
+
 export async function GET(req: NextRequest) {
   const query = req.nextUrl.searchParams.get("q");
-  if (!query) {
-    return NextResponse.json({ error: "Missing q parameter" }, { status: 400 });
+  const photoName = req.nextUrl.searchParams.get("name");
+
+  if (!query && !photoName) {
+    return NextResponse.json({ error: "Missing q or name parameter" }, { status: 400 });
   }
 
   // Use GOOGLE_PLACES_API_KEY, fallback to GOOGLE_MAPS_API_KEY
@@ -27,24 +49,48 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "API key not configured" }, { status: 500 });
   }
 
-  // Check cache first
-  const cacheKey = query.toLowerCase().trim();
+  // ── Mode 1: 写真リソース名から直接解決 ──
+  if (photoName) {
+    const cacheKey = `name:${photoName}`;
+    const cached = photoCache.get(cacheKey);
+    if (cached && Date.now() - cached.cachedAt < CACHE_TTL) {
+      return NextResponse.json(
+        { photoUri: cached.photoUri, cached: true },
+        { headers: { "Cache-Control": "public, max-age=3600, stale-while-revalidate=3600" } },
+      );
+    }
+
+    const result = await resolvePhotoByName(photoName, apiKey);
+    if (result.photoUri) {
+      setCacheEntry(cacheKey, {
+        photoUri: result.photoUri,
+        attribution: "",
+        attributionUri: "",
+        googleMapsUri: "",
+        cachedAt: Date.now(),
+      });
+    }
+
+    return NextResponse.json(
+      { photoUri: result.photoUri },
+      { headers: { "Cache-Control": "public, max-age=3600, stale-while-revalidate=3600" } },
+    );
+  }
+
+  // ── Mode 2: テキスト検索 → 写真取得 ──
+  const cacheKey = query!.toLowerCase().trim();
   const cached = photoCache.get(cacheKey);
   if (cached && Date.now() - cached.cachedAt < CACHE_TTL) {
     return NextResponse.json(
       { photoUri: cached.photoUri, attribution: cached.attribution, attributionUri: cached.attributionUri, googleMapsUri: cached.googleMapsUri, cached: true },
-      {
-        headers: {
-          "Cache-Control": "public, max-age=3600, stale-while-revalidate=3600",
-        },
-      }
+      { headers: { "Cache-Control": "public, max-age=3600, stale-while-revalidate=3600" } },
     );
   }
 
   try {
     // Step 1: Text Search (New) to find the place and get photo references + Google Maps URI
     const searchRes = await fetch(
-      "https://places.googleapis.com/v1/places:searchText",
+      `${PLACES_API_BASE}/places:searchText`,
       {
         method: "POST",
         headers: {
@@ -73,7 +119,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ photoUri: null, attribution: null, attributionUri: null, googleMapsUri: place?.googleMapsUri ?? null });
     }
 
-    const photoName = place.photos[0].name;
+    const photoResourceName = place.photos[0].name;
     const authorAttribution = place.photos[0].authorAttributions?.[0];
     const attribution = authorAttribution?.displayName ?? null;
     const attributionUri = authorAttribution?.uri ?? null;
@@ -81,7 +127,7 @@ export async function GET(req: NextRequest) {
 
     // Step 2: Get photo URL
     const photoRes = await fetch(
-      `https://places.googleapis.com/v1/${photoName}/media?maxHeightPx=400&maxWidthPx=600&skipHttpRedirect=true&key=${apiKey}`
+      `${PLACES_API_BASE}/${photoResourceName}/media?maxHeightPx=400&maxWidthPx=600&skipHttpRedirect=true&key=${apiKey}`
     );
 
     if (!photoRes.ok) {
@@ -97,11 +143,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(
       { photoUri, attribution, attributionUri, googleMapsUri },
-      {
-        headers: {
-          "Cache-Control": "public, max-age=3600, stale-while-revalidate=3600",
-        },
-      }
+      { headers: { "Cache-Control": "public, max-age=3600, stale-while-revalidate=3600" } },
     );
   } catch (err) {
     console.error("place-photo API error:", err);
