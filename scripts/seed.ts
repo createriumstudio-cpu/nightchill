@@ -33,6 +33,7 @@ async function main() {
       heroEmoji: f.heroEmoji,
       heroImage: f.heroImage || null,
       spots: f.spots,
+      dateGuide: f.dateGuide || null,
       isPublished: true,
     }).onConflictDoNothing();
     console.log(`  ✓ ${f.slug}`);

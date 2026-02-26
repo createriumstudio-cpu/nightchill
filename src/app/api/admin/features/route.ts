@@ -88,6 +88,7 @@ export async function POST(request: Request) {
         heroEmoji: body.heroEmoji || "",
         heroImage: body.heroImage || null,
         spots: body.spots || [],
+        dateGuide: body.dateGuide || null,
         isPublished: body.isPublished ?? true,
       })
       .returning();

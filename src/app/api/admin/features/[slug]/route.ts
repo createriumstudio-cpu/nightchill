@@ -81,6 +81,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
         heroEmoji: body.heroEmoji,
         heroImage: body.heroImage || null,
         spots: body.spots,
+        dateGuide: body.dateGuide ?? undefined,
         isPublished: body.isPublished,
         updatedAt: now,
       })

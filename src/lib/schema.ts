@@ -23,6 +23,7 @@ export const features = pgTable("features", {
   heroEmoji: varchar("hero_emoji", { length: 10 }).notNull(),
   heroImage: text("hero_image"),
   spots: jsonb("spots").$type<SpotJson[]>().notNull().default([]),
+  dateGuide: jsonb("date_guide").$type<DateGuideJson>(),
   isPublished: boolean("is_published").notNull().default(true),
 });
 
@@ -61,6 +62,17 @@ export interface SpotJson {
   instagramHashtag?: string;
   tiktokHashtag?: string;
   embeds: { platform: string; url: string; caption: string }[];
+}
+
+// Type for dateGuide JSONB
+export interface DateGuideJson {
+  areaType: "evening" | "daytime" | "allday";
+  areaTypeLabel: string;
+  recommendedDuration: string;
+  recommendedMeetTime: string;
+  recommendedDismissTime: string;
+  bestFor: string;
+  tip: string;
 }
 
 // Sponsored Spots (Contextual PR)
