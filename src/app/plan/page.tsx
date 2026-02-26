@@ -194,7 +194,7 @@ export default function PlanPage() {
                   {/* Day 1: 日付 + 合流時間 */}
                   <div className="space-y-2 mb-4">
                     <p className="text-sm font-semibold text-orange-600">Day 1</p>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">日付</label>
                         <input
@@ -220,7 +220,7 @@ export default function PlanPage() {
                   {/* Day 2: 帰りの日 + 解散時間 */}
                   <div className="space-y-2">
                     <p className="text-sm font-semibold text-orange-600">Day 2</p>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">帰りの日</label>
                         <input
