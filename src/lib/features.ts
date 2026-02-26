@@ -29,6 +29,16 @@ export interface FeaturedSpot {
   embeds: SpotEmbed[];
 }
 
+export interface DateGuide {
+  areaType: "evening" | "daytime" | "allday";
+  areaTypeLabel: string;
+  recommendedDuration: string;
+  recommendedMeetTime: string;
+  recommendedDismissTime: string;
+  bestFor: string;
+  tip: string;
+}
+
 export interface FeaturedArticle {
   slug: string;
   title: string;
@@ -41,6 +51,7 @@ export interface FeaturedArticle {
   heroEmoji: string;
   heroImage?: string;
   spots: FeaturedSpot[];
+  dateGuide?: DateGuide;
 }
 
 /** JSON fallback data */
@@ -111,5 +122,6 @@ function rowToArticle(row: typeof featuresTable.$inferSelect): FeaturedArticle {
     heroEmoji: row.heroEmoji,
     heroImage: row.heroImage || undefined,
     spots: (row.spots as FeaturedSpot[]) || [],
+    dateGuide: (row as Record<string, unknown>).dateGuide as DateGuide | undefined,
   };
 }

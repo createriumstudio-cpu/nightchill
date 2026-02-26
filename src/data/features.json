@@ -10,6 +10,15 @@
     "updatedAt": "2026-02-20",
     "heroEmoji": "🌙",
     "heroImage": "/images/ebisu-night-date-hero.png",
+    "dateGuide": {
+      "areaType": "evening",
+      "areaTypeLabel": "夕方〜夜向き",
+      "recommendedDuration": "3〜4時間",
+      "recommendedMeetTime": "16:00〜17:00",
+      "recommendedDismissTime": "21:00〜22:00",
+      "bestFor": "恋人・2回目以降",
+      "tip": "日没後の夜景がピーク。ディナー予約は18:30〜19:00がベスト"
+    },
     "spots": [
       {
         "name": "AELU&BRODO",
@@ -19,13 +28,7 @@
         "tip": "カウンター席をリクエストすると自然に横並びになれる。18時台は比較的空いているので予約は18:00〜18:30がおすすめ。",
         "instagramHashtag": "AELU&BRODO",
         "tiktokHashtag": "恵比寿イタリアン",
-        "embeds": [
-          {
-            "platform": "instagram",
-            "url": "https://www.instagram.com/reel/DHfHWviyKAe/",
-            "caption": "AELU&BRODOのパスタとワイン"
-          }
-        ]
+        "embeds": []
       },
       {
         "name": "MUSE BAR 恵比寿駅前本店",
@@ -35,13 +38,7 @@
         "tip": "20時開店なので、ディナーを19:30頃に切り上げて移動するとちょうどいい。カクテルは季節のフルーツ系がハズレなし。",
         "instagramHashtag": "MUSEBAR恵比寿",
         "tiktokHashtag": "恵比寿バー",
-        "embeds": [
-          {
-            "platform": "instagram",
-            "url": "https://www.instagram.com/reel/C3QqKZmPHnN/",
-            "caption": "MUSE BARの雰囲気"
-          }
-        ]
+        "embeds": []
       }
     ]
   },
@@ -56,6 +53,15 @@
     "updatedAt": "2026-02-20",
     "heroEmoji": "☕",
     "heroImage": "/images/shibuya-casual-date-hero.png",
+    "dateGuide": {
+      "areaType": "allday",
+      "areaTypeLabel": "全時間帯OK",
+      "recommendedDuration": "2時間〜半日",
+      "recommendedMeetTime": "柔軟",
+      "recommendedDismissTime": "柔軟",
+      "bestFor": "初デート〜交際中",
+      "tip": "大型商業施設で天候関係なし。親密度に応じて柔軟にプラン可能"
+    },
     "spots": [
       {
         "name": "ABOUT LIFE COFFEE BREWERS",
@@ -90,6 +96,15 @@
     "updatedAt": "2026-02-20",
     "heroEmoji": "🌿",
     "heroImage": "/images/omotesando-date-hero.png",
+    "dateGuide": {
+      "areaType": "daytime",
+      "areaTypeLabel": "昼〜夕方向き",
+      "recommendedDuration": "2〜4時間",
+      "recommendedMeetTime": "11:00〜12:00",
+      "recommendedDismissTime": "15:00〜17:00",
+      "bestFor": "初デート・おしゃれ派",
+      "tip": "施設が17:00〜18:00に閉まる。ランチ後の並木道散策がベスト"
+    },
     "spots": [
       {
         "name": "INTERSECT BY LEXUS",
@@ -124,6 +139,15 @@
     "updatedAt": "2026-02-20",
     "heroEmoji": "🗼",
     "heroImage": "/images/roppongi-night-date-hero.png",
+    "dateGuide": {
+      "areaType": "evening",
+      "areaTypeLabel": "夕方〜夜向き",
+      "recommendedDuration": "3〜4時間",
+      "recommendedMeetTime": "16:00〜17:00",
+      "recommendedDismissTime": "21:00〜22:00",
+      "bestFor": "記念日・特別な日",
+      "tip": "日没前に入店すると夕焼けから夜景への変化を楽しめる。ディナーは予約必須"
+    },
     "spots": [
       {
         "name": "THE MOON Lounge",
@@ -147,106 +171,133 @@
       }
     ]
   },
-    {
-          "slug": "ginza-luxury-date",
-          "title": "銀座ラグジュアリーデート完全ガイド",
-          "subtitle": "大人の街・銀座で過ごす、洗練されたディナーとバーの夜",
-          "description": "銀座は東京を代表する大人の社交場。中央通りのブランドブティックを眺めながら歩き、路地裏の隠れ家フレンチで特別なディナー。食後は銀座の名バーでカクテルを傾ける、王道にして最高のデートコースを紹介。",
-          "area": "銀座",
-          "tags": ["銀座", "ラグジュアリー", "フレンチ", "バー", "記念日"],
-          "publishedAt": "2026-02-21",
-          "updatedAt": "2026-02-21",
-          "heroEmoji": "💎",
-          "heroImage": "/images/ginza-luxury-date-hero.png",
-          "spots": [
-                  {
-                            "name": "ESqUISSE",
-                            "area": "銀座",
-                            "genre": "フレンチ",
-                            "description": "銀座のミシュラン二つ星フレンチ。素材を活かした革新的なコース料理は、記念日のディナーに最適。カウンター席ではシェフの技を間近で堪能できる。",
-                            "tip": "ランチコースは8,000円台〜でディナーより手頃。カウンター席は予約時にリクエスト。ワインペアリングがおすすめ。",
-                            "instagramHashtag": "ESqUISSE銀座",
-                            "tiktokHashtag": "銀座フレンチ",
-                            "embeds": []
-                  },
-                  {
-                            "name": "BAR HIGH FIVE",
-                            "area": "銀座",
-                            "genre": "バー",
-                            "description": "世界的に有名なバーテンダー上野秀嗣氏が率いる銀座の名バー。ゲストの好みを聞いてオーダーメイドで作るカクテルが絶品。落ち着いた大人の空間。",
-                            "tip": "予約不可・先着順なので20時前の来店がベスト。「おまかせ」でバーテンダーに好みを伝えるのが通の頼み方。",
-                            "instagramHashtag": "BARHIGHFIVE",
-                            "tiktokHashtag": "銀座バー",
-                            "embeds": []
-                  }
-          ]
+  {
+    "slug": "ginza-luxury-date",
+    "title": "銀座ラグジュアリーデート完全ガイド",
+    "subtitle": "大人の街・銀座で過ごす、洗練されたディナーとバーの夜",
+    "description": "銀座は東京を代表する大人の社交場。中央通りのブランドブティックを眺めながら歩き、路地裏の隠れ家フレンチで特別なディナー。食後は銀座の名バーでカクテルを傾ける、王道にして最高のデートコースを紹介。",
+    "area": "銀座",
+    "tags": ["銀座", "ラグジュアリー", "フレンチ", "バー", "記念日"],
+    "publishedAt": "2026-02-21",
+    "updatedAt": "2026-02-21",
+    "heroEmoji": "💎",
+    "heroImage": "/images/ginza-luxury-date-hero.png",
+    "dateGuide": {
+      "areaType": "evening",
+      "areaTypeLabel": "夕方〜夜向き",
+      "recommendedDuration": "3〜4時間",
+      "recommendedMeetTime": "17:00〜18:00",
+      "recommendedDismissTime": "21:00〜22:00",
+      "bestFor": "大人デート",
+      "tip": "中央通りのイルミネーションは日没後がピーク。ディナー予約は18:30〜19:00が理想"
     },
-    {
-          "slug": "nakameguro-canal-date",
-          "title": "中目黒リバーサイドデートプラン",
-          "subtitle": "目黒川沿いのカフェとビストロで過ごす、穏やかな休日",
-          "description": "中目黒は目黒川沿いにおしゃれなカフェやレストランが並ぶ、散歩デートの聖地。川沿いのテラスでコーヒーを楽しんだ後、路地裏のビストロでワインとともにディナー。自然体で過ごせる大人のデートコースを紹介。",
-          "area": "中目黒",
-          "tags": ["中目黒", "目黒川", "カフェ", "ビストロ", "散歩デート"],
-          "publishedAt": "2026-02-21",
-          "updatedAt": "2026-02-21",
-          "heroEmoji": "🌊",
-          "heroImage": "/images/nakameguro-canal-date-hero.png",
-          "spots": [
-                  {
-                            "name": "ONIBUS COFFEE 中目黒",
-                            "area": "中目黒",
-                            "genre": "カフェ",
-                            "description": "目黒川沿いのスペシャルティコーヒーロースター。開放的なテラス席から川を眺めながらハンドドリップコーヒーを楽しめる。",
-                            "tip": "テラス席は午前中が空いている。ラテアートが美しいカフェラテが人気。天気のいい日はテイクアウトして川沿いを散歩も◎。",
-                            "instagramHashtag": "ONIBUSCOFFEE",
-                            "tiktokHashtag": "中目黒カフェ",
-                            "embeds": []
-                  },
-                  {
-                            "name": "Huit",
-                            "area": "中目黒",
-                            "genre": "ビストロ",
-                            "description": "中目黒の隠れ家フレンチビストロ。カジュアルながら本格的なフランス料理とナチュラルワインが楽しめる。温かみのある店内は距離が縮まるデートにぴったり。",
-                            "tip": "ディナーは予約推奨。前菜のパテ・ド・カンパーニュとグラスワインのセットが鉄板。2人でシェアしやすいメニュー構成。",
-                            "instagramHashtag": "Huit中目黒",
-                            "tiktokHashtag": "中目黒ビストロ",
-                            "embeds": []
-                  }
-          ]
+    "spots": [
+      {
+        "name": "ESqUISSE",
+        "area": "銀座",
+        "genre": "フレンチ",
+        "description": "銀座のミシュラン二つ星フレンチ。素材を活かした革新的なコース料理は、記念日のディナーに最適。カウンター席ではシェフの技を間近で堪能できる。",
+        "tip": "ランチコースは8,000円台〜でディナーより手頃。カウンター席は予約時にリクエスト。ワインペアリングがおすすめ。",
+        "instagramHashtag": "ESqUISSE銀座",
+        "tiktokHashtag": "銀座フレンチ",
+        "embeds": []
+      },
+      {
+        "name": "BAR HIGH FIVE",
+        "area": "銀座",
+        "genre": "バー",
+        "description": "世界的に有名なバーテンダー上野秀嗣氏が率いる銀座の名バー。ゲストの好みを聞いてオーダーメイドで作るカクテルが絶品。落ち着いた大人の空間。",
+        "tip": "予約不可・先着順なので20時前の来店がベスト。「おまかせ」でバーテンダーに好みを伝えるのが通の頼み方。",
+        "instagramHashtag": "BARHIGHFIVE",
+        "tiktokHashtag": "銀座バー",
+        "embeds": []
+      }
+    ]
+  },
+  {
+    "slug": "nakameguro-canal-date",
+    "title": "中目黒リバーサイドデートプラン",
+    "subtitle": "目黒川沿いのカフェとビストロで過ごす、穏やかな休日",
+    "description": "中目黒は目黒川沿いにおしゃれなカフェやレストランが並ぶ、散歩デートの聖地。川沿いのテラスでコーヒーを楽しんだ後、路地裏のビストロでワインとともにディナー。自然体で過ごせる大人のデートコースを紹介。",
+    "area": "中目黒",
+    "tags": ["中目黒", "目黒川", "カフェ", "ビストロ", "散歩デート"],
+    "publishedAt": "2026-02-21",
+    "updatedAt": "2026-02-21",
+    "heroEmoji": "🌊",
+    "heroImage": "/images/nakameguro-canal-date-hero.png",
+    "dateGuide": {
+      "areaType": "daytime",
+      "areaTypeLabel": "昼〜夕方向き",
+      "recommendedDuration": "3〜4時間",
+      "recommendedMeetTime": "11:00〜13:00",
+      "recommendedDismissTime": "15:00〜17:00",
+      "bestFor": "散歩デート",
+      "tip": "目黒川沿いのテラスは午後の暖かい時間帯がベスト。桜の季節は早めの来店を"
     },
-    {
-          "slug": "daikanyama-stylish-date",
-          "title": "代官山おしゃれデートプラン完全ガイド",
-          "subtitle": "ヴィンテージショップとテラスカフェを巡る、感度高めの休日",
-          "description": "代官山は東京屈指のおしゃれタウン。蔦屋書店を中心に、個性的なセレクトショップやヴィンテージショップが点在。ヨーロッパの街角のような雰囲気の中、テラスカフェでゆったり過ごすデートコースを紹介。",
-          "area": "代官山",
-          "tags": ["代官山", "おしゃれ", "カフェ", "セレクトショップ", "散歩"],
-          "publishedAt": "2026-02-21",
-          "updatedAt": "2026-02-21",
-          "heroEmoji": "🎨",
-          "heroImage": "/images/daikanyama-stylish-date-hero.png",
-          "spots": [
-                  {
-                            "name": "IVY PLACE",
-                            "area": "代官山",
-                            "genre": "カフェ&レストラン",
-                            "description": "代官山T-SITE内にある緑に囲まれたレストラン。テラス席は開放感抜群で、ブランチからディナーまで使える万能スポット。蔦屋書店の後にそのまま立ち寄れる。",
-                            "tip": "週末ブランチは11時台がベスト。テラス席は予約不可なので早めの来店を。パンケーキが看板メニュー。",
-                            "instagramHashtag": "IVYPLACE代官山",
-                            "tiktokHashtag": "代官山カフェ",
-                            "embeds": []
-                  },
-                  {
-                            "name": "Ata",
-                            "area": "代官山",
-                            "genre": "イタリアン",
-                            "description": "代官山の人気イタリアン。旬の食材を使ったシンプルで力強い料理が魅力。オープンキッチンのカウンター席はライブ感があり、会話も弾む。",
-                            "tip": "ディナーは予約必須。パスタは必ずオーダーを。カウンター席は2人の距離が近くなるのでデートにおすすめ。",
-                            "instagramHashtag": "Ata代官山",
-                            "tiktokHashtag": "代官山イタリアン",
-                            "embeds": []
-                  }
-          ]
-    }
+    "spots": [
+      {
+        "name": "ONIBUS COFFEE 中目黒",
+        "area": "中目黒",
+        "genre": "カフェ",
+        "description": "目黒川沿いのスペシャルティコーヒーロースター。開放的なテラス席から川を眺めながらハンドドリップコーヒーを楽しめる。",
+        "tip": "テラス席は午前中が空いている。ラテアートが美しいカフェラテが人気。天気のいい日はテイクアウトして川沿いを散歩も◎。",
+        "instagramHashtag": "ONIBUSCOFFEE",
+        "tiktokHashtag": "中目黒カフェ",
+        "embeds": []
+      },
+      {
+        "name": "Huit",
+        "area": "中目黒",
+        "genre": "ビストロ",
+        "description": "中目黒の隠れ家フレンチビストロ。カジュアルながら本格的なフランス料理とナチュラルワインが楽しめる。温かみのある店内は距離が縮まるデートにぴったり。",
+        "tip": "ディナーは予約推奨。前菜のパテ・ド・カンパーニュとグラスワインのセットが鉄板。2人でシェアしやすいメニュー構成。",
+        "instagramHashtag": "Huit中目黒",
+        "tiktokHashtag": "中目黒ビストロ",
+        "embeds": []
+      }
+    ]
+  },
+  {
+    "slug": "daikanyama-stylish-date",
+    "title": "代官山おしゃれデートプラン完全ガイド",
+    "subtitle": "ヴィンテージショップとテラスカフェを巡る、感度高めの休日",
+    "description": "代官山は東京屈指のおしゃれタウン。蔦屋書店を中心に、個性的なセレクトショップやヴィンテージショップが点在。ヨーロッパの街角のような雰囲気の中、テラスカフェでゆったり過ごすデートコースを紹介。",
+    "area": "代官山",
+    "tags": ["代官山", "おしゃれ", "カフェ", "セレクトショップ", "散歩"],
+    "publishedAt": "2026-02-21",
+    "updatedAt": "2026-02-21",
+    "heroEmoji": "🎨",
+    "heroImage": "/images/daikanyama-stylish-date-hero.png",
+    "dateGuide": {
+      "areaType": "daytime",
+      "areaTypeLabel": "昼〜夕方向き",
+      "recommendedDuration": "2〜4時間",
+      "recommendedMeetTime": "11:00〜13:00",
+      "recommendedDismissTime": "15:00〜17:00",
+      "bestFor": "おしゃれデート",
+      "tip": "蔦屋書店→カフェ→ショップの流れが王道。週末ブランチは11時台がベスト"
+    },
+    "spots": [
+      {
+        "name": "IVY PLACE",
+        "area": "代官山",
+        "genre": "カフェ&レストラン",
+        "description": "代官山T-SITE内にある緑に囲まれたレストラン。テラス席は開放感抜群で、ブランチからディナーまで使える万能スポット。蔦屋書店の後にそのまま立ち寄れる。",
+        "tip": "週末ブランチは11時台がベスト。テラス席は予約不可なので早めの来店を。パンケーキが看板メニュー。",
+        "instagramHashtag": "IVYPLACE代官山",
+        "tiktokHashtag": "代官山カフェ",
+        "embeds": []
+      },
+      {
+        "name": "Ata",
+        "area": "代官山",
+        "genre": "イタリアン",
+        "description": "代官山の人気イタリアン。旬の食材を使ったシンプルで力強い料理が魅力。オープンキッチンのカウンター席はライブ感があり、会話も弾む。",
+        "tip": "ディナーは予約必須。パスタは必ずオーダーを。カウンター席は2人の距離が近くなるのでデートにおすすめ。",
+        "instagramHashtag": "Ata代官山",
+        "tiktokHashtag": "代官山イタリアン",
+        "embeds": []
+      }
+    ]
+  }
 ]
