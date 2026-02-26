@@ -55,7 +55,7 @@ export default function JsonLd({ type = "website", title, description, url, imag
       description: description || "デート視点の東京カルチャーガイド。ふたりの時間を、もっとおもしろく。",
       potentialAction: {
         "@type": "SearchAction",
-        target: `${siteUrl}/chat?q={search_term_string}`,
+        target: `${siteUrl}/plan?q={search_term_string}`,
         "query-input": "required name=search_term_string",
       },
     };
