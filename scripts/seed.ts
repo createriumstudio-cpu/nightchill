@@ -34,7 +34,22 @@ async function main() {
       heroImage: f.heroImage || null,
       spots: f.spots,
       isPublished: true,
-    }).onConflictDoNothing();
+    }).onConflictDoUpdate({
+      target: features.slug,
+      set: {
+        title: f.title,
+        subtitle: f.subtitle,
+        description: f.description,
+        area: f.area,
+        tags: f.tags,
+        publishedAt: new Date(f.publishedAt),
+        updatedAt: new Date(f.updatedAt),
+        heroEmoji: f.heroEmoji,
+        heroImage: f.heroImage || null,
+        spots: f.spots,
+        isPublished: true,
+      },
+    });
     console.log(`  ✓ ${f.slug}`);
   }
 
