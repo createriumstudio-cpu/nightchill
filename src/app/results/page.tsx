@@ -195,25 +195,102 @@ function VenueCard({ venue, index }: { venue: VenueFactData; index: number }) {
 }
 
 // ============================================================
-// Google Maps 地図画像 (Static Map API プロキシ)
+// Google Business Profile 埋め込み (Maps Embed API)
 // ============================================================
-function VenueMap({ venueName, area }: { venueName: string; area: string }) {
-  const query = `${venueName} ${area}`;
-  const staticMapUrl = `/api/static-map?q=${encodeURIComponent(query)}`;
-  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+function VenueEmbed({ venue }: { venue: VenueFactData }) {
+  const embedUrl = venue.mapEmbedUrl;
+  const gbpUrl = venue.googleMapsUrl || `https://www.google.com/maps/place/?q=place_id:${venue.placeId}`;
+  
+  if (!embedUrl) return null;
 
   return (
-    <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="mt-3 block group">
+    <div className="mt-3">
       <div className="overflow-hidden rounded-xl border border-border">
-        <img
-          src={staticMapUrl}
-          alt={`${venueName} の地図`}
-          className="w-full h-[200px] object-cover transition-transform duration-300 group-hover:scale-105"
+        <iframe
+          src={embedUrl}
+          width="100%"
+          height="250"
+          style={{ border: 0 }}
+          allowFullScreen
           loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          title={`${venue.name} - Google Maps`}
         />
       </div>
-      <p className="mt-1 text-xs text-muted text-center">📍 タップして Google Maps で開く</p>
-    </a>
+      <a
+        href={gbpUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-1 block text-xs text-primary text-center hover:underline"
+      >
+        📍 Google Maps で詳細を見る
+      </a>
+    </div>
+  );
+}
+
+// ============================================================
+// 俯瞰マップ (Static Map API - 全ヴェニューピン表示)
+// ============================================================
+function OverviewMap({ venues, area }: { venues: VenueFactData[]; area: string }) {
+  const validVenues = venues.filter(v => v.lat !== 0 && v.lng !== 0);
+  if (validVenues.length === 0) return null;
+
+  const markers = validVenues
+    .map((v, i) => `markers=color:red%7Clabel:${i + 1}%7C${v.lat},${v.lng}`)
+    .join("&");
+  
+  const staticMapUrl = `/api/static-map-multi?${markers}&area=${encodeURIComponent(area)}`;
+  
+  // Fallback: use Google Maps Embed API with directions/search
+  const center = validVenues.reduce(
+    (acc, v) => ({ lat: acc.lat + v.lat / validVenues.length, lng: acc.lng + v.lng / validVenues.length }),
+    { lat: 0, lng: 0 }
+  );
+  const markersParam = validVenues.map(v => `${v.lat},${v.lng}`).join("|");
+  const embedUrl = `https://www.google.com/maps/embed/v1/view?key=${typeof window !== "undefined" ? "" : ""}&center=${center.lat},${center.lng}&zoom=14`;
+
+  // Use a static map with all markers via our proxy
+  const allMarkersQuery = validVenues.map(v => `${v.lat},${v.lng}`).join("|");
+  const overviewStaticUrl = `/api/static-map-overview?markers=${encodeURIComponent(allMarkersQuery)}`;
+  const googleMapsUrl = `https://www.google.com/maps/dir/${validVenues.map(v => `${v.lat},${v.lng}`).join("/")}`;
+
+  return (
+    <section className="mt-8 scroll-mt-28">
+      <h2 className="mb-4 text-xl font-bold flex items-center gap-2">
+        🗺️ デートルート俯瞰マップ
+      </h2>
+      <div className="overflow-hidden rounded-2xl border border-border">
+        <img
+          src={overviewStaticUrl}
+          alt="デートプラン全体の地図"
+          className="w-full h-[300px] object-cover"
+          loading="lazy"
+          onError={(e) => {
+            // Hide on error
+            (e.target as HTMLImageElement).style.display = "none";
+          }}
+        />
+      </div>
+      <div className="mt-2 flex flex-wrap gap-2 justify-center">
+        {validVenues.map((v, i) => (
+          <span key={i} className="inline-flex items-center gap-1 text-xs text-muted">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
+              {i + 1}
+            </span>
+            {v.name}
+          </span>
+        ))}
+      </div>
+      <a
+        href={googleMapsUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-3 block text-center text-sm text-primary hover:underline"
+      >
+        📍 Google Maps でルートを確認
+      </a>
+    </section>
   );
 }
 
@@ -478,6 +555,11 @@ export default function ResultsPage() {
             })}
           </div>
         </section>
+
+        {/* Overview Map - 全ヴェニュー俯瞰マップ */}
+        {plan.venues && plan.venues.length > 0 && (
+          <OverviewMap venues={plan.venues} area={location} />
+        )}
 
         {/* Fashion Advice */}
         <section id="advice" className="mt-12 scroll-mt-28 rounded-2xl border border-border bg-surface p-6">
