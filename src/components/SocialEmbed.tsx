@@ -19,20 +19,12 @@ function loadTwitterWidgets(): Promise<void> {
   });
 }
 
-function loadInstagramEmbed(): Promise<void> {
-  return new Promise((resolve) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if ((window as any).instgrm) {
-      resolve();
-      return;
-    }
-    const script = document.createElement("script");
-    script.src = "https://www.instagram.com/embed.js";
-    script.async = true;
-    script.onload = () => resolve();
-    script.onerror = () => resolve();
-    document.head.appendChild(script);
-  });
+function ensureInstagramScript(): void {
+  if (document.querySelector('script[src*="instagram.com/embed.js"]')) return;
+  const script = document.createElement("script");
+  script.src = "https://www.instagram.com/embed.js";
+  script.async = true;
+  document.head.appendChild(script);
 }
 
 function isExampleUrl(url: string): boolean {
@@ -84,25 +76,47 @@ function SocialEmbedCard({ post }: SocialEmbedCardProps) {
             }
           }
         } else if (post.platform === "instagram") {
-          await loadInstagramEmbed();
+          ensureInstagramScript();
           if (containerRef.current) {
             const permalink = post.embedUrl;
             containerRef.current.innerHTML =
               '<blockquote class="instagram-media"' +
+              ' data-instgrm-captioned' +
               ' data-instgrm-permalink="' + permalink + '"' +
               ' data-instgrm-version="14"' +
               ' style="max-width:540px;width:100%;"><a href="' +
               permalink + '">Instagram投稿を表示</a></blockquote>';
           }
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const instgrm = (window as any).instgrm as
-            | { Embeds: { process: () => void } }
-            | undefined;
-          if (instgrm?.Embeds) {
-            instgrm.Embeds.process();
-            if (!cancelled) setLoaded(true);
-          } else {
-            if (!cancelled) setError(true);
+
+          let processed = false;
+          const tryProcess = () => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const instgrm = (window as any).instgrm as
+              | { Embeds: { process: (container?: HTMLElement) => void } }
+              | undefined;
+            if (instgrm?.Embeds && containerRef.current) {
+              instgrm.Embeds.process(containerRef.current);
+              processed = true;
+              if (!cancelled) setLoaded(true);
+              return true;
+            }
+            return false;
+          };
+
+          if (!tryProcess()) {
+            const pollInterval = setInterval(() => {
+              if (cancelled) {
+                clearInterval(pollInterval);
+                return;
+              }
+              if (tryProcess()) {
+                clearInterval(pollInterval);
+              }
+            }, 500);
+            setTimeout(() => {
+              clearInterval(pollInterval);
+              if (!cancelled && !processed) setError(true);
+            }, 10000);
           }
         }
       } catch {

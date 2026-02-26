@@ -6,7 +6,6 @@ import { featureTranslations, siteUrl, uiTranslations } from "@/lib/i18n";
 import FeatureSpotEmbed from "@/components/FeatureSpotEmbed";
 import Header from "@/components/Header";
 import ContextualPRSection from "@/components/ContextualPRSection";
-import UgcSection from "@/components/UgcSection";
 import Footer from "@/components/Footer";
 import { SpotPhoto } from "@/components/SpotPhoto";
 
