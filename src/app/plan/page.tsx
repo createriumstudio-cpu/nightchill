@@ -101,6 +101,7 @@ export default function PlanPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           dateStr,
+          endDateStr,
           startTime,
           endTime,
           location: combinedLocation,
@@ -179,30 +180,9 @@ export default function PlanPage() {
               <h2 className="text-xl font-bold">📅 いつデートする？</h2>
               <p className="text-sm text-gray-500">決まっていなければ空欄でOK</p>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">日付</label>
-                <input
-                  type="date"
-                  value={dateStr}
-                  onChange={(e) => { setDateStr(e.target.value); if (!e.target.value) setEndDateStr(""); }}
-                  min={today}
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
-                />
-              </div>
-
-              {/* 帰りの日（宿泊プラン用） */}
-            {dateStr && (
-              <div className="mt-3">
-                <label className="block text-sm font-medium text-gray-700 mb-1">帰りの日<span className="text-gray-400 text-xs ml-1">（宿泊する場合）</span></label>
-                <input
-                  type="date"
-                  value={endDateStr}
-                  onChange={(e) => setEndDateStr(e.target.value)}
-                  min={dateStr}
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
-                />
-                {endDateStr && dateStr && endDateStr > dateStr && (
-                  <p className="text-sm text-orange-600 mt-1 font-medium">
+              {endDateStr && dateStr && endDateStr > dateStr ? (
+                <>
+                  <p className="text-sm text-orange-600 font-medium mb-4">
                     {(() => {
                       const start = new Date(dateStr);
                       const end = new Date(endDateStr);
@@ -210,30 +190,108 @@ export default function PlanPage() {
                       return `🌙 ${nights}泊${nights + 1}日のプラン`;
                     })()}
                   </p>
-                )}
-              </div>
-            )}
 
-            <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">合流時間</label>
-                  <input
-                    type="time"
-                    value={startTime}
-                    onChange={(e) => setStartTime(e.target.value)}
-                    className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">解散時間</label>
-                  <input
-                    type="time"
-                    value={endTime}
-                    onChange={(e) => setEndTime(e.target.value)}
-                    className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
-                  />
-                </div>
-              </div>
+                  {/* Day 1: 日付 + 合流時間 */}
+                  <div className="space-y-2 mb-4">
+                    <p className="text-sm font-semibold text-orange-600">Day 1</p>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">日付</label>
+                        <input
+                          type="date"
+                          value={dateStr}
+                          onChange={(e) => { setDateStr(e.target.value); if (!e.target.value) setEndDateStr(""); }}
+                          min={today}
+                          className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">合流時間</label>
+                        <input
+                          type="time"
+                          value={startTime}
+                          onChange={(e) => setStartTime(e.target.value)}
+                          className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Day 2: 帰りの日 + 解散時間 */}
+                  <div className="space-y-2">
+                    <p className="text-sm font-semibold text-orange-600">Day 2</p>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">帰りの日</label>
+                        <input
+                          type="date"
+                          value={endDateStr}
+                          onChange={(e) => setEndDateStr(e.target.value)}
+                          min={dateStr}
+                          className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">解散時間</label>
+                        <input
+                          type="time"
+                          value={endTime}
+                          onChange={(e) => setEndTime(e.target.value)}
+                          className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">日付</label>
+                    <input
+                      type="date"
+                      value={dateStr}
+                      onChange={(e) => { setDateStr(e.target.value); if (!e.target.value) setEndDateStr(""); }}
+                      min={today}
+                      className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
+                    />
+                  </div>
+
+                  {/* 帰りの日（宿泊プラン用） */}
+                  {dateStr && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">帰りの日<span className="text-gray-400 text-xs ml-1">（宿泊する場合）</span></label>
+                      <input
+                        type="date"
+                        value={endDateStr}
+                        onChange={(e) => setEndDateStr(e.target.value)}
+                        min={dateStr}
+                        className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
+                      />
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">合流時間</label>
+                      <input
+                        type="time"
+                        value={startTime}
+                        onChange={(e) => setStartTime(e.target.value)}
+                        className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">解散時間</label>
+                      <input
+                        type="time"
+                        value={endTime}
+                        onChange={(e) => setEndTime(e.target.value)}
+                        className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           )}
 
