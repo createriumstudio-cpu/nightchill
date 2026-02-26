@@ -54,14 +54,6 @@ function planToText(plan: DatePlan): string {
     l.push(`  → ${item.tip}`);
   }
   l.push("");
-  l.push("--- 服装アドバイス ---");
-  l.push(plan.fashionAdvice);
-  l.push("");
-  l.push("--- 注意ポイント ---");
-  for (const warning of plan.warnings) {
-    l.push(`⚠ ${warning}`);
-  }
-  l.push("");
   l.push("futatabito - デート視点の東京カルチャーガイド");
   return l.join("\n");
 }
@@ -197,19 +189,6 @@ function VenueCard({
             </div>
           )}
         </div>
-
-        {!compact && venue.openingHours && venue.openingHours.length > 0 && (
-          <details className="mt-3">
-            <summary className="cursor-pointer text-sm font-medium text-primary">
-              営業時間を見る
-            </summary>
-            <ul className="mt-2 space-y-1">
-              {venue.openingHours.map((h, i) => (
-                <li key={i} className="text-xs text-muted">{h}</li>
-              ))}
-            </ul>
-          </details>
-        )}
 
         {/* Action buttons */}
         <div className="mt-3 flex flex-wrap gap-2">
@@ -440,7 +419,11 @@ export default function ResultsPage() {
 
   const handleShareLine = useCallback(() => {
     if (!plan) return;
-    const text = `${plan.title}\n\nfutatabitoでデートプランを作成しました！`;
+    const timelineText = plan.timeline
+      .filter(item => item.venue)
+      .map(item => `${item.time} ${item.venue}`)
+      .join(" → ");
+    const text = `${plan.title}\n\n${timelineText}\n\nfutatabitoでデートプランを作成しました！`;
     const lineUrl = shareUrl || (typeof window !== "undefined" ? window.location.origin : "");
     const url = `https://social-plugins.line.me/lineit/share?text=${encodeURIComponent(text)}&url=${encodeURIComponent(lineUrl)}`;
     window.open(url, "_blank", "noopener,noreferrer");
@@ -576,28 +559,6 @@ export default function ResultsPage() {
           <OverviewMap venues={plan.venues} />
         )}
 
-        {/* Fashion Advice */}
-        <section id="advice" className="mt-12 scroll-mt-28 rounded-2xl border border-border bg-surface p-6">
-          <h2 className="mb-3 text-xl font-bold">服装アドバイス</h2>
-          <p className="text-sm leading-relaxed text-muted">
-            {plan.fashionAdvice}
-          </p>
-        </section>
-
-        {/* Warnings */}
-        <section className="mt-8 rounded-2xl border border-amber-200 bg-amber-50 p-6 dark:border-amber-900 dark:bg-amber-950">
-          <h2 className="mb-4 text-xl font-bold text-amber-900 dark:text-amber-200">
-            注意ポイント
-          </h2>
-          <ul className="space-y-2">
-            {plan.warnings.map((warning, index) => (
-              <li key={index} className="flex items-start gap-2 text-sm text-amber-800 dark:text-amber-300">
-                <span className="mt-0.5 shrink-0">⚠️</span>
-                <span>{warning}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
 
         {/* Share */}
         <section className="mt-12 rounded-2xl border border-border bg-surface p-6">
