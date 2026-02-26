@@ -66,6 +66,8 @@ interface PlacePhotoData {
   attribution: string | null;
   attributionUri: string | null;
   googleMapsUri: string | null;
+  placeId: string | null;
+  mapEmbedUrl: string | null;
 }
 
 function useVenuePhoto(venueName: string | null, enabled: boolean) {
@@ -284,6 +286,99 @@ function VenueEmbed({ venue }: { venue: VenueFactData }) {
 }
 
 // ============================================================
+// 未マッチ店舗のフォールバック表示
+// ============================================================
+function FallbackVenueCard({ venueName, index }: { venueName: string; index: number }) {
+  const { data } = useVenuePhoto(venueName, true);
+
+  const photoUri = data?.photoUri || null;
+  const attribution = data?.attribution || null;
+  const attributionUri = data?.attributionUri || null;
+  const googleMapsUri = data?.googleMapsUri || null;
+  const mapEmbedUrl = data?.mapEmbedUrl || null;
+
+  if (!photoUri && !mapEmbedUrl) return null;
+
+  return (
+    <>
+      {photoUri && (
+        <div className="mt-3 rounded-xl border border-border bg-surface overflow-hidden">
+          <a href={googleMapsUri || "#"} target="_blank" rel="noopener noreferrer" className="block relative group">
+            <div className="relative h-48 w-full overflow-hidden">
+              <img
+                src={photoUri}
+                alt={`${venueName} の写真`}
+                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/10" />
+            </div>
+            {attribution && (
+              <p
+                className="bg-black/60 px-3 py-1 text-[10px] text-white/80"
+                dangerouslySetInnerHTML={{
+                  __html: `Photo: ${attributionUri ? `<a href="${attributionUri}" target="_blank" rel="noopener noreferrer">${attribution}</a>` : attribution}`,
+                }}
+              />
+            )}
+          </a>
+          <div className="p-4">
+            <div className="flex items-center gap-2">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                {index + 1}
+              </span>
+              <h3 className="font-semibold">{venueName}</h3>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {googleMapsUri && (
+                <a
+                  href={googleMapsUri}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 text-xs font-medium transition-colors hover:bg-surface"
+                >
+                  🗺️ 地図
+                </a>
+              )}
+            </div>
+            <p className="mt-3 text-[11px] text-muted">
+              店舗情報提供: <span translate="no" className="font-normal" style={{ fontFamily: "Roboto, sans-serif" }}>Google Maps</span>
+            </p>
+          </div>
+        </div>
+      )}
+
+      {mapEmbedUrl && (
+        <div className="mt-3">
+          <div className="overflow-hidden rounded-xl border border-border">
+            <iframe
+              src={mapEmbedUrl}
+              width="100%"
+              height="250"
+              style={{ border: 0 }}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title={`${venueName} - Google Maps`}
+            />
+          </div>
+          {googleMapsUri && (
+            <a
+              href={googleMapsUri}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-1 block text-xs text-primary text-center hover:underline"
+            >
+              📍 Google Maps で詳細を見る
+            </a>
+          )}
+        </div>
+      )}
+    </>
+  );
+}
+
+// ============================================================
 // 俯瞰マップ (Static Map API)
 // ============================================================
 function OverviewMap({ venues }: { venues: VenueFactData[] }) {
@@ -445,14 +540,36 @@ export default function ResultsPage() {
     );
   }
 
-  // Venue matching: timeline.venue -> VenueFactData
-  const findMatchingVenue = (venueName: string): VenueFactData | null => {
+  // Venue matching: timeline.venue -> VenueFactData (3段階マッチング)
+  const tokenize = (s: string): string[] =>
+    s.toLowerCase().split(/[\s\-・／/()（）,、。]+/).filter(t => t.length > 0);
+
+  const findMatchingVenue = (venueName: string, positionIndex?: number): VenueFactData | null => {
     if (!plan?.venues || !venueName) return null;
     const lower = venueName.toLowerCase();
-    return plan.venues.find((v: VenueFactData) => {
+
+    // 1) includes チェック（完全一致含む）
+    const includesMatch = plan.venues.find((v: VenueFactData) => {
       const vLower = v.name.toLowerCase();
       return vLower.includes(lower) || lower.includes(vLower);
-    }) || null;
+    });
+    if (includesMatch) return includesMatch;
+
+    // 2) トークンマッチング: 共通ワード数 >= 2 かつ片方の50%以上
+    const nameTokens = tokenize(venueName);
+    const tokenMatch = plan.venues.find((v: VenueFactData) => {
+      const vTokens = tokenize(v.name);
+      const common = nameTokens.filter(t => vTokens.includes(t));
+      return common.length >= 2 && (common.length / Math.min(nameTokens.length, vTokens.length)) >= 0.5;
+    });
+    if (tokenMatch) return tokenMatch;
+
+    // 3) ポジションフォールバック: タイムラインでの出現順とvenues配列のindexで対応付け
+    if (positionIndex !== undefined && positionIndex < plan.venues.length) {
+      return plan.venues[positionIndex];
+    }
+
+    return null;
   };
 
   // 各タイムライン項目にvenueインデックスを割り当て
@@ -500,8 +617,8 @@ export default function ResultsPage() {
           <h2 className="mb-6 text-xl font-bold">タイムライン</h2>
           <div className="space-y-6">
             {plan.timeline.map((item, index) => {
-              const matchedVenue = findMatchingVenue(item.venue);
               const venueIdx = venueIndexMap.get(item.venue) ?? index;
+              const matchedVenue = findMatchingVenue(item.venue, venueIdx);
               return (
                 <div key={index} className="relative">
                   {/* Timeline connector */}
@@ -546,6 +663,11 @@ export default function ResultsPage() {
 
                       {/* Google Map 埋め込み */}
                       {matchedVenue && <VenueEmbed venue={matchedVenue} />}
+
+                      {/* フォールバック: マッチしなかった場合にクライアント側で写真・マップ取得 */}
+                      {!matchedVenue && item.venue && (
+                        <FallbackVenueCard venueName={item.venue} index={venueIdx} />
+                      )}
                     </div>
                   </div>
                 </div>

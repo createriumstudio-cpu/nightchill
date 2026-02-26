@@ -3,10 +3,10 @@ import { NextRequest, NextResponse } from "next/server";
 // Cache to avoid repeated API calls (in-memory, persists per Vercel function instance)
 // Bounded to 500 entries max to prevent unbounded growth
 const MAX_CACHE_SIZE = 500;
-const photoCache = new Map<string, { photoUri: string; attribution: string; attributionUri: string; googleMapsUri: string; cachedAt: number }>();
+const photoCache = new Map<string, { photoUri: string; attribution: string; attributionUri: string; googleMapsUri: string; placeId: string; mapEmbedUrl: string; cachedAt: number }>();
 const CACHE_TTL = 1 * 60 * 60 * 1000; // 1 hour
 
-function setCacheEntry(key: string, value: { photoUri: string; attribution: string; attributionUri: string; googleMapsUri: string; cachedAt: number }) {
+function setCacheEntry(key: string, value: { photoUri: string; attribution: string; attributionUri: string; googleMapsUri: string; placeId: string; mapEmbedUrl: string; cachedAt: number }) {
   if (photoCache.size >= MAX_CACHE_SIZE) {
     const firstKey = photoCache.keys().next().value;
     if (firstKey) photoCache.delete(firstKey);
@@ -67,6 +67,8 @@ export async function GET(req: NextRequest) {
         attribution: "",
         attributionUri: "",
         googleMapsUri: "",
+        placeId: "",
+        mapEmbedUrl: "",
         cachedAt: Date.now(),
       });
     }
@@ -82,7 +84,7 @@ export async function GET(req: NextRequest) {
   const cached = photoCache.get(cacheKey);
   if (cached && Date.now() - cached.cachedAt < CACHE_TTL) {
     return NextResponse.json(
-      { photoUri: cached.photoUri, attribution: cached.attribution, attributionUri: cached.attributionUri, googleMapsUri: cached.googleMapsUri, cached: true },
+      { photoUri: cached.photoUri, attribution: cached.attribution, attributionUri: cached.attributionUri, googleMapsUri: cached.googleMapsUri, placeId: cached.placeId, mapEmbedUrl: cached.mapEmbedUrl, cached: true },
       { headers: { "Cache-Control": "public, max-age=3600, stale-while-revalidate=3600" } },
     );
   }
@@ -115,15 +117,21 @@ export async function GET(req: NextRequest) {
     const searchData = await searchRes.json();
     const place = searchData.places?.[0];
 
+    const placeId = place?.id ?? null;
+    const googleMapsUri = place?.googleMapsUri ?? null;
+    const mapsApiKey = process.env.GOOGLE_MAPS_API_KEY;
+    const mapEmbedUrl = placeId && mapsApiKey
+      ? `https://www.google.com/maps/embed/v1/place?key=${mapsApiKey}&q=place_id:${placeId}`
+      : null;
+
     if (!place?.photos?.length) {
-      return NextResponse.json({ photoUri: null, attribution: null, attributionUri: null, googleMapsUri: place?.googleMapsUri ?? null });
+      return NextResponse.json({ photoUri: null, attribution: null, attributionUri: null, googleMapsUri, placeId, mapEmbedUrl });
     }
 
     const photoResourceName = place.photos[0].name;
     const authorAttribution = place.photos[0].authorAttributions?.[0];
     const attribution = authorAttribution?.displayName ?? null;
     const attributionUri = authorAttribution?.uri ?? null;
-    const googleMapsUri = place.googleMapsUri ?? null;
 
     // Step 2: Get photo URL
     const photoRes = await fetch(
@@ -131,22 +139,22 @@ export async function GET(req: NextRequest) {
     );
 
     if (!photoRes.ok) {
-      return NextResponse.json({ photoUri: null, attribution: null, attributionUri: null, googleMapsUri });
+      return NextResponse.json({ photoUri: null, attribution: null, attributionUri: null, googleMapsUri, placeId, mapEmbedUrl });
     }
 
     const photoData = await photoRes.json();
     const photoUri = photoData.photoUri ?? null;
 
     if (photoUri) {
-      setCacheEntry(cacheKey, { photoUri, attribution: attribution ?? "", attributionUri: attributionUri ?? "", googleMapsUri: googleMapsUri ?? "", cachedAt: Date.now() });
+      setCacheEntry(cacheKey, { photoUri, attribution: attribution ?? "", attributionUri: attributionUri ?? "", googleMapsUri: googleMapsUri ?? "", placeId: placeId ?? "", mapEmbedUrl: mapEmbedUrl ?? "", cachedAt: Date.now() });
     }
 
     return NextResponse.json(
-      { photoUri, attribution, attributionUri, googleMapsUri },
+      { photoUri, attribution, attributionUri, googleMapsUri, placeId, mapEmbedUrl },
       { headers: { "Cache-Control": "public, max-age=3600, stale-while-revalidate=3600" } },
     );
   } catch (err) {
     console.error("place-photo API error:", err);
-    return NextResponse.json({ photoUri: null, attribution: null, attributionUri: null, googleMapsUri: null });
+    return NextResponse.json({ photoUri: null, attribution: null, attributionUri: null, googleMapsUri: null, placeId: null, mapEmbedUrl: null });
   }
 }
