@@ -110,6 +110,10 @@ function InstagramEmbed({ postUrl }: { postUrl: string }) {
     const shortcode = extractInstagramId(postUrl);
     if (!shortcode) return;
 
+    let cancelled = false;
+    let pollInterval: ReturnType<typeof setInterval> | undefined;
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+
     containerRef.current.innerHTML = `
       <blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="${postUrl}" data-instgrm-version="14"
         style="background:#000; border:0; border-radius:12px; max-width:540px; min-width:326px; padding:0; width:100%; margin: 0 auto;">
@@ -122,24 +126,35 @@ function InstagramEmbed({ postUrl }: { postUrl: string }) {
       </blockquote>
     `;
 
-    const processEmbed = () => {
-      if (window.instgrm?.Embeds) {
-        window.instgrm.Embeds.process();
-        setLoaded(true);
+    const tryProcess = () => {
+      if (window.instgrm?.Embeds && containerRef.current) {
+        window.instgrm.Embeds.process(containerRef.current);
+        if (!cancelled) setLoaded(true);
+        return true;
       }
+      return false;
     };
 
-    if (window.instgrm?.Embeds) {
-      processEmbed();
-    } else {
-      const checkInterval = setInterval(() => {
-        if (window.instgrm?.Embeds) {
-          clearInterval(checkInterval);
-          processEmbed();
+    if (!tryProcess()) {
+      pollInterval = setInterval(() => {
+        if (cancelled) {
+          clearInterval(pollInterval);
+          return;
+        }
+        if (tryProcess()) {
+          clearInterval(pollInterval);
         }
       }, 500);
-      setTimeout(() => clearInterval(checkInterval), 10000);
+      timeout = setTimeout(() => {
+        if (pollInterval) clearInterval(pollInterval);
+      }, 10000);
     }
+
+    return () => {
+      cancelled = true;
+      if (pollInterval) clearInterval(pollInterval);
+      if (timeout) clearTimeout(timeout);
+    };
   }, [postUrl]);
 
   return (
@@ -164,10 +179,11 @@ function TikTokEmbed({ postUrl }: { postUrl: string }) {
 
     const videoId = extractTikTokId(postUrl);
     if (!videoId) {
-      // Defer state update to avoid synchronous setState in effect
       const t = setTimeout(() => setHasError(true), 0);
       return () => clearTimeout(t);
     }
+
+    let cancelled = false;
 
     containerRef.current.innerHTML = `
       <blockquote class="tiktok-embed" cite="${postUrl}" data-video-id="${videoId}"
@@ -178,21 +194,24 @@ function TikTokEmbed({ postUrl }: { postUrl: string }) {
       </blockquote>
     `;
 
-    const existingScript = document.querySelector('script[src*="tiktok.com/embed.js"]');
-    if (existingScript) existingScript.remove();
-    const script = document.createElement("script");
-    script.src = "https://www.tiktok.com/embed.js";
-    script.async = true;
-    script.onload = () => setLoaded(true);
-    script.onerror = () => setHasError(true);
-    document.body.appendChild(script);
+    if (!document.querySelector('script[src*="tiktok.com/embed.js"]')) {
+      const script = document.createElement("script");
+      script.src = "https://www.tiktok.com/embed.js";
+      script.async = true;
+      script.onload = () => { if (!cancelled) setLoaded(true); };
+      script.onerror = () => { if (!cancelled) setHasError(true); };
+      document.body.appendChild(script);
+    }
 
     const timeout = setTimeout(() => {
-      if (!loaded) setLoaded(true);
+      if (!cancelled) setLoaded(true);
     }, 8000);
 
-    return () => clearTimeout(timeout);
-  }, [postUrl, loaded]);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+    };
+  }, [postUrl]);
 
   if (hasError) {
     return (
@@ -299,7 +318,7 @@ declare global {
     };
     instgrm?: {
       Embeds: {
-        process: () => void;
+        process: (container?: HTMLElement) => void;
       };
     };
   }

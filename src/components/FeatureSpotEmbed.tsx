@@ -3,40 +3,20 @@
 import { useEffect, useRef, useState } from "react";
 import type { SpotEmbed } from "@/lib/features";
 
-function loadInstagramEmbed(): Promise<void> {
-  return new Promise((resolve) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if ((window as any).instgrm) {
-      resolve();
-      return;
-    }
-    const script = document.createElement("script");
-    script.src = "https://www.instagram.com/embed.js";
-    script.async = true;
-    script.onload = () => resolve();
-    script.onerror = () => resolve();
-    document.head.appendChild(script);
-  });
+function ensureInstagramScript(): void {
+  if (document.querySelector('script[src*="instagram.com/embed.js"]')) return;
+  const script = document.createElement("script");
+  script.src = "https://www.instagram.com/embed.js";
+  script.async = true;
+  document.head.appendChild(script);
 }
 
-function loadTikTokEmbed(): Promise<void> {
-  return new Promise((resolve) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if ((window as any).tiktokEmbed) {
-      resolve();
-      return;
-    }
-    const script = document.createElement("script");
-    script.src = "https://www.tiktok.com/embed.js";
-    script.async = true;
-    script.onload = () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (window as any).tiktokEmbed = true;
-      resolve();
-    };
-    script.onerror = () => resolve();
-    document.head.appendChild(script);
-  });
+function ensureTikTokScript(): void {
+  if (document.querySelector('script[src*="tiktok.com/embed.js"]')) return;
+  const script = document.createElement("script");
+  script.src = "https://www.tiktok.com/embed.js";
+  script.async = true;
+  document.head.appendChild(script);
 }
 
 export default function FeatureSpotEmbed({ embed }: { embed: SpotEmbed }) {
@@ -46,31 +26,50 @@ export default function FeatureSpotEmbed({ embed }: { embed: SpotEmbed }) {
 
   useEffect(() => {
     let cancelled = false;
+    let pollInterval: ReturnType<typeof setInterval> | undefined;
+    let timeout: ReturnType<typeof setTimeout> | undefined;
 
-    async function init() {
-      try {
-        if (embed.platform === "instagram") {
-          await loadInstagramEmbed();
-          if (cancelled) return;
+    if (embed.platform === "instagram") {
+      ensureInstagramScript();
 
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const instgrm = (window as any).instgrm;
-          if (instgrm?.Embeds?.process) {
-            instgrm.Embeds.process();
-          }
-        } else if (embed.platform === "tiktok") {
-          await loadTikTokEmbed();
+      const tryProcess = () => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const instgrm = (window as any).instgrm;
+        if (instgrm?.Embeds?.process && containerRef.current) {
+          instgrm.Embeds.process(containerRef.current);
+          if (!cancelled) setLoaded(true);
+          return true;
         }
+        return false;
+      };
 
-        if (!cancelled) setLoaded(true);
-      } catch {
-        if (!cancelled) setError(true);
+      if (!tryProcess()) {
+        pollInterval = setInterval(() => {
+          if (cancelled) {
+            clearInterval(pollInterval);
+            return;
+          }
+          if (tryProcess()) {
+            clearInterval(pollInterval);
+          }
+        }, 500);
+
+        timeout = setTimeout(() => {
+          if (pollInterval) clearInterval(pollInterval);
+          if (!cancelled) setError(true);
+        }, 10000);
       }
+    } else if (embed.platform === "tiktok") {
+      ensureTikTokScript();
+      timeout = setTimeout(() => {
+        if (!cancelled) setLoaded(true);
+      }, 3000);
     }
 
-    init();
     return () => {
       cancelled = true;
+      if (pollInterval) clearInterval(pollInterval);
+      if (timeout) clearTimeout(timeout);
     };
   }, [embed.platform, embed.url]);
 
@@ -113,6 +112,7 @@ export default function FeatureSpotEmbed({ embed }: { embed: SpotEmbed }) {
           className="instagram-media"
           data-instgrm-captioned
           data-instgrm-permalink={embed.url}
+          data-instgrm-version="14"
           style={{
             background: "#1a1a2e",
             border: "1px solid #333",
