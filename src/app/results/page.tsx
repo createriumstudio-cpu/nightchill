@@ -632,6 +632,9 @@ export default function ResultsPage() {
                         {item.time.split(":")[0]}
                       </span>
                       <span className="text-xs text-muted mt-0.5">{item.time}</span>
+                      {item.duration && (
+                        <span className="text-xs text-muted/60 mt-0.5">{item.duration}</span>
+                      )}
                     </div>
                     {/* Content */}
                     <div className="flex-1 pb-6">
