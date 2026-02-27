@@ -32,6 +32,32 @@ const SYSTEM_PROMPT = `あなたは東京のデートプランニングの専門
 − 所要時間の目安：2時間→2〜3スポット、4時間→3〜5スポット、6時間以上→5〜7スポット
 − 移動も考慮する（徒歩圏内が望ましい。移動が必要な場合はそれも記載）
 − 各ステップの time は "HH:MM" 形式で記載する
+− 各ステップに duration（滞在時間の目安）を必ず含める
+
+【滞在時間の目安 ― 厳守】
+− ジャンル別の標準滞在時間を参考に設定する：
+  - レストラン・ディナー：60〜90分
+  - ランチ：45〜60分
+  - カフェ：30〜45分
+  - バー：60〜90分
+  - 美術館・博物館：60〜90分
+  - 公園・散歩：30〜60分
+  - ショッピング：45〜60分
+  - 映画館：120分
+  - 温泉・スパ：90〜120分
+− 次のステップの time は、前のステップの time + duration + 移動時間 と整合させる
+− duration は "30分"、"60分"、"90分" のように日本語で簡潔に書く
+
+【営業時間の考慮 ― 厳守】
+− 一般的な営業時間帯を考慮し、閉店している可能性が高い時間帯に店舗を配置しない：
+  - レストラン：ランチ 11:00〜14:30、ディナー 17:30〜22:00（14:30〜17:30は中休みの店が多い）
+  - カフェ：8:00〜20:00が一般的。早朝や夜遅くは避ける
+  - バー：18:00〜翌2:00が一般的。昼間は営業していない店が多い
+  - 美術館・博物館：10:00〜17:00〜18:00が一般的。月曜休館が多い
+  - ショッピング：10:00〜11:00開店、20:00〜21:00閉店が一般的
+  - 公園：日中のみ（夜は避ける）
+− 月曜日の場合：美術館・博物館は休館の可能性が高いので避ける
+− ラストオーダーは閉店の30〜60分前が一般的。閉店間際の来店は避ける
 
 【曜日・日時を考慮したプランニング ― 厳守】
 − 平日の場合：ランチ営業の店、オフィス街の隠れ家などを活用
@@ -91,6 +117,7 @@ const SYSTEM_PROMPT = `あなたは東京のデートプランニングの専門
   "timeline": [
     {
       "time": "HH:MM",
+      "duration": "滞在時間の目安（例：60分）",
       "activity": "アクティビティの内容（50文字以内）",
       "venue": "【必須】具体的な実在する店舗名・スポット名（例：ABOUT LIFE COFFEE BREWERS）。絶対に空にしない",
       "description": "この店の特徴やおすすめポイント（80文字以内）",
@@ -139,7 +166,11 @@ function buildUserPrompt(
     const dayNames = ["日曜日", "月曜日", "火曜日", "水曜日", "木曜日", "金曜日", "土曜日"];
     const dayOfWeekStr = dayNames[dateObj.getDay()];
     const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+    const isMonday = dateObj.getDay() === 1;
     parts.push(`日付: ${request.dateStr}（${dayOfWeekStr}）${isWeekend ? "← 週末" : "← 平日"}`);
+    if (isMonday) {
+      parts.push("⚠ 月曜日のため美術館・博物館は休館の可能性が高い。代替スポットを検討すること");
+    }
   }
 
   // Month & season context
@@ -185,6 +216,18 @@ function buildUserPrompt(
     else if (durationH >= 4) minSpots = 4;
     else if (durationH >= 3) minSpots = 3;
     parts.push(`→ ${minSpots}スポット以上のタイムラインを作成してください`);
+    parts.push("→ 各スポットの滞在時間を設定し、time + duration + 移動時間が次のスポットのtimeと整合するようにしてください");
+
+    // 営業時間帯の注意
+    if (startH < 11) {
+      parts.push("⚠ 午前スタート：レストランはランチ営業（11:00〜）まで開かない店が多い。カフェやモーニング営業の店を先に");
+    }
+    if (endH >= 22) {
+      parts.push("⚠ 夜遅くまで：ラストオーダー時間に注意。22時以降はバーや深夜営業の店に限定");
+    }
+    if (startH >= 14 && startH < 17) {
+      parts.push("⚠ 午後スタート：レストランの中休み（14:30〜17:30）に注意。カフェや観光スポットを先に");
+    }
   } else if (request.startTime) {
     parts.push(`開始時間：${request.startTime}`);
   }
@@ -358,14 +401,16 @@ function extractFieldsWithRegex(text: string): Record<string, unknown> | null {
 
   const summaryMatch = text.match(/"summary"\s*:\s*"([^"]+)"/);
 
-  const timelineItems: Array<{ time: string; activity: string; venue: string; description: string; tip: string }> = [];
+  const timelineItems: Array<{ time: string; duration: string; activity: string; venue: string; description: string; tip: string }> = [];
   const timePattern = /"time"\s*:\s*"([^"]+)"/g;
+  const durationPattern = /"duration"\s*:\s*"([^"]+)"/g;
   const activityPattern = /"activity"\s*:\s*"([^"]+)"/g;
   const venuePattern = /"venue"\s*:\s*"([^"]*)"/g;
   const descPattern = /"description"\s*:\s*"([^"]*)"/g;
   const tipPattern = /"tip"\s*:\s*"([^"]+)"/g;
 
   const times: string[] = [];
+  const durations: string[] = [];
   const activities: string[] = [];
   const venues: string[] = [];
   const descriptions: string[] = [];
@@ -373,6 +418,7 @@ function extractFieldsWithRegex(text: string): Record<string, unknown> | null {
 
   let m;
   while ((m = timePattern.exec(text)) !== null) times.push(m[1]);
+  while ((m = durationPattern.exec(text)) !== null) durations.push(m[1]);
   while ((m = activityPattern.exec(text)) !== null) activities.push(m[1]);
   while ((m = venuePattern.exec(text)) !== null) venues.push(m[1]);
   while ((m = descPattern.exec(text)) !== null) descriptions.push(m[1]);
@@ -387,6 +433,7 @@ function extractFieldsWithRegex(text: string): Record<string, unknown> | null {
   for (let i = 0; i < count; i++) {
     timelineItems.push({
       time: times[i],
+      duration: durations[i] || "",
       activity: activities[i],
       venue: venues[i] || "",
       description: descriptions[i] || "",

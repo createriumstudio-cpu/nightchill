@@ -83,4 +83,50 @@ describe("buildUserPrompt", () => {
     const prompt = buildUserPrompt(winterReq, [], null, "");
     expect(prompt).toContain("冬");
   });
+
+  it("should include duration alignment instruction when time range is set", () => {
+    const prompt = buildUserPrompt(mockRequest, [], null, "");
+    expect(prompt).toContain("滞在時間");
+  });
+
+  it("should warn about museum closures on Monday", () => {
+    const mondayReq: PlanRequest = {
+      ...mockRequest,
+      dateStr: "2026-03-02", // Monday
+    };
+    const prompt = buildUserPrompt(mondayReq, [], null, "");
+    expect(prompt).toContain("月曜日");
+    expect(prompt).toContain("美術館");
+  });
+
+  it("should warn about morning start and restaurant availability", () => {
+    const morningReq: PlanRequest = {
+      ...mockRequest,
+      startTime: "09:00",
+      endTime: "17:00",
+    };
+    const prompt = buildUserPrompt(morningReq, [], null, "");
+    expect(prompt).toContain("午前スタート");
+  });
+
+  it("should warn about afternoon restaurant break time", () => {
+    const afternoonReq: PlanRequest = {
+      ...mockRequest,
+      startTime: "15:00",
+      endTime: "21:00",
+    };
+    const prompt = buildUserPrompt(afternoonReq, [], null, "");
+    expect(prompt).toContain("午後スタート");
+    expect(prompt).toContain("中休み");
+  });
+
+  it("should warn about late night last orders", () => {
+    const lateReq: PlanRequest = {
+      ...mockRequest,
+      startTime: "18:00",
+      endTime: "23:00",
+    };
+    const prompt = buildUserPrompt(lateReq, [], null, "");
+    expect(prompt).toContain("夜遅くまで");
+  });
 });

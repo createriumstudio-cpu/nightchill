@@ -50,6 +50,7 @@ export interface PlanRequest {
 // ── レスポンス ──
 export interface TimelineItem {
   time: string;
+  duration?: string;
   activity: string;
   venue: string;
   description: string;
