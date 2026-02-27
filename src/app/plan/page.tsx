@@ -202,7 +202,7 @@ export default function PlanPage() {
                           value={dateStr}
                           onChange={(e) => { setDateStr(e.target.value); if (!e.target.value) setEndDateStr(""); }}
                           min={today}
-                          className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
+                          className="w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
                         />
                       </div>
                       <div>
@@ -211,7 +211,7 @@ export default function PlanPage() {
                           type="time"
                           value={startTime}
                           onChange={(e) => setStartTime(e.target.value)}
-                          className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
+                          className="w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
                         />
                       </div>
                     </div>
@@ -228,7 +228,7 @@ export default function PlanPage() {
                           value={endDateStr}
                           onChange={(e) => setEndDateStr(e.target.value)}
                           min={dateStr}
-                          className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
+                          className="w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
                         />
                       </div>
                       <div>
@@ -237,7 +237,7 @@ export default function PlanPage() {
                           type="time"
                           value={endTime}
                           onChange={(e) => setEndTime(e.target.value)}
-                          className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
+                          className="w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
                         />
                       </div>
                     </div>
@@ -252,7 +252,7 @@ export default function PlanPage() {
                       value={dateStr}
                       onChange={(e) => { setDateStr(e.target.value); if (!e.target.value) setEndDateStr(""); }}
                       min={today}
-                      className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
+                      className="w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
                     />
                   </div>
 
@@ -265,7 +265,7 @@ export default function PlanPage() {
                         value={endDateStr}
                         onChange={(e) => setEndDateStr(e.target.value)}
                         min={dateStr}
-                        className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
+                        className="w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
                       />
                     </div>
                   )}
@@ -277,7 +277,7 @@ export default function PlanPage() {
                         type="time"
                         value={startTime}
                         onChange={(e) => setStartTime(e.target.value)}
-                        className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
+                        className="w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
                       />
                     </div>
                     <div>
@@ -286,7 +286,7 @@ export default function PlanPage() {
                         type="time"
                         value={endTime}
                         onChange={(e) => setEndTime(e.target.value)}
-                        className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
+                        className="w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
                       />
                     </div>
                   </div>
@@ -333,7 +333,7 @@ export default function PlanPage() {
                   value={customLocation}
                   onChange={(e) => setCustomLocation(e.target.value)}
                   placeholder="例: 横浜みなとみらい"
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
+                  className="w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
                 />
               </div>
             </div>
@@ -480,7 +480,7 @@ export default function PlanPage() {
                   onChange={(e) => setAdditionalNotes(e.target.value)}
                   placeholder="例: 相手はカフェ好き、写真映えする場所がいい"
                   rows={3}
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500 resize-none"
+                  className="w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500 resize-none"
                 />
               </div>
             </div>
