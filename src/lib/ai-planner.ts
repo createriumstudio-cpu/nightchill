@@ -28,7 +28,7 @@ const SYSTEM_PROMPT = `あなたは東京のデートプランニングの専門
 【タイムライン設計ルール ― 店舗紹介付き】
 − 合流〜解散の時間帯が指定されている場合、その範囲内で計画する
 − タイムラインの各ステップには必ず具体的な店舗名・スポット名を含める
-− 各ステップにはその店を選んだ理由や特徴を description に書く
+− 各ステップの description にはジャンル名を短く書く（例：イタリアン、カフェ、美術館）。詳細はシステムが自動付与する
 − 所要時間の目安：2時間→2〜3スポット、4時間→3〜5スポット、6時間以上→5〜7スポット
 − 移動も考慮する（徒歩圏内が望ましい。移動が必要な場合はそれも記載）
 − 各ステップの time は "HH:MM" 形式で記載する
@@ -471,7 +471,7 @@ function buildFactDescription(venue: VenueFactData): string {
     parts.push(`★${venue.rating}`);
   }
   if (venue.priceLevel !== null) {
-    const level = venue.priceLevel || 1;
+    const level = venue.priceLevel ?? 1;
     parts.push("¥".repeat(level));
   }
   parts.push(venue.address);
