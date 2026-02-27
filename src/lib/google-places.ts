@@ -96,6 +96,16 @@ const PRICE_LEVEL_MAP: Record<string, number> = {
   PRICE_LEVEL_VERY_EXPENSIVE: 4,
 };
 
+/** genreHint キーワード → Google Places types マッピング */
+const GENRE_TYPE_MAP: Array<{ keywords: RegExp; types: string[] }> = [
+  { keywords: /restaurant|dinner|ディナー|ランチ|食事|イタリアン|フレンチ|和食|中華|寿司|焼肉/i, types: ["restaurant", "meal_takeaway", "food"] },
+  { keywords: /cafe|カフェ|コーヒー|喫茶/i, types: ["cafe", "coffee_shop"] },
+  { keywords: /bar|バー|居酒屋/i, types: ["bar", "night_club"] },
+  { keywords: /museum|美術館|アート|ギャラリー/i, types: ["museum", "art_gallery"] },
+  { keywords: /park|公園|散歩/i, types: ["park"] },
+  { keywords: /shop|ショッピング|買い物/i, types: ["store", "shopping_mall"] },
+];
+
 // ============================================================
 // API キー取得
 // ============================================================
@@ -143,6 +153,7 @@ async function resolvePhotoUrl(
 export async function searchVenue(
   query: string,
   area: string,
+  genreHint?: string,
 ): Promise<VenueFactData | null> {
   const apiKey = getPlacesApiKey();
 
@@ -162,7 +173,7 @@ export async function searchVenue(
       body: JSON.stringify({
         textQuery: `${query} ${area}`,
         languageCode: "ja",
-        maxResultCount: 1,
+        maxResultCount: 3,
       }),
     });
 
@@ -173,11 +184,26 @@ export async function searchVenue(
     }
 
     const data = (await searchRes.json()) as PlacesNewSearchResponse;
-    const place = data.places?.[0];
+    const places = data.places;
 
-    if (!place) {
+    if (!places || places.length === 0) {
       console.warn("[google-places] No results for:", query);
       return createFallbackVenue(query, area);
+    }
+
+    // genreHint がある場合、ジャンルマッチングで最適な結果を選択
+    let place = places[0];
+    if (genreHint && places.length > 1) {
+      const matchedEntry = GENRE_TYPE_MAP.find(entry => entry.keywords.test(genreHint));
+      if (matchedEntry) {
+        const matched = places.find(p =>
+          p.types?.some(t => matchedEntry.types.includes(t))
+        );
+        if (matched) {
+          console.log(`[google-places] Genre match for "${query}" hint="${genreHint}": selected "${matched.displayName?.text}"`);
+          place = matched;
+        }
+      }
     }
 
     // 写真CDN URL解決（APIキーをクライアントに露出させない）
