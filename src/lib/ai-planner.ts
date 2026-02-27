@@ -462,6 +462,23 @@ function robustJsonParse(text: string): Record<string, unknown> {
 }
 
 // ============================================================
+// Google Places ファクトデータ → description 変換
+// ============================================================
+
+function buildFactDescription(venue: VenueFactData): string {
+  const parts: string[] = [];
+  if (venue.rating !== null) {
+    parts.push(`★${venue.rating}`);
+  }
+  if (venue.priceLevel !== null) {
+    const level = venue.priceLevel || 1;
+    parts.push("¥".repeat(level));
+  }
+  parts.push(venue.address);
+  return parts.join(" | ");
+}
+
+// ============================================================
 // メイン生成関数
 // ============================================================
 
@@ -518,6 +535,21 @@ export async function generateAIPlan(request: PlanRequest): Promise<DatePlan> {
       // Google Places で見つかった実データを優先
       const googleVenues = enrichedVenues.filter(v => v.source === "google_places");
       const finalVenues = googleVenues.length > 0 ? googleVenues : enrichedVenues;
+
+      // ── Step 3.5: タイムラインの description を Google Places ファクトデータで上書き ──
+      const venueDataMap = new Map<string, VenueFactData>();
+      for (let i = 0; i < uniqueVenueNames.length; i++) {
+        const result = venueSearchResults[i];
+        if (result && result.source === "google_places") {
+          venueDataMap.set(uniqueVenueNames[i], result);
+        }
+      }
+      const timeline = parsed.timeline as Array<{ venue?: string; description?: string }>;
+      for (const item of timeline) {
+        if (item.venue && venueDataMap.has(item.venue)) {
+          item.description = buildFactDescription(venueDataMap.get(item.venue)!);
+        }
+      }
 
       // ── Step 4: 徒歩ルート取得（最初と2番目の店舗間） ──
       if (finalVenues.length >= 2 && finalVenues[0].lat !== 0 && finalVenues[1].lat !== 0) {
