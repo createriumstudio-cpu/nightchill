@@ -524,9 +524,12 @@ export async function generateAIPlan(request: PlanRequest): Promise<DatePlan> {
 
       const uniqueVenueNames = [...new Set(timelineVenues)];
 
-      // 全店舗を並列検索
+      // 全店舗を並列検索（activityをgenreHintとして渡す）
       const venueSearchResults = await Promise.all(
-        uniqueVenueNames.map(name => searchVenue(name, area))
+        uniqueVenueNames.map(name => {
+          const item = (parsed.timeline as Array<{ venue?: string; activity?: string }>).find(t => t.venue === name);
+          return searchVenue(name, area, item?.activity);
+        })
       );
       const enrichedVenues = venueSearchResults.filter(
         (v): v is VenueFactData => v !== null
