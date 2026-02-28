@@ -47,10 +47,10 @@ export default async function EnglishHomePage() {
         <section className="relative flex min-h-[80vh] md:min-h-screen items-end justify-center overflow-hidden px-4 md:px-6 pb-12 md:pb-24">
           <div className="absolute inset-0">
             <Image
-              src="/images/daikanyama-stylish-date-hero.png"
+              src="/images/shibuya-sky-date-hero.png"
               alt="Tokyo date scene"
               fill
-              className="object-cover scale-110 object-[35%_center] md:object-center"
+              className="object-cover scale-110 object-[75%_80%] md:object-center"
               sizes="100vw"
               priority
             />
