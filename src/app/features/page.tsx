@@ -9,31 +9,69 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://nightchill-sr5g.ver
 
 export const metadata: Metadata = {
   title: "特集 | futatabito",
-  description: "今話題のデートスポットを、SNSの口コミとプロのアドバイスとともに紹介",
+  description: "今話題のデートスポットを、SNSの口コミとプロのアドバイスとともに紹介。恵比寿・渋谷・表参道・六本木・銀座・中目黒・代官山のエリア別デートガイド。",
+  keywords: [
+    "東京 デート特集",
+    "デートスポット まとめ",
+    "恵比寿 デート",
+    "渋谷 デート",
+    "表参道 デート",
+    "六本木 デート",
+    "銀座 デート",
+    "中目黒 デート",
+    "代官山 デート",
+  ],
   alternates: {
     canonical: `${siteUrl}/features`,
   },
   openGraph: {
     title: "デート特集一覧 | futatabito",
-    description: "今話題のデートスポットを、SNSの口コミとプロのアドバイスとともに紹介",
+    description: "今話題のデートスポットを、SNSの口コミとプロのアドバイスとともに紹介。エリア別デートガイド。",
     url: `${siteUrl}/features`,
     siteName: "futatabito",
     locale: "ja_JP",
     type: "website",
+    images: [
+      {
+        url: `${siteUrl}/api/og?${new URLSearchParams({ title: "デート特集一覧", subtitle: "エリア別の厳選デートスポットガイド" }).toString()}`,
+        width: 1200,
+        height: 630,
+        alt: "デート特集一覧 | futatabito",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "デート特集一覧 | futatabito",
     description: "今話題のデートスポットを、SNSの口コミとプロのアドバイスとともに紹介",
+    images: [`${siteUrl}/api/og?${new URLSearchParams({ title: "デート特集一覧", subtitle: "エリア別の厳選デートスポットガイド" }).toString()}`],
   },
 };
 
 export default async function FeaturesPage() {
   const features = await getAllFeatures();
 
+  const itemListLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "デート特集一覧",
+    description: "エリア別の厳選デートスポットガイド",
+    numberOfItems: features.length,
+    itemListElement: features.map((feature, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: feature.title,
+      url: `${siteUrl}/features/${feature.slug}`,
+    })),
+  };
+
   return (
     <>
       <Header />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }}
+      />
       <div className="min-h-screen bg-background">
         {/* Hero */}
         <section className="px-6 pt-28 pb-12 text-center">

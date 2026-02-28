@@ -25,7 +25,12 @@ export default function JsonLd({ type = "website", title, description, url, imag
       "@type": "Organization",
       name: "futatabito",
       url: siteUrl,
-      logo: `${siteUrl}/favicon.ico`,
+      logo: {
+        "@type": "ImageObject",
+        url: `${siteUrl}/api/og`,
+        width: 1200,
+        height: 630,
+      },
       description: "デート視点の東京カルチャーガイド。ふたりの時間を、もっとおもしろく。",
       sameAs: [
         "https://x.com/nightchill_date",

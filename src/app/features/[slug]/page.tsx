@@ -28,13 +28,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const pageUrl = `${siteUrl}/features/${slug}`;
   const title = `${feature.title} | futatabito`;
   const description = feature.description;
-  const imageUrl = feature.heroImage
-    ? `${siteUrl}${feature.heroImage}`
-    : `${siteUrl}/images/omotesando-date-hero.png`;
+  const ogImageUrl = `${siteUrl}/api/og?${new URLSearchParams({ title: feature.title, area: feature.area, subtitle: feature.subtitle }).toString()}`;
+
+  // エリア固有のキーワード
+  const areaKeywords = [
+    `${feature.area} デート`,
+    `${feature.area} ディナー`,
+    `${feature.area} おすすめ`,
+    ...feature.tags.map((tag) => tag),
+  ];
 
   return {
     title,
     description,
+    keywords: areaKeywords,
     alternates: {
       canonical: pageUrl,
       languages: {
@@ -51,9 +58,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       type: "article",
       images: [
         {
-          url: imageUrl,
-          width: 1370,
-          height: 896,
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
           alt: feature.title,
         },
       ],
@@ -62,7 +69,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       card: "summary_large_image",
       title,
       description,
-      images: [imageUrl],
+      images: [ogImageUrl],
     },
   };
 }
@@ -72,30 +79,76 @@ export default async function FeatureDetailPage({ params }: PageProps) {
   const feature = await getFeatureBySlug(slug);
   if (!feature) notFound();
 
+  const pageUrl = `${siteUrl}/features/${slug}`;
+  const ogImageUrl = `${siteUrl}/api/og?${new URLSearchParams({ title: feature.title, area: feature.area }).toString()}`;
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
     headline: feature.title,
     description: feature.description,
-    image: feature.heroImage ? `${siteUrl}${feature.heroImage}` : undefined,
-    url: `${siteUrl}/features/${slug}`,
+    image: ogImageUrl,
+    url: pageUrl,
+    inLanguage: "ja",
     publisher: {
       "@type": "Organization",
       name: "futatabito",
       url: siteUrl,
+      logo: {
+        "@type": "ImageObject",
+        url: `${siteUrl}/api/og`,
+      },
+    },
+    author: {
+      "@type": "Organization",
+      name: "futatabito",
     },
     datePublished: feature.publishedAt,
     dateModified: feature.updatedAt,
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": pageUrl,
+    },
     about: {
       "@type": "Place",
       name: feature.area,
       address: {
         "@type": "PostalAddress",
         addressLocality: feature.area,
-        addressRegion: "Tokyo",
+        addressRegion: "東京都",
         addressCountry: "JP",
       },
     },
+    keywords: [
+      `${feature.area} デート`,
+      `${feature.area} ディナー`,
+      ...feature.tags,
+    ],
+  };
+
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "ホーム",
+        item: siteUrl,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "特集",
+        item: `${siteUrl}/features`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: feature.title,
+        item: pageUrl,
+      },
+    ],
   };
 
   return (
@@ -104,6 +157,10 @@ export default async function FeatureDetailPage({ params }: PageProps) {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
         />
       <main className="min-h-screen bg-gray-950 text-white">
         {/* Hero */}

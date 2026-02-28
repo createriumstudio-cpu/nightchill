@@ -16,13 +16,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const staticPages: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
-      lastModified: new Date("2026-02-21"),
+      lastModified: new Date("2026-02-28"),
       changeFrequency: "weekly",
       priority: 1.0,
+      alternates: {
+        languages: {
+          ja: baseUrl,
+          en: `${baseUrl}/en`,
+        },
+      },
     },
     {
       url: `${baseUrl}/features`,
-      lastModified: new Date("2026-02-21"),
+      lastModified: new Date("2026-02-28"),
       changeFrequency: "weekly",
       priority: 0.9,
     },
@@ -48,26 +54,44 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const featurePages: MetadataRoute.Sitemap = features.map((slug) => ({
     url: `${baseUrl}/features/${slug}`,
-    lastModified: new Date("2026-02-21"),
+    lastModified: new Date("2026-02-28"),
     changeFrequency: "weekly" as const,
     priority: 0.8,
+    alternates: {
+      languages: {
+        ja: `${baseUrl}/features/${slug}`,
+        en: `${baseUrl}/en/features/${slug}`,
+      },
+    },
   }));
 
   // English pages
   const enStaticPages: MetadataRoute.Sitemap = [
     {
       url: `${baseUrl}/en`,
-      lastModified: new Date("2026-02-22"),
+      lastModified: new Date("2026-02-28"),
       changeFrequency: "weekly",
       priority: 0.8,
+      alternates: {
+        languages: {
+          ja: baseUrl,
+          en: `${baseUrl}/en`,
+        },
+      },
     },
   ];
 
   const enFeaturePages: MetadataRoute.Sitemap = features.map((slug) => ({
     url: `${baseUrl}/en/features/${slug}`,
-    lastModified: new Date("2026-02-22"),
+    lastModified: new Date("2026-02-28"),
     changeFrequency: "weekly" as const,
     priority: 0.7,
+    alternates: {
+      languages: {
+        ja: `${baseUrl}/features/${slug}`,
+        en: `${baseUrl}/en/features/${slug}`,
+      },
+    },
   }));
 
   return [...staticPages, ...featurePages, ...enStaticPages, ...enFeaturePages];
