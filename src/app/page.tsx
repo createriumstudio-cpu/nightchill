@@ -94,7 +94,7 @@ export default function Home() {
       <section className="relative flex min-h-[80vh] md:min-h-screen items-end justify-center overflow-hidden px-4 md:px-6 pb-12 md:pb-24">
         <div className="absolute inset-0">
             <Image
-              src="/images/daikanyama-stylish-date-hero.png"
+              src="/images/shibuya-sky-date-hero.png"
               alt="東京デートシーン"
               fill
               className="object-cover scale-110 object-center"
