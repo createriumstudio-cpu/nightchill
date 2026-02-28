@@ -96,6 +96,26 @@ const PRICE_LEVEL_MAP: Record<string, number> = {
   PRICE_LEVEL_VERY_EXPENSIVE: 4,
 };
 
+/** デートプランに不適切な施設タイプ（検索結果から除外） */
+export const EXCLUDED_TYPES = [
+  "car_dealer", "car_rental", "car_repair", "car_wash",
+  "rest_stop", "accounting", "atm", "bank", "consulting_firm",
+  "electric_vehicle_charging_station", "gas_station", "parking",
+  "financial_planner", "insurance_agency", "lawyer",
+  "real_estate_agent", "tax_advisor", "dentist", "doctor",
+  "hospital", "medical_lab", "pharmacy", "physiotherapist",
+  "auto_parts_store", "cell_phone_store", "convenience_store",
+  "department_store", "discount_store", "electronics_store",
+  "furniture_store", "hardware_store", "home_improvement_store",
+  "wholesaler", "funeral_home", "interior_designer",
+  "locksmith", "moving_company", "painter", "plumber",
+  "roofing_contractor", "storage", "tailor",
+  "telecommunications_service_provider", "travel_agency",
+  "veterinary_care", "school", "university", "post_office",
+  "police", "fire_station", "courthouse", "city_hall",
+  "embassy", "political_leader",
+];
+
 /** genreHint キーワード → Google Places types マッピング */
 const GENRE_TYPE_MAP: Array<{ keywords: RegExp; types: string[] }> = [
   { keywords: /restaurant|dinner|ディナー|ランチ|食事|イタリアン|フレンチ|和食|中華|寿司|焼肉/i, types: ["restaurant", "meal_takeaway", "food"] },
@@ -191,17 +211,31 @@ export async function searchVenue(
       return createFallbackVenue(query, area);
     }
 
+    // EXCLUDED_TYPES に該当する施設を除外
+    const filtered = places.filter(p => {
+      const types = p.types ?? [];
+      return !types.some(t => EXCLUDED_TYPES.includes(t));
+    });
+
+    if (filtered.length === 0) {
+      console.warn(`[google-places] All results excluded for "${query}"`);
+      return null;
+    }
+
     // genreHint がある場合、ジャンルマッチングで最適な結果を選択
-    let place = places[0];
-    if (genreHint && places.length > 1) {
+    let place = filtered[0];
+    if (genreHint && filtered.length > 1) {
       const matchedEntry = GENRE_TYPE_MAP.find(entry => entry.keywords.test(genreHint));
       if (matchedEntry) {
-        const matched = places.find(p =>
+        const matched = filtered.find(p =>
           p.types?.some(t => matchedEntry.types.includes(t))
         );
         if (matched) {
           console.log(`[google-places] Genre match for "${query}" hint="${genreHint}": selected "${matched.displayName?.text}"`);
           place = matched;
+        } else {
+          console.warn(`[google-places] No genre match for "${query}" hint="${genreHint}", returning null`);
+          return null;
         }
       }
     }

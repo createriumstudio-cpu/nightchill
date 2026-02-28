@@ -34,15 +34,6 @@ export default function AdminSponsoredPage() {
   const [description, setDescription] = useState("");
   const [url, setUrl] = useState("");
   const [imageUrl, setImageUrl] = useState("");
-            {imageUrl && (
-              <div className="mt-2">
-                {/\.(mp4|webm|mov)$/i.test(imageUrl) ? (
-                  <video src={imageUrl} className="w-full h-32 object-cover rounded" muted loop playsInline autoPlay />
-                ) : (
-                  <img src={imageUrl} alt="Preview" className="w-full h-32 object-cover rounded" />
-                )}
-              </div>
-            )}
   const [category, setCategory] = useState("restaurant");
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
   const [labelJa, setLabelJa] = useState("おすすめ");
@@ -114,6 +105,15 @@ export default function AdminSponsoredPage() {
               placeholder="URL (https://...)" className="w-full bg-gray-800 rounded px-3 py-2 text-sm" />
             <input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)}
               placeholder="画像URL (任意)" className="w-full bg-gray-800 rounded px-3 py-2 text-sm" />
+            {imageUrl && (
+              <div className="mt-2">
+                {/\.(mp4|webm|mov)$/i.test(imageUrl) ? (
+                  <video src={imageUrl} className="w-full h-32 object-cover rounded" muted loop playsInline autoPlay />
+                ) : (
+                  <img src={imageUrl} alt="Preview" className="w-full h-32 object-cover rounded" />
+                )}
+              </div>
+            )}
             <div className="flex gap-3">
               <select value={category} onChange={(e) => setCategory(e.target.value)}
                 className="bg-gray-800 rounded px-3 py-2 text-sm">

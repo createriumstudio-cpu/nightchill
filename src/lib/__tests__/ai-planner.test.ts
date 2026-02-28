@@ -129,4 +129,56 @@ describe("buildUserPrompt", () => {
     const prompt = buildUserPrompt(lateReq, [], null, "");
     expect(prompt).toContain("夜遅くまで");
   });
+
+  it("should correctly calculate duration for midnight-crossing times (17:00-3:00 = 10 hours)", () => {
+    const midnightReq: PlanRequest = {
+      ...mockRequest,
+      startTime: "17:00",
+      endTime: "03:00",
+    };
+    const prompt = buildUserPrompt(midnightReq, [], null, "");
+    expect(prompt).toContain("約10時間");
+    expect(prompt).not.toContain("約-14時間");
+  });
+
+  it("should warn about late night for endTime before 6:00 (midnight-crossing)", () => {
+    const midnightReq: PlanRequest = {
+      ...mockRequest,
+      startTime: "20:00",
+      endTime: "02:00",
+    };
+    const prompt = buildUserPrompt(midnightReq, [], null, "");
+    expect(prompt).toContain("夜遅くまで");
+  });
+
+  it("should suggest correct spot count for midnight-crossing duration", () => {
+    const midnightReq: PlanRequest = {
+      ...mockRequest,
+      startTime: "17:00",
+      endTime: "03:00",
+    };
+    const prompt = buildUserPrompt(midnightReq, [], null, "");
+    // 10 hours = 8+ spots
+    expect(prompt).toContain("8スポット以上");
+  });
+
+  it("should indicate no-hotel for day trips (no endDateStr)", () => {
+    const dayTripReq: PlanRequest = {
+      ...mockRequest,
+      endDateStr: "",
+    };
+    const prompt = buildUserPrompt(dayTripReq, [], null, "");
+    expect(prompt).toContain("宿泊プランではありません");
+  });
+
+  it("should NOT include no-hotel message for overnight plans", () => {
+    const overnightReq: PlanRequest = {
+      ...mockRequest,
+      dateStr: "2026-03-01",
+      endDateStr: "2026-03-02",
+    };
+    const prompt = buildUserPrompt(overnightReq, [], null, "");
+    expect(prompt).not.toContain("宿泊プランではありません");
+    expect(prompt).toContain("宿泊プラン");
+  });
 });

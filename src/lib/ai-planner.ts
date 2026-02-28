@@ -208,7 +208,8 @@ function buildUserPrompt(
   if (request.startTime && request.endTime) {
     const startH = parseInt(request.startTime.split(":")[0], 10);
     const endH = parseInt(request.endTime.split(":")[0], 10);
-    const durationH = endH - startH;
+    let durationH = endH - startH;
+    if (durationH <= 0) durationH += 24;
     parts.push(`時間帯：${request.startTime}〜${request.endTime}（約${durationH}時間）`);
 
     let minSpots = 2;
@@ -224,7 +225,7 @@ function buildUserPrompt(
     if (startH < 11) {
       parts.push("⚠ 午前スタート：レストランはランチ営業（11:00〜）まで開かない店が多い。カフェやモーニング営業の店を先に");
     }
-    if (endH >= 22) {
+    if (endH >= 22 || endH < 6) {
       parts.push("⚠ 夜遅くまで：ラストオーダー時間に注意。22時以降はバーや深夜営業の店に限定");
     }
     if (startH >= 14 && startH < 17) {
@@ -253,6 +254,8 @@ function buildUserPrompt(
     }
   } else if (request.endDateStr) {
     parts.push(`終了日：${request.endDateStr}（複数日プラン）`);
+  } else {
+    parts.push("※宿泊プランではありません。ホテルチェックインや宿泊施設の提案は不要です。");
   }
 
   parts.push("→ 【重要】timeline各項目のvenueには必ず実在する店舗名を入れてください。空にしないでください");
