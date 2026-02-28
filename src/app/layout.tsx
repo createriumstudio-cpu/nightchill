@@ -63,6 +63,10 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: siteUrl,
+    languages: {
+      ja: siteUrl,
+      en: `${siteUrl}/en`,
+    },
   },
 };
 

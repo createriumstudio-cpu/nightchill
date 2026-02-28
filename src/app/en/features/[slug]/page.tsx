@@ -30,13 +30,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const jaPageUrl = `${siteUrl}/features/${slug}`;
   const title = `${en.title} | futatabito`;
   const description = en.description;
-  const imageUrl = feature.heroImage
-    ? `${siteUrl}${feature.heroImage}`
-    : `${siteUrl}/images/omotesando-date-hero.png`;
+  const ogImageUrl = `${siteUrl}/api/og?${new URLSearchParams({ title: en.title, area: en.area, subtitle: en.subtitle }).toString()}`;
+
+  // Area-specific keywords
+  const areaKeywords = [
+    `${en.area} date`,
+    `${en.area} dinner`,
+    `${en.area} Tokyo`,
+    `Tokyo date guide`,
+  ];
 
   return {
     title,
     description,
+    keywords: areaKeywords,
     alternates: {
       canonical: pageUrl,
       languages: {
@@ -53,9 +60,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       type: "article",
       images: [
         {
-          url: imageUrl,
-          width: 1370,
-          height: 896,
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
           alt: en.title,
         },
       ],
@@ -64,7 +71,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       card: "summary_large_image",
       title,
       description,
-      images: [imageUrl],
+      images: [ogImageUrl],
     },
   };
 }
@@ -75,21 +82,36 @@ export default async function EnglishFeatureDetailPage({ params }: PageProps) {
   const en = featureTranslations[slug];
   if (!feature || !en) notFound();
 
+  const pageUrl = `${siteUrl}/en/features/${slug}`;
+  const ogImageUrl = `${siteUrl}/api/og?${new URLSearchParams({ title: en.title, area: en.area }).toString()}`;
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
     headline: en.title,
     description: en.description,
-    image: feature.heroImage ? `${siteUrl}${feature.heroImage}` : undefined,
-    url: `${siteUrl}/en/features/${slug}`,
+    image: ogImageUrl,
+    url: pageUrl,
     inLanguage: "en",
     publisher: {
       "@type": "Organization",
       name: "futatabito",
       url: siteUrl,
+      logo: {
+        "@type": "ImageObject",
+        url: `${siteUrl}/api/og`,
+      },
+    },
+    author: {
+      "@type": "Organization",
+      name: "futatabito",
     },
     datePublished: feature.publishedAt,
     dateModified: feature.updatedAt,
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": pageUrl,
+    },
     about: {
       "@type": "Place",
       name: en.area,
@@ -100,6 +122,30 @@ export default async function EnglishFeatureDetailPage({ params }: PageProps) {
         addressCountry: "JP",
       },
     },
+    keywords: [
+      `${en.area} date`,
+      `${en.area} dinner`,
+      `Tokyo date guide`,
+    ],
+  };
+
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: `${siteUrl}/en`,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: en.title,
+        item: pageUrl,
+      },
+    ],
   };
 
   return (
@@ -108,6 +154,10 @@ export default async function EnglishFeatureDetailPage({ params }: PageProps) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
       <main className="min-h-screen bg-gray-950 text-white">
         {/* Hero */}
