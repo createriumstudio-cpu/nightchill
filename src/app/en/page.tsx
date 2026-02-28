@@ -50,7 +50,7 @@ export default async function EnglishHomePage() {
               src="/images/shibuya-sky-date-hero.png"
               alt="Tokyo date scene"
               fill
-              className="object-cover scale-110 object-[75%_80%] md:object-center"
+              className="object-cover scale-110 object-[60%_80%] md:object-center"
               sizes="100vw"
               priority
             />
