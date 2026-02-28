@@ -440,6 +440,7 @@ export default function ResultsPage() {
   const [copied, setCopied] = useState(false);
   const [shareUrl, setShareUrl] = useState<string>("");
   const [urlCopied, setUrlCopied] = useState(false);
+  const [timelineExpanded, setTimelineExpanded] = useState(false);
 
   // URLハッシュからプランを読み込み
   useEffect(() => {
@@ -615,68 +616,89 @@ export default function ResultsPage() {
         {/* Timeline with integrated venue info */}
         <section id="timeline" className="mt-12 scroll-mt-28">
           <h2 className="mb-6 text-xl font-bold">タイムライン</h2>
-          <div className="space-y-6">
-            {plan.timeline.map((item, index) => {
-              const venueIdx = venueIndexMap.get(item.venue) ?? index;
-              const matchedVenue = findMatchingVenue(item.venue, venueIdx);
-              return (
-                <div key={index} className="relative">
-                  {/* Timeline connector */}
-                  {index < plan.timeline.length - 1 && (
-                    <div className="absolute left-5 top-12 bottom-0 w-0.5 bg-gray-200" />
-                  )}
-                  <div className="flex gap-4">
-                    {/* Time badge */}
-                    <div className="flex flex-col items-center">
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
-                        {item.time.split(":")[0]}
-                      </span>
-                      <span className="text-xs text-muted mt-0.5">{item.time}</span>
-                      {item.duration && (
-                        <span className="text-xs text-muted/60 mt-0.5">{item.duration}</span>
-                      )}
-                    </div>
-                    {/* Content */}
-                    <div className="flex-1 pb-6">
-                      <h3 className="font-bold text-base">{item.activity}</h3>
-                      {item.venue && (
-                        <p className="text-sm text-primary font-medium mt-0.5">
-                          {matchedVenue?.googleMapsUrl ? (
-                            <a href={matchedVenue.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="hover:underline">
-                              📍 {item.venue}
-                            </a>
-                          ) : (
-                            <>📍 {item.venue}</>
-                          )}
-                        </p>
-                      )}
-                      {item.description && (
-                        <p className="text-sm text-muted mt-1">{item.description}</p>
-                      )}
-                      {item.tip && (
-                        <p className="text-xs italic text-muted/70 mt-1">💡 {item.tip}</p>
-                      )}
+          {(() => {
+            const INITIAL_COUNT = 4;
+            const hasMore = plan.timeline.length > INITIAL_COUNT;
+            const visibleItems = timelineExpanded
+              ? plan.timeline
+              : plan.timeline.slice(0, INITIAL_COUNT);
+            return (
+              <>
+                <div className="space-y-6">
+                  {visibleItems.map((item, index) => {
+                    const venueIdx = venueIndexMap.get(item.venue) ?? index;
+                    const matchedVenue = findMatchingVenue(item.venue, venueIdx);
+                    const isLastVisible = index === visibleItems.length - 1;
+                    return (
+                      <div key={index} className="relative">
+                        {/* Timeline connector */}
+                        {(!isLastVisible || (hasMore && !timelineExpanded)) && (
+                          <div className="absolute left-5 top-12 bottom-0 w-0.5 bg-gray-200" />
+                        )}
+                        <div className="flex gap-4">
+                          {/* Time badge */}
+                          <div className="flex flex-col items-center">
+                            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
+                              {item.time.split(":")[0]}
+                            </span>
+                            <span className="text-xs text-muted mt-0.5">{item.time}</span>
+                            {item.duration && (
+                              <span className="text-xs text-muted/60 mt-0.5">{item.duration}</span>
+                            )}
+                          </div>
+                          {/* Content */}
+                          <div className="flex-1 pb-6">
+                            <h3 className="font-bold text-base">{item.activity}</h3>
+                            {item.venue && (
+                              <p className="text-sm text-primary font-medium mt-0.5">
+                                {matchedVenue?.googleMapsUrl ? (
+                                  <a href={matchedVenue.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                                    📍 {item.venue}
+                                  </a>
+                                ) : (
+                                  <>📍 {item.venue}</>
+                                )}
+                              </p>
+                            )}
+                            {item.description && (
+                              <p className="text-sm text-muted mt-1">{item.description}</p>
+                            )}
+                            {item.tip && (
+                              <p className="text-xs italic text-muted/70 mt-1">💡 {item.tip}</p>
+                            )}
 
-                      {/* Venue card (consolidated component) */}
-                      {matchedVenue && (
-                        <div className="mt-3">
-                          <VenueCard venue={matchedVenue} index={venueIdx} compact />
+                            {/* Venue card (consolidated component) */}
+                            {matchedVenue && (
+                              <div className="mt-3">
+                                <VenueCard venue={matchedVenue} index={venueIdx} compact />
+                              </div>
+                            )}
+
+                            {/* Google Map 埋め込み */}
+                            {matchedVenue && <VenueEmbed venue={matchedVenue} />}
+
+                            {/* フォールバック: マッチしなかった場合にクライアント側で写真・マップ取得 */}
+                            {!matchedVenue && item.venue && (
+                              <FallbackVenueCard venueName={item.venue} index={venueIdx} />
+                            )}
+                          </div>
                         </div>
-                      )}
-
-                      {/* Google Map 埋め込み */}
-                      {matchedVenue && <VenueEmbed venue={matchedVenue} />}
-
-                      {/* フォールバック: マッチしなかった場合にクライアント側で写真・マップ取得 */}
-                      {!matchedVenue && item.venue && (
-                        <FallbackVenueCard venueName={item.venue} index={venueIdx} />
-                      )}
-                    </div>
-                  </div>
+                      </div>
+                    );
+                  })}
                 </div>
-              );
-            })}
-          </div>
+                {hasMore && !timelineExpanded && (
+                  <button
+                    onClick={() => setTimelineExpanded(true)}
+                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl border border-border py-3 text-sm font-medium text-primary transition-colors hover:bg-primary/5"
+                  >
+                    続きを見る（残り{plan.timeline.length - INITIAL_COUNT}件）
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+                  </button>
+                )}
+              </>
+            );
+          })()}
         </section>
 
         {/* Overview Map - 全ヴェニュー俯瞰マップ */}
