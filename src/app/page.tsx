@@ -97,7 +97,7 @@ export default function Home() {
               src="/images/shibuya-sky-date-hero.png"
               alt="東京デートシーン"
               fill
-              className="object-cover scale-110 object-[60%_80%] md:object-center"
+              className="object-cover scale-110 object-[70%_80%] md:object-center"
               sizes="100vw"
               priority
             />
