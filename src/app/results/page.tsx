@@ -617,7 +617,7 @@ export default function ResultsPage() {
         <section id="timeline" className="mt-12 scroll-mt-28">
           <h2 className="mb-6 text-xl font-bold">タイムライン</h2>
           {(() => {
-            const INITIAL_COUNT = 3;
+            const INITIAL_COUNT = 4;
             const hasMore = plan.timeline.length > INITIAL_COUNT;
             const visibleItems = timelineExpanded
               ? plan.timeline
