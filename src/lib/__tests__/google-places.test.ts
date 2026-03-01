@@ -82,6 +82,17 @@ describe("searchVenue - EXCLUDED_TYPES filtering", () => {
     expect(result).toBeNull();
   });
 
+  it("should return null when single result does not match genreHint", async () => {
+    mockFetch.mockResolvedValueOnce(
+      makePlacesResponse([
+        { id: "1", name: "美容室", types: ["beauty_salon"] },
+      ])
+    );
+
+    const result = await searchVenue("レストラン", "渋谷", "ディナー");
+    expect(result).toBeNull();
+  });
+
   it("should return first filtered result when no genreHint is provided", async () => {
     mockFetch.mockResolvedValueOnce(
       makePlacesResponse([
