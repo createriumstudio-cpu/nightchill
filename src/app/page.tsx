@@ -47,7 +47,7 @@ const steps = [
   },
   {
     number: "03",
-    title: "デートを楽しむ",
+    title: "自信を持ってデートへ",
     description:
       "タイムライン付きの具体的なプランに沿って、自信を持ってデートを楽しんでください。",
   },
@@ -105,26 +105,26 @@ export default function Home() {
           </div>
         <div className="relative mx-auto max-w-4xl text-center drop-shadow-lg">
           <p className="mb-2 md:mb-4 text-xs md:text-sm font-semibold tracking-widest text-[#c9a96e] uppercase [text-shadow:_0_1px_6px_rgba(0,0,0,0.6)]">
-            デート視点の全国カルチャーガイド
+            デートの&ldquo;どこ行く？&rdquo;を、30秒で解決。
           </p>
           <h1 className="text-3xl sm:text-5xl font-bold leading-tight tracking-tight text-white md:text-7xl [text-shadow:_0_2px_12px_rgba(0,0,0,0.8)]">
-            ふたりの時間を
+            &ldquo;失敗しない&rdquo;を、
             <br />
-            もっとおもしろく
+            ふたりの自信に。
           </h1>
           <p className="mx-auto mt-4 md:mt-6 max-w-2xl text-sm md:text-lg leading-relaxed text-white/90 [text-shadow:_0_1px_8px_rgba(0,0,0,0.7)]">
-            「どこに行くか」ではなく「どうデートするか」。
+            お店選び、時間配分、移動ルート——全部まるっとAIが提案。
             <br className="hidden sm:block" />
-            エリアの魅力・お店の動線・会話のきっかけまで
+            全国10都市対応、毎週更新の最新情報で、
             <br className="hidden sm:block" />
-            ふたりのデートをもっと楽しく。
+            もうデートプランで迷わない。
           </p>
           <div className="mt-6 md:mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <Link
               href="/plan"
               className="rounded-full bg-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-primary/25 transition-all hover:bg-primary-dark hover:shadow-xl hover:shadow-primary/30"
             >
-              デートプランをつくる
+              30秒でプランをつくる
             </Link>
             <a
               href="#how-it-works"
@@ -171,10 +171,10 @@ export default function Home() {
               Features
             </p>
             <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
-              futatabitoの特徴
+              なぜ、&ldquo;外さない&rdquo;のか
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-muted">
-              場所の提案だけではありません。時間配分から店舗情報まで、デートの「How」をお届けします。
+              場所を並べるだけの旅行サイトとは違います。&ldquo;ふたりの時間の流れ&rdquo;を設計します。
             </p>
           </div>
 
@@ -203,7 +203,7 @@ export default function Home() {
               How It Works
             </p>
             <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
-              3ステップでデートプランを
+              迷ったら、30秒だけください
             </h2>
           </div>
 
@@ -240,7 +240,7 @@ export default function Home() {
               Voice
             </p>
             <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
-              利用者の声
+              &ldquo;助かった&rdquo;の声
             </h2>
           </div>
 
@@ -274,16 +274,16 @@ export default function Home() {
       <section className="px-6 py-24">
         <div className="mx-auto max-w-4xl rounded-3xl bg-gradient-to-br from-primary to-primary-dark p-12 text-center text-white md:p-16">
           <h2 className="text-3xl font-bold md:text-4xl">
-            次のデートを、もっと楽しく。
+            &ldquo;どこ行く？&rdquo;はもう終わり。
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-white/80">
-            ふたりの時間をもっとおもしろくデートという視点で全国のカルチャーを提案します。
+            あとは楽しむだけ。全国10都市のリアルタイム情報から、あなただけのデートプランをAIが提案。
           </p>
           <Link
             href="/plan"
             className="mt-8 inline-block rounded-full bg-white px-8 py-3.5 font-semibold text-primary-dark shadow-lg transition-all hover:bg-white/90 hover:shadow-xl"
           >
-            デートプランをつくる
+            30秒でプランをつくる
           </Link>
           <p className="mt-4 text-xs text-white/60">
             登録不要・完全無料
