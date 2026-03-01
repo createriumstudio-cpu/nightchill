@@ -4,9 +4,10 @@ import type { VenueFactData } from "../google-places";
 
 const mockRequest: PlanRequest = {
   dateStr: "2026-03-01",
-    endDateStr: "",
+  endDateStr: "",
   startTime: "12:00",
   endTime: "20:00",
+  city: "tokyo",
   location: "渋谷",
   relationship: "lover",
   activities: ["dinner", "cafe"],
@@ -180,5 +181,26 @@ describe("buildUserPrompt", () => {
     const prompt = buildUserPrompt(overnightReq, [], null, "");
     expect(prompt).not.toContain("宿泊プランではありません");
     expect(prompt).toContain("宿泊プラン");
+  });
+
+  it("should include city name in prompt for non-Tokyo cities", () => {
+    const osakaReq: PlanRequest = {
+      ...mockRequest,
+      city: "osaka",
+      location: "梅田",
+    };
+    const prompt = buildUserPrompt(osakaReq, [], null, "");
+    expect(prompt).toContain("都市：大阪");
+    expect(prompt).toContain("梅田");
+  });
+
+  it("should default to Tokyo when city is not specified", () => {
+    const noCityReq: PlanRequest = {
+      ...mockRequest,
+      city: "",
+      location: "",
+    };
+    const prompt = buildUserPrompt(noCityReq, [], null, "");
+    expect(prompt).toContain("都市：東京");
   });
 });

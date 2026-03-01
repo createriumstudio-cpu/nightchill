@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { generateDatePlan } from "@/lib/planner";
 import { generateAIPlan } from "@/lib/ai-planner";
 import type { PlanRequest, Mood, Budget, AgeGroup } from "@/lib/types";
+import { CITY_IDS } from "@/lib/cities";
 
 const validMoods: Mood[] = ["romantic", "fun", "relaxed", "luxurious", "adventurous"];
 const validBudgets: Budget[] = ["low", "medium", "high", "unlimited"];
@@ -82,12 +83,16 @@ export async function POST(request: Request) {
       );
     }
 
+    // Validate city (default to "tokyo" for backward compatibility)
+    const cityId = CITY_IDS.includes(body.city) ? body.city : "tokyo";
+
     const sanitizedRequest: PlanRequest = {
       dateStr: sanitizeText(body.dateStr || "", 20),
       endDateStr: sanitizeText(body.endDateStr || "", 20),
       startTime: sanitizeText(body.startTime || "", 10),
       endTime: sanitizeText(body.endTime || "", 10),
-      location: sanitizeText(body.location || "東京", 50),
+      city: cityId,
+      location: sanitizeText(body.location || "", 50),
       relationship: body.relationship || "lover",
       activities: body.activities,
       mood: body.mood,

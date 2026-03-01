@@ -23,27 +23,28 @@ const notoSansJP = Noto_Sans_JP({
 
 export const metadata: Metadata = {
   title: {
-    default: "futatabito - デート視点の東京カルチャーガイド",
+    default: "futatabito - デート視点の全国カルチャーガイド",
     template: "%s | futatabito",
   },
   description:
-    "「どこに行くか」ではなく「どうデートするか」。ふたりの時間を、もっとおもしろく。東京のデートスポット・カフェ・レストランを独自の視点で提案するカルチャーガイド。",
+    "「どこに行くか」ではなく「どうデートするか」。ふたりの時間を、もっとおもしろく。全国10都市のデートスポット・カフェ・レストランを独自の視点で提案するカルチャーガイド。",
   keywords: [
     "デートプラン",
-    "東京 デートガイド",
+    "デートガイド",
     "初デート 成功",
     "記念日 プラン",
     "デート カルチャー",
-    "デート 服装",
-    "デート 会話",
+    "東京 デート",
+    "大阪 デート",
+    "京都 デート",
     "プロポーズ プラン",
     "futatabito",
   ],
   metadataBase: new URL(siteUrl),
   openGraph: {
-    title: "futatabito - デート視点の東京カルチャーガイド",
+    title: "futatabito - デート視点の全国カルチャーガイド",
     description:
-      "「どこに行くか」ではなく「どうデートするか」。ふたりの時間を、もっとおもしろく。東京デートのカルチャーガイド。",
+      "「どこに行くか」ではなく「どうデートするか」。ふたりの時間を、もっとおもしろく。全国10都市対応のデートカルチャーガイド。",
     url: siteUrl,
     siteName: "futatabito",
     locale: "ja_JP",
@@ -53,9 +54,9 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
       images: ["/api/og"],
-    title: "futatabito - デート視点の東京カルチャーガイド",
+    title: "futatabito - デート視点の全国カルチャーガイド",
     description:
-      "ふたりの時間を、もっとおもしろく。東京のデートスポットを独自の視点で提案。",
+      "ふたりの時間を、もっとおもしろく。全国10都市のデートスポットを独自の視点で提案。",
   },
   robots: {
     index: true,
@@ -80,7 +81,7 @@ export default function RootLayout({
     "@type": "WebApplication",
     name: "futatabito",
     description:
-      "デート視点で東京のカルチャースポットを提案するライフスタイルガイド",
+      "デート視点で全国のカルチャースポットを提案するライフスタイルガイド",
     url: siteUrl,
     applicationCategory: "LifestyleApplication",
     operatingSystem: "Web",

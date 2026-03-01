@@ -16,6 +16,7 @@ import {
   budgetLabels,
   ageGroupLabels,
 } from "@/lib/types";
+import { CITIES, getCityById } from "@/lib/cities";
 
 const TOTAL_STEPS = 5;
 
@@ -32,7 +33,8 @@ export default function PlanPage() {
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
 
-  // Step 2: どこで？（複数選択可）
+  // Step 2: どこで？（都市 + エリア選択）
+  const [cityId, setCityId] = useState("tokyo");
   const [locations, setLocations] = useState<string[]>([]);
   const [customLocation, setCustomLocation] = useState("");
 
@@ -71,7 +73,7 @@ export default function PlanPage() {
   const canProceed = (): boolean => {
     switch (step) {
       case 1: return true; // 日時は任意
-      case 2: return locations.length > 0 || customLocation.trim().length > 0;
+      case 2: return cityId !== "" && (locations.length > 0 || customLocation.trim().length > 0);
       case 3: return relationship !== "";
       case 4: return activities.length > 0 && mood !== "";
       case 5: return budget !== "" && ageGroup !== "";
@@ -104,6 +106,7 @@ export default function PlanPage() {
           endDateStr,
           startTime,
           endTime,
+          city: cityId,
           location: combinedLocation,
           relationship,
           activities,
@@ -133,11 +136,8 @@ export default function PlanPage() {
   // 今日の日付 (min用)
   const today = new Date().toISOString().split("T")[0];
 
-  const locationPresets = [
-    "渋谷", "新宿", "表参道", "銀座", "六本木",
-    "恵比寿", "代官山", "中目黒", "下北沢", "浅草",
-    "お台場", "池袋", "吉祥寺",
-  ];
+  const selectedCity = getCityById(cityId);
+  const locationPresets = selectedCity?.areas ?? [];
 
   return (
     <div className="min-h-screen bg-white">
@@ -295,28 +295,61 @@ export default function PlanPage() {
             </div>
           )}
 
-          {/* Step 2: どこで？（複数選択可） */}
+          {/* Step 2: どこで？（都市選択 + エリア複数選択） */}
           {step === 2 && (
             <div className="space-y-6 animate-fadeIn">
               <h2 className="text-xl font-bold">📍 どこでデートする？</h2>
-              <p className="text-sm text-gray-500">複数選択OK（タップで追加/削除）</p>
 
-              <div className="flex flex-wrap gap-2">
-                {locationPresets.map((area) => (
-                  <button
-                    key={area}
-                    type="button"
-                    onClick={() => toggleLocation(area)}
-                    className={`px-4 py-2 rounded-full text-sm border transition-colors ${
-                      locations.includes(area)
-                        ? "bg-orange-500 text-white border-orange-500"
-                        : "bg-white text-gray-700 border-gray-300 hover:border-orange-300"
-                    }`}
-                  >
-                    {area}
-                  </button>
-                ))}
-              </div>
+              {/* 都市選択 */}
+              <fieldset>
+                <legend className="text-sm font-medium text-gray-700 mb-2">都市を選択</legend>
+                <div className="flex flex-wrap gap-2">
+                  {CITIES.map((city) => (
+                    <button
+                      key={city.id}
+                      type="button"
+                      onClick={() => {
+                        setCityId(city.id);
+                        setLocations([]);
+                        setCustomLocation("");
+                      }}
+                      className={`px-4 py-2 rounded-full text-sm border transition-colors ${
+                        cityId === city.id
+                          ? "bg-orange-500 text-white border-orange-500"
+                          : "bg-white text-gray-700 border-gray-300 hover:border-orange-300"
+                      }`}
+                    >
+                      {city.name}
+                    </button>
+                  ))}
+                </div>
+                {selectedCity && (
+                  <p className="mt-2 text-xs text-gray-400">{selectedCity.description}</p>
+                )}
+              </fieldset>
+
+              {/* エリア選択 */}
+              <fieldset>
+                <legend className="text-sm font-medium text-gray-700 mb-2">
+                  エリアを選択<span className="text-gray-400 text-xs ml-1">（複数選択OK）</span>
+                </legend>
+                <div className="flex flex-wrap gap-2">
+                  {locationPresets.map((area) => (
+                    <button
+                      key={area}
+                      type="button"
+                      onClick={() => toggleLocation(area)}
+                      className={`px-4 py-2 rounded-full text-sm border transition-colors ${
+                        locations.includes(area)
+                          ? "bg-orange-500 text-white border-orange-500"
+                          : "bg-white text-gray-700 border-gray-300 hover:border-orange-300"
+                      }`}
+                    >
+                      {area}
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
 
               {locations.length > 0 && (
                 <p className="text-sm text-orange-600 font-medium">
@@ -332,7 +365,7 @@ export default function PlanPage() {
                   type="text"
                   value={customLocation}
                   onChange={(e) => setCustomLocation(e.target.value)}
-                  placeholder="例: 横浜みなとみらい"
+                  placeholder="例: 駅前周辺"
                   className="w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
                 />
               </div>

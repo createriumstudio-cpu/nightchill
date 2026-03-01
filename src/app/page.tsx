@@ -95,7 +95,7 @@ export default function Home() {
         <div className="absolute inset-0">
             <Image
               src="/images/shibuya-sky-date-hero.png"
-              alt="東京デートシーン"
+              alt="デートシーン"
               fill
               className="object-cover scale-110 object-[80%_80%] md:object-center"
               sizes="100vw"
@@ -105,7 +105,7 @@ export default function Home() {
           </div>
         <div className="relative mx-auto max-w-4xl text-center drop-shadow-lg">
           <p className="mb-2 md:mb-4 text-xs md:text-sm font-semibold tracking-widest text-[#c9a96e] uppercase [text-shadow:_0_1px_6px_rgba(0,0,0,0.6)]">
-            デート視点の東京カルチャーガイド
+            デート視点の全国カルチャーガイド
           </p>
           <h1 className="text-3xl sm:text-5xl font-bold leading-tight tracking-tight text-white md:text-7xl [text-shadow:_0_2px_12px_rgba(0,0,0,0.8)]">
             ふたりの時間を
@@ -277,7 +277,7 @@ export default function Home() {
             次のデートを、もっと楽しく。
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-white/80">
-            ふたりの時間をもっとおもしろくデートという視点で東京のカルチャーを提案します。
+            ふたりの時間をもっとおもしろくデートという視点で全国のカルチャーを提案します。
           </p>
           <Link
             href="/plan"
