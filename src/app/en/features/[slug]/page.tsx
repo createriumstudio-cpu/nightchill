@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getFeatureBySlug, getAllFeatures } from "@/lib/features";
 import { featureTranslations, siteUrl, uiTranslations } from "@/lib/i18n";
-import FeatureSpotEmbed from "@/components/FeatureSpotEmbed";
 import Header from "@/components/Header";
 import ContextualPRSection from "@/components/ContextualPRSection";
 import Footer from "@/components/Footer";
@@ -211,13 +210,6 @@ export default async function EnglishFeatureDetailPage({ params }: PageProps) {
                 </div>
                     <SpotPhoto spotName={spot.name} area={spot.area} />
                 <p className="text-gray-300 mb-4">{spot.description}</p>
-                {spot.embeds && spot.embeds.length > 0 && (
-                  <div className="mt-4 space-y-3">
-                    {spot.embeds.map((embed, j) => (
-                      <FeatureSpotEmbed key={j} embed={embed} />
-                    ))}
-                  </div>
-                )}
               </div>
             ))}
           </div>

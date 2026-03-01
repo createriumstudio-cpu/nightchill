@@ -2,9 +2,7 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getFeatureBySlug, getAllFeatures } from "@/lib/features";
-import FeatureSpotEmbed from "@/components/FeatureSpotEmbed";
 import Header from "@/components/Header";
-import UgcSection from "@/components/UgcSection";
 import { SpotPhoto } from "@/components/SpotPhoto";
 import ContextualPRSection from "@/components/ContextualPRSection";
 import Footer from "@/components/Footer";
@@ -283,44 +281,7 @@ export default async function FeatureDetailPage({ params }: PageProps) {
                     </div>
                   </div>
 
-                  {/* Hashtag Links */}
-                  <div className="flex flex-wrap gap-3">
-                    {spot.instagramHashtag && (
-                      <a
-                        href={`https://www.instagram.com/explore/tags/${encodeURIComponent(spot.instagramHashtag)}/`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-sm text-pink-400 hover:text-pink-300 transition-colors"
-                      >
-                        📸 #{spot.instagramHashtag}
-                      </a>
-                    )}
-                    {spot.tiktokHashtag && (
-                      <a
-                        href={`https://www.tiktok.com/tag/${encodeURIComponent(spot.tiktokHashtag)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-sm text-cyan-400 hover:text-cyan-300 transition-colors"
-                      >
-                        🎵 #{spot.tiktokHashtag}
-                      </a>
-                    )}
-                  </div>
                 </div>
-
-                {/* SNS Embeds */}
-                {spot.embeds && spot.embeds.length > 0 && (
-                  <div className="border-t border-gray-800 p-6">
-                    <div className="text-xs text-gray-500 mb-4">
-                      📱 SNSの口コミ
-                    </div>
-                    <div className="space-y-4">
-                      {spot.embeds.map((embed, i) => (
-                        <FeatureSpotEmbed key={i} embed={embed} />
-                      ))}
-                    </div>
-                  </div>
-                )}
               </article>
             ))}
           </div>
@@ -344,9 +305,6 @@ export default async function FeatureDetailPage({ params }: PageProps) {
               </a>
             </div>
           )}
-
-          {/* UGC Section */}
-          <UgcSection featureSlug={slug} />
 
           {/* Contextual PR */}
           <ContextualPRSection area={feature.area} />
