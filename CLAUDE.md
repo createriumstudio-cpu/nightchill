@@ -1,7 +1,8 @@
 # futatabito (旧: nightchill)
 
-デート視点の東京カルチャーガイド。「どこに行くか」ではなく「どうデートするか」を提案する。
-キャッチコピー: ふたりの時間を、もっとおもしろく。
+全国10都市対応のデートプランAI。「どこに行くか」ではなく「どうデートするか」を提案する。
+キャッチコピー: 「失敗しない」を、ふたりの自信に。
+サブコピー: デートの"どこ行く？"を、30秒で解決。
 
 注意: GitHubリポジトリ名・Vercelプロジェクト名は「nightchill」のまま（インフラ変更リスク回避）。ユーザー向け表示のみ「futatabito」を使用。
 
@@ -17,18 +18,27 @@ npm run dev, npm run build, npm run lint, npm test, npx tsc --noEmit
 
 ## Architecture
 
-src/app/ — Next.js App Router (layout.tsx, page.tsx, plan/, results/, error.tsx, not-found.tsx, api/plan/, globals.css)
+src/app/ — Next.js App Router (layout.tsx, page.tsx, plan/, results/, features/, error.tsx, not-found.tsx, api/plan/, globals.css)
 src/components/ — Header.tsx, Footer.tsx
-src/lib/ — types.ts, ai-planner.ts, planner.ts, env.ts, google-places.ts, google-maps.ts, plan-encoder.ts, contextual-pr.ts
+src/lib/ — types.ts, ai-planner.ts, planner.ts, cities.ts, env.ts, google-places.ts, google-maps.ts, plan-encoder.ts, contextual-pr.ts
+src/data/ — features.json（特集データ）
 
 ## Data Flow
 
-フォーム入力 → POST /api/plan → AI生成 or テンプレート → sessionStorage → 結果表示
+フォーム入力（都市選択 + エリア選択）→ POST /api/plan → AI生成 or テンプレート → sessionStorage → 結果表示
+
+## 都市システム (cities.ts)
+
+- 全国10都市: 東京, 横浜, 大阪, 京都, 名古屋, 福岡, 金沢, 神戸, 仙台, 広島
+- CityData: id(スラッグ), name, searchName, description, areas(エリアプリセット)
+- フォームで都市選択 → エリアプリセットが動的に切替
+- PlanRequest.city でAIプランナー・テンプレートプランナーに都市情報を渡す
+- 都市追加: cities.ts の CITIES 配列に CityData を追加するだけ
 
 ## AI生成フロー (ai-planner.ts)
 
 1. Contextual PR取得
-2. Claude API呼び出し（max_tokens: 768, リトライ最大2回）
+2. Claude API呼び出し（max_tokens: 768, リトライ最大2回）— SYSTEM_PROMPTは「日本全国のデートプランニングの専門家」
 3. タイムライン店舗名でGoogle Places検索（Post-search）→ ファクトデータ付与
 4. 徒歩ルート取得（最初と2番目の店舗間）
 
@@ -42,10 +52,13 @@ src/lib/ — types.ts, ai-planner.ts, planner.ts, env.ts, google-places.ts, goog
 - 入力サニタイズ: HTMLタグ除去 + 文字数制限
 - 結果画面: 服装アドバイス・注意ポイントは表示しない（AI出力のスリム化のため削除済み）
 - Places API: regularOpeningHoursフィールドは取得しない（コスト最適化）
+- 全国10都市対応: 都市マスターデータ(cities.ts) + フォームの都市/エリア2段選択
+- UGC/SNS機能は全削除済み: SocialEmbed, UgcSection, FeatureSpotEmbed, features.tsは廃止。ユーザー外部流出防止のため
 
 ## Adding a New Feature
 
 - シチュエーション追加: types.ts → planner.ts → route.ts → plan/page.tsx
+- 都市追加: src/lib/cities.ts の CITIES 配列に CityData オブジェクトを追加
 - ページ追加: src/app/[name]/page.tsx + Header/Footer使用
 - 既存ページ: /about（運営者情報）, /privacy（プライバシーポリシー）
 - sitemap.ts + robots.ts でSEO基盤構築済み
@@ -94,6 +107,12 @@ GitHub Actions: Lint → Type check → Test → Build
 - 対策: SYSTEM_PROMPTからこれらの指示を削除し、JSON定義もスリム化。max_tokensを768に削減
 - 禁止: 不要なフィールドをAI出力に追加しない
 
+### 地雷6: UGC/SNS埋め込みによるユーザー外部流出
+- 症状: Instagram/TikTok埋め込みからユーザーが外部サイトへ離脱
+- 原因: SocialEmbed, UgcSection, FeatureSpotEmbed でSNS埋め込みを提供していた
+- 対策: UGC/SNS関連コンポーネント・機能を全削除（PR #84）
+- 禁止: SNS埋め込み・外部リンク導線の再追加。features.jsonのinstagramHashtag/tiktokHashtag/embedsフィールドも削除済み
+
 ## デバッグチートシート
 
 - プランがテンプレートに落ちる → Vercel Logs → POST /api/plan確認
@@ -103,10 +122,10 @@ GitHub Actions: Lint → Type check → Test → Build
 ## コンセプト遵守チェックリスト
 
 - ファクトデータをAIに改変させていないか？
-- UGCは公式embed APIのみか？
 - PR/広告はContextual方式か？（バナー広告は厳禁）
 - 「Where」ではなく「How」を提案しているか？
 - 「点」ではなく「線」を重視しているか？
 - ブランド名は「futatabito」を使用しているか？
-- キャッチコピーは「ふたりの時間を、もっとおもしろく。」か？
-- ユーザー向けテキストに「AI」の文言は含まれていないか？
+- キャッチコピーは「「失敗しない」を、ふたりの自信に。」か？
+- SNS埋め込み・外部リンク導線を追加していないか？（ユーザー流出防止）
+- 都市追加時にcities.tsのCITIES配列に正しいCityDataを定義したか？
