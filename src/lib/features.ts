@@ -10,23 +10,12 @@ import { getDb } from "./db";
 import { features as featuresTable } from "./schema";
 import { eq } from "drizzle-orm";
 
-export type EmbedPlatform = "instagram" | "tiktok";
-
-export interface SpotEmbed {
-  platform: EmbedPlatform;
-  url: string;
-  caption: string;
-}
-
 export interface FeaturedSpot {
   name: string;
   area: string;
   genre: string;
   description: string;
   tip: string;
-  instagramHashtag?: string;
-  tiktokHashtag?: string;
-  embeds: SpotEmbed[];
 }
 
 export interface DateGuide {

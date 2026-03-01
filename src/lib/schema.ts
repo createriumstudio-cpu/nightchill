@@ -58,9 +58,6 @@ export interface SpotJson {
   genre: string;
   description: string;
   tip: string;
-  instagramHashtag?: string;
-  tiktokHashtag?: string;
-  embeds: { platform: string; url: string; caption: string }[];
 }
 
 // Sponsored Spots (Contextual PR)
