@@ -224,7 +224,7 @@ export async function searchVenue(
 
     // genreHint がある場合、ジャンルマッチングで最適な結果を選択
     let place = filtered[0];
-    if (genreHint && filtered.length > 1) {
+    if (genreHint && filtered.length >= 1) {
       const matchedEntry = GENRE_TYPE_MAP.find(entry => entry.keywords.test(genreHint));
       if (matchedEntry) {
         const matched = filtered.find(p =>
