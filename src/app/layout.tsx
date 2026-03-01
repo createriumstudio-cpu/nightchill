@@ -23,11 +23,11 @@ const notoSansJP = Noto_Sans_JP({
 
 export const metadata: Metadata = {
   title: {
-    default: "futatabito - デート視点の全国カルチャーガイド",
+    default: "futatabito - デートプランAI | 全国10都市対応",
     template: "%s | futatabito",
   },
   description:
-    "「どこに行くか」ではなく「どうデートするか」。ふたりの時間を、もっとおもしろく。全国10都市のデートスポット・カフェ・レストランを独自の視点で提案するカルチャーガイド。",
+    "デートの\"どこ行く？\"を30秒で解決。全国10都市対応、実在店舗のみ、毎週更新。お店選び・時間配分・移動ルートまでAIがまるっと提案するデートプランナー。",
   keywords: [
     "デートプラン",
     "デートガイド",
@@ -42,9 +42,9 @@ export const metadata: Metadata = {
   ],
   metadataBase: new URL(siteUrl),
   openGraph: {
-    title: "futatabito - デート視点の全国カルチャーガイド",
+    title: "futatabito - デートプランAI | 全国10都市対応",
     description:
-      "「どこに行くか」ではなく「どうデートするか」。ふたりの時間を、もっとおもしろく。全国10都市対応のデートカルチャーガイド。",
+      "デートの\"どこ行く？\"を30秒で解決。全国10都市対応、実在店舗のみ、毎週更新。お店選び・時間配分・移動ルートまでAIがまるっと提案するデートプランナー。",
     url: siteUrl,
     siteName: "futatabito",
     locale: "ja_JP",
@@ -54,9 +54,9 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
       images: ["/api/og"],
-    title: "futatabito - デート視点の全国カルチャーガイド",
+    title: "futatabito - デートプランAI | 全国10都市対応",
     description:
-      "ふたりの時間を、もっとおもしろく。全国10都市のデートスポットを独自の視点で提案。",
+      "デートの\"どこ行く？\"を30秒で解決。お店選び・時間配分・移動ルートまでAIがまるっと提案。",
   },
   robots: {
     index: true,

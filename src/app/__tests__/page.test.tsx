@@ -11,8 +11,8 @@ describe("Home", () => {
     render(<Home />);
     const heading = screen.getByRole("heading", { level: 1 });
     expect(heading).toBeInTheDocument();
-    expect(heading.textContent).toContain("ふたりの時間");
-    expect(heading.textContent).toContain("おもしろく");
+    expect(heading.textContent).toContain("失敗しない");
+    expect(heading.textContent).toContain("ふたりの自信に");
   });
 
   it("renders the futatabito brand", () => {
@@ -33,7 +33,7 @@ describe("Home", () => {
     render(<Home />);
     expect(screen.getByText("シチュエーションを入力")).toBeInTheDocument();
     expect(screen.getByText("あなただけのプランを生成")).toBeInTheDocument();
-    expect(screen.getByText("デートを楽しむ")).toBeInTheDocument();
+    expect(screen.getByText("自信を持ってデートへ")).toBeInTheDocument();
   });
 
   it("renders CTA links to plan page", () => {
