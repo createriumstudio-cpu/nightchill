@@ -1,7 +1,9 @@
 # futatabito (旧: nightchill)
 
-デート視点の東京カルチャーガイド。「どこに行くか」ではなく「どうデートするか」を提案する。
-キャッチコピー: ふたりの時間を、もっとおもしろく。
+デート視点の全国カルチャーガイド（全国10都市対応）。「どこに行くか」ではなく「どうデートするか」を提案する。
+キャッチコピー: "失敗しない"を、ふたりの自信に。
+
+対応都市: 東京・横浜・大阪・京都・名古屋・福岡・金沢・神戸・仙台・広島
 
 注意: GitHubリポジトリ名・Vercelプロジェクト名は「nightchill」のまま（インフラ変更リスク回避）。ユーザー向け表示のみ「futatabito」を使用。
 
@@ -19,7 +21,7 @@ npm run dev, npm run build, npm run lint, npm test, npx tsc --noEmit
 
 src/app/ — Next.js App Router (layout.tsx, page.tsx, plan/, results/, error.tsx, not-found.tsx, api/plan/, globals.css)
 src/components/ — Header.tsx, Footer.tsx
-src/lib/ — types.ts, ai-planner.ts, planner.ts, env.ts, google-places.ts, google-maps.ts, plan-encoder.ts, contextual-pr.ts
+src/lib/ — types.ts, ai-planner.ts, planner.ts, env.ts, google-places.ts, google-maps.ts, plan-encoder.ts, contextual-pr.ts, cities.ts（10都市マスターデータ）
 
 ## Data Flow
 
@@ -94,6 +96,11 @@ GitHub Actions: Lint → Type check → Test → Build
 - 対策: SYSTEM_PROMPTからこれらの指示を削除し、JSON定義もスリム化。max_tokensを768に削減
 - 禁止: 不要なフィールドをAI出力に追加しない
 
+### 地雷6: Claude Codeの都市リスト間違い
+- 症状: 指定した10都市と異なる都市が入る（札幌・鎌倉が混入した事例あり）
+- 対策: 必ずcities.tsのdiffを目視確認すること
+- 正しい10都市: 東京・横浜・大阪・京都・名古屋・福岡・金沢・神戸・仙台・広島
+
 ## デバッグチートシート
 
 - プランがテンプレートに落ちる → Vercel Logs → POST /api/plan確認
@@ -103,10 +110,11 @@ GitHub Actions: Lint → Type check → Test → Build
 ## コンセプト遵守チェックリスト
 
 - ファクトデータをAIに改変させていないか？
-- UGCは公式embed APIのみか？
 - PR/広告はContextual方式か？（バナー広告は厳禁）
 - 「Where」ではなく「How」を提案しているか？
 - 「点」ではなく「線」を重視しているか？
 - ブランド名は「futatabito」を使用しているか？
-- キャッチコピーは「ふたりの時間を、もっとおもしろく。」か？
+- キャッチコピーは「"失敗しない"を、ふたりの自信に。」か？
 - ユーザー向けテキストに「AI」の文言は含まれていないか？
+- 外部SNSへの導線を作っていないか？（ユーザー流出防止）
+- 都市マスターデータ（cities.ts）の10都市リストは正しいか？東京・横浜・大阪・京都・名古屋・福岡・金沢・神戸・仙台・広島

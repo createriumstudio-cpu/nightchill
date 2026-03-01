@@ -153,6 +153,27 @@
 - **Rule**: For TypeScript template literals with backticks, write content to separate temp files using bash `<< 'EOF'` (quoted EOF prevents shell interpretation including backticks), then use Python to splice them into the target file
 - **Rule**: Always use `chr(96)` for backtick in Python `python3 -c "..."` commands
 
+## Lesson: Claude Codeの都市リスト間違い (2026-03-01)
+- **Problem**: 指定した10都市と異なる都市がcities.tsに混入（札幌・鎌倉が入っていた事例）
+- **Fix**: cities.tsのdiffを目視確認し、正しい10都市リストと照合
+- **Rule**: 都市マスターデータを変更するPRでは、必ずcities.tsのdiffを目視確認すること
+- **正しい10都市**: 東京・横浜・大阪・京都・名古屋・福岡・金沢・神戸・仙台・広島
+
+## Lesson: PR作成前にdiffを確認する (2026-03-01)
+- **Problem**: Claude Codeが意図しない変更を含むPRを作成してしまう
+- **Rule**: PR作成前に `git diff` で全変更を確認し、意図しない変更が含まれていないか確認する
+
+## Lesson: UGC/SNS機能の全削除 (2026-03-01)
+- **Context**: UGC機能・外部SNS導線は全削除済み（ユーザー流出防止の方針）
+- **Rule**: 外部SNSへの導線を新たに作らない。ユーザーをサイト内に留める
+- **チェック**: 削除時はコンポーネント・JSON-LD・スキーマ・型定義すべてを包括的に確認する
+
+## Lesson: FV・LPコピーの共感型最適化 (2026-03-01)
+- **Context**: ターゲット「デートで失敗したくない人」向けにLP全体のコピーを共感型に刷新
+- **Before**: 「ふたりの時間を、もっとおもしろく」（ブランドメッセージ型）
+- **After**: 「"失敗しない"を、ふたりの自信に。」（共感型）
+- **Rule**: コピー変更時はpage.tsx・layout.tsx（メタデータ）・テストを同時に更新する
+
 ## Lesson: TypeScript Interface Field Addition (2026-02-25)
 - **Problem**: Adding required fields to an interface breaks all existing object literals that don't include them
 - **Rule**: After adding fields to TypeScript interfaces, search all usages with `grep -rn "InterfaceName\|fieldName" src/` and update every instance
