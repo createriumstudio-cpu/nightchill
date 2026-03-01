@@ -79,13 +79,13 @@ export const CITIES: CityData[] = [
     ],
   },
   {
-    id: "sapporo",
-    name: "札幌",
-    searchName: "札幌",
-    description: "雄大な自然とグルメが楽しめる北の都",
+    id: "kanazawa",
+    name: "金沢",
+    searchName: "金沢",
+    description: "加賀百万石の歴史と現代アートが調和する北陸の美食都市",
     areas: [
-      "すすきの", "大通", "札幌駅前", "円山",
-      "狸小路", "北大周辺", "白石", "小樽",
+      "ひがし茶屋街", "片町", "香林坊", "近江町",
+      "武蔵", "主計町", "にし茶屋街", "兼六園周辺",
     ],
   },
   {
@@ -109,13 +109,13 @@ export const CITIES: CityData[] = [
     ],
   },
   {
-    id: "kamakura",
-    name: "鎌倉",
-    searchName: "鎌倉",
-    description: "古都の情緒と湘南の海が融合するデートの定番",
+    id: "hiroshima",
+    name: "広島",
+    searchName: "広島",
+    description: "平和と食の文化が息づく瀬戸内の中心都市",
     areas: [
-      "鎌倉駅周辺", "小町通り", "長谷", "北鎌倉",
-      "由比ヶ浜", "七里ヶ浜", "江ノ島", "稲村ヶ崎",
+      "本通り", "流川", "八丁堀", "紙屋町",
+      "袋町", "並木通り", "宮島", "尾道",
     ],
   },
 ];
