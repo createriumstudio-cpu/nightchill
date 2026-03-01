@@ -1,9 +1,12 @@
 import type { PlanRequest, DatePlan, TimelineItem } from "./types";
 import { activityLabels, relationshipLabels } from "./types";
+import { getCityById } from "./cities";
 
 // Template-based fallback planner (used when ANTHROPIC_API_KEY is not set)
 export function generateDatePlan(request: PlanRequest): DatePlan {
-  const area = request.location || "東京";
+  const cityData = getCityById(request.city || "tokyo");
+  const cityName = cityData?.name || "東京";
+  const area = request.location || cityName;
   const activitiesText = request.activities.map(a => activityLabels[a]).join("・");
   const relationText = relationshipLabels[request.relationship];
 

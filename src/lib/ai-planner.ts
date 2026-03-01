@@ -6,6 +6,7 @@ import type { VenueFactData } from "./google-places";
 import { getWalkingRoute } from "./google-maps";
 import type { WalkingRoute } from "./google-maps";
 import { findRelevantPR, formatPRForPrompt } from "./contextual-pr";
+import { getCityById } from "./cities";
 
 let client: Anthropic | null = null;
 function getClient(): Anthropic {
@@ -15,8 +16,9 @@ function getClient(): Anthropic {
   return client;
 }
 
-const SYSTEM_PROMPT = `あなたは東京のデートプランニングの専門家です。
-ユーザーの条件に合わせて、具体的で実在する店舗・スポットを使ったデートプランを提案します。
+const SYSTEM_PROMPT = `あなたは日本全国のデートプランニングの専門家です。
+ユーザーが指定した都市・エリアに合わせて、具体的で実在する店舗・スポットを使ったデートプランを提案します。
+指定された都市のローカルな名店や特色あるスポットを積極的に提案してください。
 
 【最重要ルール ― 多様性と重複禁止】
 − 同じ店舗名を2回以上提案に含めてはならない
@@ -196,7 +198,12 @@ function buildUserPrompt(
   const weatherContext = monthlyContext[month] || "気温・天気は不明";
   parts.push(`季節・気候: ${weatherContext}`);
 
+  // 都市コンテキスト
+  const cityData = getCityById(request.city || "tokyo");
+  const cityName = cityData?.name || "東京";
+
   parts.push("=== デートの条件 ===");
+  parts.push(`都市：${cityName}`);
   parts.push(`やりたいこと：${selectedActivities}`);
   parts.push(`雰囲気：${moodLabelsMap[request.mood] || request.mood}`);
   parts.push(`関係性：${relationshipLabelsMap[request.relationship] || request.relationship}`);
@@ -535,7 +542,9 @@ function buildFactDescription(venue: VenueFactData): string {
 // ============================================================
 
 export async function generateAIPlan(request: PlanRequest): Promise<DatePlan> {
-  const area = request.location || "東京";
+  const cityData = getCityById(request.city || "tokyo");
+  const cityName = cityData?.searchName || "東京";
+  const area = request.location || cityName;
 
   // ── Step 1: Contextual PR取得 ──
   const prItems = findRelevantPR(request.activities[0] || "dinner", request.mood, area);

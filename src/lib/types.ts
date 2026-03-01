@@ -34,6 +34,7 @@ export interface PlanRequest {
   startTime: string;       // "11:00" or ""
   endTime: string;         // "21:00" or ""
   // どこで？
+  city: string;            // 都市ID: "tokyo", "osaka", etc. (default: "tokyo")
   location: string;        // free text: "渋谷", "決まってない", etc.
   // 誰と？
   relationship: Relationship;

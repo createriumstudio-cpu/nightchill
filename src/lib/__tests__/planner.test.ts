@@ -3,9 +3,10 @@ import type { PlanRequest } from "../types";
 
 const mockRequest: PlanRequest = {
   dateStr: "",
-    endDateStr: "",
+  endDateStr: "",
   startTime: "",
   endTime: "",
+  city: "tokyo",
   location: "渋谷",
   relationship: "lover",
   activities: ["dinner", "cafe"],
@@ -48,5 +49,25 @@ describe("generateDatePlan", () => {
     };
     const plan = generateDatePlan(timedRequest);
     expect(plan.timeline.length).toBeGreaterThanOrEqual(4);
+  });
+
+  it("should use city name when location is empty", () => {
+    const osakaRequest: PlanRequest = {
+      ...mockRequest,
+      city: "osaka",
+      location: "",
+    };
+    const plan = generateDatePlan(osakaRequest);
+    expect(plan.title).toContain("大阪");
+  });
+
+  it("should fall back to Tokyo for unknown city", () => {
+    const unknownRequest: PlanRequest = {
+      ...mockRequest,
+      city: "unknown-city",
+      location: "",
+    };
+    const plan = generateDatePlan(unknownRequest);
+    expect(plan.title).toContain("東京");
   });
 });
