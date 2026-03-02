@@ -52,7 +52,6 @@ const DEFAULT_CONFIG: ContextualPRConfig = {
 };
 
 // PR在庫（将来的にはDB/CMSから取得）
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const PR_INVENTORY: PRItem[] = [
   // Phase 2以降でCMS連携時にここにPRデータが入る
   // 現時点では空配列（PR表示なし）
