@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { CITY_IDS } from "@/lib/cities";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://nightchill-sr5g.vercel.app";
@@ -94,5 +95,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   }));
 
-  return [...staticPages, ...featurePages, ...enStaticPages, ...enFeaturePages];
+  // City landing pages
+  const cityPages: MetadataRoute.Sitemap = CITY_IDS.map((id) => ({
+    url: `${baseUrl}/${id}`,
+    lastModified: new Date("2026-03-02"),
+    changeFrequency: "weekly" as const,
+    priority: 0.9,
+  }));
+
+  return [...staticPages, ...cityPages, ...featurePages, ...enStaticPages, ...enFeaturePages];
 }
