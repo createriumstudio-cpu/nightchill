@@ -144,3 +144,39 @@ GitHub Actions: Lint → Type check → Test → Build
 - キャッチコピーは「「失敗しない」を、ふたりの自信に。」か？
 - SNS埋め込み・外部リンク導線を追加していないか？（ユーザー流出防止）
 - 都市追加時にcities.tsのCITIES配列に正しいCityDataを定義したか？
+
+
+## 週次自動更新システム (Phase 3)
+
+B案: リアルタイム週次更新 — 「今週のおすすめデートプラン」
+
+### 仕組み
+- Vercel Cron: 毎週月曜 0:00 UTC (= 9:00 JST) に自動実行
+- Google Places API (New) で各都市の注目スポットを検索
+- Anthropic Claude で特集記事を自動生成
+- Neon Postgres (features table) に保存
+
+### ファイル構成
+- src/lib/weekly-feature-generator.ts — コア生成ロジック (searchTrendingSpots + generateArticleWithAI + runWeeklyBatch)
+- src/app/api/cron/weekly-features/route.ts — Cron エンドポイント (CRON_SECRET認証)
+- src/lib/features.ts — getWeeklyFeatures(cityName?, limit) + getLatestWeeklyFeatures(limit)
+- vercel.json — cron設定 ("0 0 * * 1")
+
+### カテゴリ (WeeklyCategory)
+- new-spots: 注目の新店・話題のスポット
+- seasonal-menu: 季節限定メニュー・期間限定イベント
+- classic-date: この季節の外さないデートプラン
+
+### バッチ実行
+- ランダムに2-3都市を選択
+- 各都市から1-2カテゴリを選択
+- API レート制限対策: 各生成間に2秒待機
+- slug形式: {city.id}-{category}-{weekBatch} (例: tokyo-new-spots-2026-w10)
+
+### 環境変数
+- CRON_SECRET — Cron認証トークン（未設定時は認証なしで動作）
+- ANTHROPIC_API_KEY — 記事生成（未設定時はテンプレートフォールバック）
+- GOOGLE_PLACES_API_KEY — スポット検索（未設定時は空配列）
+
+### 手動実行
+Vercel Settings > Cron Jobs > /api/cron/weekly-features > "Run" ボタン
