@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
 import FeaturedPicks from "@/components/FeaturedPicks";
+import { CITIES } from "@/lib/cities";
 
 const features = [
   {
@@ -162,6 +163,39 @@ export default function Home() {
 
         {/* Featured Picks */}
         <FeaturedPicks />
+
+      {/* City Links */}
+      <section className="px-6 py-16">
+        <div className="mx-auto max-w-4xl">
+          <div className="text-center">
+            <p className="text-sm font-semibold tracking-widest text-[#c9a96e] uppercase">
+              Cities
+            </p>
+            <h2 className="mt-2 text-2xl font-bold tracking-tight md:text-3xl">
+              全国10都市に対応
+            </h2>
+            <p className="mx-auto mt-3 max-w-xl text-sm text-muted">
+              各都市のエリア特性を活かしたデートプランをAIが提案します。
+            </p>
+          </div>
+          <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
+            {CITIES.map((city) => (
+              <Link
+                key={city.id}
+                href={`/${city.id}`}
+                className="group rounded-xl border border-border bg-surface p-4 text-center transition-all hover:border-primary/50 hover:shadow-md"
+              >
+                <p className="text-lg font-bold group-hover:text-primary transition-colors">
+                  {city.name}
+                </p>
+                <p className="mt-1 text-xs text-muted line-clamp-1">
+                  {city.areas.slice(0, 3).join("・")}
+                </p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Features */}
       <section id="features" className="px-6 py-24">
