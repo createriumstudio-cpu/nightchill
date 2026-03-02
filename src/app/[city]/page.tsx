@@ -21,6 +21,7 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { city: cityId } = await params;
   const city = getCityById(cityId);
+
   if (!city) return { title: "ページが見つかりません | futatabito" };
 
   const pageUrl = `${siteUrl}/${city.id}`;
@@ -48,7 +49,10 @@ export async function generateMetadata({
       type: "website",
       images: [
         {
-          url: `${siteUrl}/api/og?${new URLSearchParams({ title: `${city.name}のデートプラン`, area: city.name }).toString()}`,
+          url: `${siteUrl}/api/og?${new URLSearchParams({
+            title: `${city.name}のデートプラン`,
+            area: city.name,
+          }).toString()}`,
           width: 1200,
           height: 630,
           alt: `${city.name}のデートプラン`,
@@ -75,6 +79,7 @@ const occasions = [
 export default async function CityLandingPage({ params }: PageProps) {
   const { city: cityId } = await params;
   const city = getCityById(cityId);
+
   if (!city) notFound();
 
   const pageUrl = `${siteUrl}/${city.id}`;
@@ -109,12 +114,12 @@ export default async function CityLandingPage({ params }: PageProps) {
     },
   };
 
-  // 他の都市（現在の都市を除く）
   const otherCities = CITIES.filter((c) => c.id !== city.id);
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
+
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
@@ -183,6 +188,24 @@ export default async function CityLandingPage({ params }: PageProps) {
               </Link>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Features Link */}
+      <section className="px-4 py-12">
+        <div className="mx-auto max-w-4xl text-center">
+          <Link
+            href={`/${city.id}/features`}
+            className="group inline-flex items-center gap-2 rounded-2xl border border-border bg-surface px-6 py-4 transition-all hover:border-primary/50 hover:shadow-md"
+          >
+            <span className="text-lg">🔥</span>
+            <span className="text-base font-semibold group-hover:text-primary transition-colors">
+              {city.name}のデート特集を見る
+            </span>
+            <span className="text-muted group-hover:text-primary transition-colors">
+              →
+            </span>
+          </Link>
         </div>
       </section>
 
