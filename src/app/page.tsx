@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
 import FeaturedPicks from "@/components/FeaturedPicks";
+import { WeeklyPicks } from "@/components/WeeklyPicks";
 import { CITIES } from "@/lib/cities";
 
 const features = [
@@ -160,6 +161,9 @@ export default function Home() {
         </div>
       </section>
 
+
+        {/* Weekly Picks */}
+        <WeeklyPicks />
 
         {/* Featured Picks */}
         <FeaturedPicks />

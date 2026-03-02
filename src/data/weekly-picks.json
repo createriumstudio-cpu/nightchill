@@ -1,0 +1,354 @@
+[
+  {
+    "id": "week-01",
+    "theme": "春の訪れを感じるデート",
+    "themeEmoji": "🌸",
+    "description": "少しずつ暖かくなるこの季節、散歩やテラス席が気持ちいいデートプランを厳選。",
+    "picks": [
+      {
+        "cityId": "tokyo",
+        "area": "中目黒",
+        "title": "目黒川沿いリバーサイドデート",
+        "subtitle": "川沿いのカフェ→ビストロで穏やかな休日",
+        "mood": "relaxed",
+        "timeOfDay": "daytime",
+        "featureSlug": "nakameguro-canal-date"
+      },
+      {
+        "cityId": "tokyo",
+        "area": "表参道",
+        "title": "表参道の並木道を歩く洗練デート",
+        "subtitle": "ケヤキ並木のカフェからフレンチビストロへ",
+        "mood": "romantic",
+        "timeOfDay": "daytime",
+        "featureSlug": "omotesando-sophisticated-date"
+      },
+      {
+        "cityId": "kyoto",
+        "area": "嵐山",
+        "title": "嵐山で春を先取りする散策デート",
+        "subtitle": "竹林の道から渡月橋へ、京都の絶景を巡る",
+        "mood": "relaxed",
+        "timeOfDay": "daytime",
+        "featureSlug": null
+      },
+      {
+        "cityId": "kobe",
+        "area": "北野",
+        "title": "北野異人館の坂道を歩くデート",
+        "subtitle": "異国情緒あふれる街並みとカフェタイム",
+        "mood": "romantic",
+        "timeOfDay": "daytime",
+        "featureSlug": null
+      }
+    ]
+  },
+  {
+    "id": "week-02",
+    "theme": "夜景を楽しむナイトデート",
+    "themeEmoji": "🌙",
+    "description": "特別な夜を演出したいなら。バーやレストランから夜景を堪能するプランを集めました。",
+    "picks": [
+      {
+        "cityId": "tokyo",
+        "area": "六本木",
+        "title": "六本木プレミアムナイト",
+        "subtitle": "東京タワーを眺めながら特別な夜を",
+        "mood": "luxurious",
+        "timeOfDay": "evening",
+        "featureSlug": "roppongi-premium-night"
+      },
+      {
+        "cityId": "tokyo",
+        "area": "恵比寿",
+        "title": "恵比寿ナイトデート",
+        "subtitle": "イタリアンからバーへ、大人の夜を演出",
+        "mood": "romantic",
+        "timeOfDay": "evening",
+        "featureSlug": "ebisu-night-date"
+      },
+      {
+        "cityId": "yokohama",
+        "area": "みなとみらい",
+        "title": "みなとみらいの夜景ディナーデート",
+        "subtitle": "観覧車のライトアップを眺める贅沢な夜",
+        "mood": "romantic",
+        "timeOfDay": "evening",
+        "featureSlug": null
+      },
+      {
+        "cityId": "fukuoka",
+        "area": "中洲",
+        "title": "中洲の屋台街ナイトウォーク",
+        "subtitle": "博多の夜を楽しむグルメデート",
+        "mood": "fun",
+        "timeOfDay": "evening",
+        "featureSlug": null
+      }
+    ]
+  },
+  {
+    "id": "week-03",
+    "theme": "カジュアルに楽しむ休日デート",
+    "themeEmoji": "☕",
+    "description": "気取らないのに心地いい。カフェ巡りや街歩きで自然体のふたりを楽しむプラン。",
+    "picks": [
+      {
+        "cityId": "tokyo",
+        "area": "渋谷",
+        "title": "渋谷カジュアルデート",
+        "subtitle": "気取らない雰囲気で距離が縮まる穴場2選",
+        "mood": "fun",
+        "timeOfDay": "allday",
+        "featureSlug": "shibuya-casual-date"
+      },
+      {
+        "cityId": "tokyo",
+        "area": "代官山",
+        "title": "代官山おしゃれ散歩デート",
+        "subtitle": "ヴィンテージショップとテラスカフェを巡る",
+        "mood": "relaxed",
+        "timeOfDay": "daytime",
+        "featureSlug": "daikanyama-stylish-date"
+      },
+      {
+        "cityId": "osaka",
+        "area": "中崎町",
+        "title": "中崎町レトロカフェ巡りデート",
+        "subtitle": "古民家カフェと雑貨屋を巡る大阪の穴場散策",
+        "mood": "relaxed",
+        "timeOfDay": "daytime",
+        "featureSlug": null
+      },
+      {
+        "cityId": "kanazawa",
+        "area": "ひがし茶屋街",
+        "title": "ひがし茶屋街の和スイーツデート",
+        "subtitle": "金箔ソフトとお茶屋で過ごす和の時間",
+        "mood": "relaxed",
+        "timeOfDay": "daytime",
+        "featureSlug": null
+      }
+    ]
+  },
+  {
+    "id": "week-04",
+    "theme": "大人のラグジュアリーデート",
+    "themeEmoji": "💎",
+    "description": "記念日やここぞという日に。ワンランク上の特別なデートプランをセレクト。",
+    "picks": [
+      {
+        "cityId": "tokyo",
+        "area": "銀座",
+        "title": "銀座ラグジュアリーデート",
+        "subtitle": "フレンチと名バーで過ごす洗練の夜",
+        "mood": "luxurious",
+        "timeOfDay": "evening",
+        "featureSlug": "ginza-luxury-date"
+      },
+      {
+        "cityId": "tokyo",
+        "area": "六本木",
+        "title": "六本木プレミアムナイト",
+        "subtitle": "ミシュラン料理と絶景ラウンジの特別な夜",
+        "mood": "luxurious",
+        "timeOfDay": "evening",
+        "featureSlug": "roppongi-premium-night"
+      },
+      {
+        "cityId": "kyoto",
+        "area": "祇園",
+        "title": "祇園の隠れ家懐石デート",
+        "subtitle": "花街の風情を感じる京料理の特別なひととき",
+        "mood": "luxurious",
+        "timeOfDay": "evening",
+        "featureSlug": null
+      },
+      {
+        "cityId": "kobe",
+        "area": "ハーバーランド",
+        "title": "神戸港のディナークルーズデート",
+        "subtitle": "100万ドルの夜景を船上から独り占め",
+        "mood": "luxurious",
+        "timeOfDay": "evening",
+        "featureSlug": null
+      }
+    ]
+  },
+  {
+    "id": "week-05",
+    "theme": "アクティブに過ごすデート",
+    "themeEmoji": "🏃",
+    "description": "体を動かしたり、新しい体験をしたり。ふたりの距離がぐっと縮まるアクティブなプラン。",
+    "picks": [
+      {
+        "cityId": "yokohama",
+        "area": "山下公園",
+        "title": "横浜ベイサイドウォーキングデート",
+        "subtitle": "海沿いを歩いて赤レンガ倉庫へ",
+        "mood": "fun",
+        "timeOfDay": "daytime",
+        "featureSlug": null
+      },
+      {
+        "cityId": "hiroshima",
+        "area": "宮島",
+        "title": "宮島の絶景ハイキングデート",
+        "subtitle": "厳島神社から弥山展望台の絶景パノラマへ",
+        "mood": "adventurous",
+        "timeOfDay": "daytime",
+        "featureSlug": null
+      },
+      {
+        "cityId": "sendai",
+        "area": "秋保温泉",
+        "title": "秋保温泉で癒しのデート",
+        "subtitle": "渓谷散策と温泉で過ごすリフレッシュデート",
+        "mood": "relaxed",
+        "timeOfDay": "daytime",
+        "featureSlug": null
+      },
+      {
+        "cityId": "nagoya",
+        "area": "大須",
+        "title": "大須商店街の食べ歩きデート",
+        "subtitle": "名古屋グルメとレトロな商店街散策",
+        "mood": "fun",
+        "timeOfDay": "daytime",
+        "featureSlug": null
+      }
+    ]
+  },
+  {
+    "id": "week-06",
+    "theme": "初デートにおすすめのプラン",
+    "themeEmoji": "💕",
+    "description": "緊張する初デートでも安心。会話が弾む仕掛けと程よい距離感のプランを厳選。",
+    "picks": [
+      {
+        "cityId": "tokyo",
+        "area": "表参道",
+        "title": "表参道の洗練カフェデート",
+        "subtitle": "おしゃれ空間で自然に距離が縮まる",
+        "mood": "relaxed",
+        "timeOfDay": "daytime",
+        "featureSlug": "omotesando-sophisticated-date"
+      },
+      {
+        "cityId": "tokyo",
+        "area": "渋谷",
+        "title": "渋谷カジュアル初デート",
+        "subtitle": "気負わずに過ごせる穴場カフェ&バー",
+        "mood": "fun",
+        "timeOfDay": "allday",
+        "featureSlug": "shibuya-casual-date"
+      },
+      {
+        "cityId": "osaka",
+        "area": "堀江",
+        "title": "堀江のおしゃれカフェ初デート",
+        "subtitle": "大阪のブルックリンで過ごすリラックスタイム",
+        "mood": "relaxed",
+        "timeOfDay": "daytime",
+        "featureSlug": null
+      },
+      {
+        "cityId": "fukuoka",
+        "area": "大名",
+        "title": "大名のカフェホッピング初デート",
+        "subtitle": "天神エリアの個性派カフェを巡る",
+        "mood": "fun",
+        "timeOfDay": "daytime",
+        "featureSlug": null
+      }
+    ]
+  },
+  {
+    "id": "week-07",
+    "theme": "グルメを満喫するデート",
+    "themeEmoji": "🍽️",
+    "description": "おいしいものを一緒に食べると、会話も自然に弾む。食がテーマの王道デートプラン。",
+    "picks": [
+      {
+        "cityId": "tokyo",
+        "area": "恵比寿",
+        "title": "恵比寿イタリアン&バーデート",
+        "subtitle": "隠れ家イタリアンからムーディーバーへ",
+        "mood": "romantic",
+        "timeOfDay": "evening",
+        "featureSlug": "ebisu-night-date"
+      },
+      {
+        "cityId": "tokyo",
+        "area": "中目黒",
+        "title": "中目黒ビストロデート",
+        "subtitle": "本格フレンチとナチュラルワインの夕べ",
+        "mood": "romantic",
+        "timeOfDay": "evening",
+        "featureSlug": "nakameguro-canal-date"
+      },
+      {
+        "cityId": "osaka",
+        "area": "北新地",
+        "title": "北新地の大人のグルメデート",
+        "subtitle": "ミシュラン掲載店で過ごす大阪の夜",
+        "mood": "luxurious",
+        "timeOfDay": "evening",
+        "featureSlug": null
+      },
+      {
+        "cityId": "kanazawa",
+        "area": "近江町",
+        "title": "近江町市場の海鮮グルメデート",
+        "subtitle": "新鮮な海の幸で金沢の食を堪能",
+        "mood": "fun",
+        "timeOfDay": "daytime",
+        "featureSlug": null
+      }
+    ]
+  },
+  {
+    "id": "week-08",
+    "theme": "アートと文化を楽しむデート",
+    "themeEmoji": "🎨",
+    "description": "美術館や歴史スポットを巡って、知的好奇心が刺激されるデートプランを。",
+    "picks": [
+      {
+        "cityId": "tokyo",
+        "area": "代官山",
+        "title": "代官山アート&カフェデート",
+        "subtitle": "蔦屋書店とギャラリーを巡る感度高めの休日",
+        "mood": "relaxed",
+        "timeOfDay": "daytime",
+        "featureSlug": "daikanyama-stylish-date"
+      },
+      {
+        "cityId": "kanazawa",
+        "area": "兼六園周辺",
+        "title": "21世紀美術館&兼六園デート",
+        "subtitle": "現代アートと日本庭園の美を巡る",
+        "mood": "relaxed",
+        "timeOfDay": "daytime",
+        "featureSlug": null
+      },
+      {
+        "cityId": "hiroshima",
+        "area": "本通り",
+        "title": "広島の平和と文化を巡るデート",
+        "subtitle": "平和記念公園から本通りの街歩きへ",
+        "mood": "relaxed",
+        "timeOfDay": "daytime",
+        "featureSlug": null
+      },
+      {
+        "cityId": "sendai",
+        "area": "定禅寺通",
+        "title": "仙台のケヤキ並木アートデート",
+        "subtitle": "定禅寺通りの彫刻を巡る杜の都散策",
+        "mood": "relaxed",
+        "timeOfDay": "daytime",
+        "featureSlug": null
+      }
+    ]
+  }
+]

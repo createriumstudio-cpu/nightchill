@@ -4,6 +4,7 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { CITIES, getCityById, CITY_IDS } from "@/lib/cities";
+import { WeeklyPicksForCity } from "@/components/WeeklyPicks";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL || "https://nightchill-sr5g.vercel.app";
@@ -190,6 +191,9 @@ export default async function CityLandingPage({ params }: PageProps) {
           </div>
         </div>
       </section>
+
+      {/* Weekly Picks for this city */}
+      <WeeklyPicksForCity cityId={city.id} />
 
       {/* Features Link */}
       <section className="px-4 py-12">
