@@ -8,7 +8,7 @@
 import featuresData from "@/data/features.json";
 import { getDb } from "./db";
 import { features as featuresTable } from "./schema";
-import { eq } from "drizzle-orm";
+import { eq, desc, sql } from "drizzle-orm";
 
 export interface FeaturedSpot {
   name: string;
