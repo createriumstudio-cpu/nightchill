@@ -382,6 +382,7 @@ function FallbackVenueCard({ venueName, index }: { venueName: string; index: num
 // 俯瞰マップ (Static Map API)
 // ============================================================
 function OverviewMap({ venues }: { venues: VenueFactData[] }) {
+  const [mapError, setMapError] = useState(false);
   const validVenues = venues.filter(v => v.lat !== 0 && v.lng !== 0);
   if (validVenues.length === 0) return null;
 
@@ -395,15 +396,27 @@ function OverviewMap({ venues }: { venues: VenueFactData[] }) {
         🗺️ デートルート俯瞰マップ
       </h2>
       <div className="overflow-hidden rounded-2xl border border-border">
-        <img
-          src={overviewStaticUrl}
-          alt="デートプラン全体の地図"
-          className="w-full h-[300px] object-cover"
-          loading="lazy"
-          onError={(e) => {
-            (e.target as HTMLImageElement).style.display = "none";
-          }}
-        />
+        {mapError ? (
+          <div className="flex flex-col items-center justify-center h-[300px] bg-surface text-center px-4">
+            <p className="text-muted text-sm mb-3">地図を読み込めませんでした</p>
+            <a
+              href={googleMapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+            >
+              📍 Google Maps でルートを確認
+            </a>
+          </div>
+        ) : (
+          <img
+            src={overviewStaticUrl}
+            alt="デートプラン全体の地図"
+            className="w-full h-[300px] object-cover"
+            loading="lazy"
+            onError={() => setMapError(true)}
+          />
+        )}
       </div>
       <div className="mt-2 flex flex-wrap gap-2 justify-center">
         {validVenues.map((v, i) => (
@@ -415,14 +428,16 @@ function OverviewMap({ venues }: { venues: VenueFactData[] }) {
           </span>
         ))}
       </div>
-      <a
-        href={googleMapsUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-3 block text-center text-sm text-primary hover:underline"
-      >
-        📍 Google Maps でルートを確認
-      </a>
+      {!mapError && (
+        <a
+          href={googleMapsUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-3 block text-center text-sm text-primary hover:underline"
+        >
+          📍 Google Maps でルートを確認
+        </a>
+      )}
     </section>
   );
 }
