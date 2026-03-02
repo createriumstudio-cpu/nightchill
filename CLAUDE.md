@@ -18,7 +18,7 @@ npm run dev, npm run build, npm run lint, npm test, npx tsc --noEmit
 
 ## Architecture
 
-src/app/ — Next.js App Router (layout.tsx, page.tsx, plan/, results/, features/, error.tsx, not-found.tsx, api/plan/, globals.css)
+src/app/ — Next.js App Router (layout.tsx, page.tsx, [city]/page.tsx, [city]/features/page.tsx, plan/, results/, features/, error.tsx, not-found.tsx, api/plan/, globals.css)
 src/components/ — Header.tsx, Footer.tsx
 src/lib/ — types.ts, ai-planner.ts, planner.ts, cities.ts, env.ts, google-places.ts, google-maps.ts, plan-encoder.ts, contextual-pr.ts
 src/data/ — features.json（特集データ）
@@ -34,6 +34,15 @@ src/data/ — features.json（特集データ）
 - フォームで都市選択 → エリアプリセットが動的に切替
 - PlanRequest.city でAIプランナー・テンプレートプランナーに都市情報を渡す
 - 都市追加: cities.ts の CITIES 配列に CityData を追加するだけ
+
+## URL階層 (Phase 2)
+- / — トップページ
+- /[city] — 都市別ランディングページ（10都市分、generateStaticParams）
+- /[city]/features — 都市別特集一覧ページ（features.jsonのareaフィルタ）
+- /plan?city=xxx — デートプラン作成（都市プリセレクト対応）
+- /features — 全特集一覧
+- /features/[slug] — 特集記事詳細
+- sitemap.ts: 全都市LP + 全都市features + feature記事詳細を自動生成
 
 ## AI生成フロー (ai-planner.ts)
 
@@ -112,6 +121,12 @@ GitHub Actions: Lint → Type check → Test → Build
 - 原因: SocialEmbed, UgcSection, FeatureSpotEmbed でSNS埋め込みを提供していた
 - 対策: UGC/SNS関連コンポーネント・機能を全削除（PR #84）
 - 禁止: SNS埋め込み・外部リンク導線の再追加。features.jsonのinstagramHashtag/tiktokHashtag/embedsフィールドも削除済み
+
+### 地雷7: GitHub Web Editor の CodeMirror autocomplete
+- 症状: JSXの閉じタグが重複する（例: </Link>Link>）
+- 原因: GitHub Web Editor (github.com/.../edit/) でTSXファイルを編集すると、CodeMirrorのautocompleteが閉じタグ名を重複挿入する
+- 対策: (1) execCommand('insertText') で一括挿入 (2) Clipboard API + cmd+v でペースト (3) cmd+a → Backspace で全選択削除してから貼り付け
+- 禁止: GitHub Web Editor で type アクションを使ったJSX/TSXの直接入力
 
 ## デバッグチートシート
 
