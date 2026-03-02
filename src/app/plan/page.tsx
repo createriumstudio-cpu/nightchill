@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState, useRef, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import type {
   Activity,
   Relationship,
@@ -21,7 +21,16 @@ import { CITIES, getCityById } from "@/lib/cities";
 const TOTAL_STEPS = 5;
 
 export default function PlanPage() {
+  return (
+    <Suspense>
+      <PlanPageContent />
+    </Suspense>
+  );
+}
+
+function PlanPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const formRef = useRef<HTMLDivElement>(null);
 
   // Step
@@ -57,6 +66,21 @@ export default function PlanPage() {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [step]);
+
+  // クエリパラメータから都市・エリアを事前選択
+  useEffect(() => {
+    const qCity = searchParams.get("city");
+    const qArea = searchParams.get("area");
+
+    if (qCity && getCityById(qCity)) {
+      setCityId(qCity);
+      if (qArea) {
+        setLocations([qArea]);
+      }
+      // 都市が事前選択されている場合、Step 2（どこで？）からスタート
+      setStep(2);
+    }
+  }, [searchParams]);
 
   const toggleLocation = (area: string) => {
     setLocations((prev) =>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import Script from "next/script";
 
 interface UgcPost {
@@ -171,9 +172,9 @@ export default function AdminUgcPage() {
             </p>
           </div>
           <div className="flex gap-2">
-            <a href="/admin" className="px-4 py-2 bg-gray-800 rounded-lg text-sm hover:bg-gray-700">
+            <Link href="/admin" className="px-4 py-2 bg-gray-800 rounded-lg text-sm hover:bg-gray-700">
               ← 管理画面
-            </a>
+            </Link>
             <button
               onClick={() => setShowAddForm(!showAddForm)}
               className="px-4 py-2 bg-blue-600 rounded-lg text-sm hover:bg-blue-500 font-medium"
