@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { Suspense, useState, useRef, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type {
   Activity,
@@ -21,6 +21,14 @@ import { CITIES, getCityById } from "@/lib/cities";
 const TOTAL_STEPS = 5;
 
 export default function PlanPage() {
+  return (
+    <Suspense>
+      <PlanPageContent />
+    </Suspense>
+  );
+}
+
+function PlanPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const formRef = useRef<HTMLDivElement>(null);
