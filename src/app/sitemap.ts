@@ -103,5 +103,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.9,
   }));
 
-  return [...staticPages, ...cityPages, ...featurePages, ...enStaticPages, ...enFeaturePages];
+  // City features pages
+  const cityFeaturesPages: MetadataRoute.Sitemap = CITY_IDS.map((id) => ({
+    url: `${baseUrl}/${id}/features`,
+    lastModified: new Date("2026-03-03"),
+    changeFrequency: "weekly" as const,
+    priority: 0.8,
+  }));
+
+  return [
+    ...staticPages,
+    ...cityPages,
+    ...cityFeaturesPages,
+    ...featurePages,
+    ...enStaticPages,
+    ...enFeaturePages,
+  ];
 }
