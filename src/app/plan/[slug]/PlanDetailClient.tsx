@@ -472,11 +472,11 @@ export default function PlanDetailClient({
   const [copied, setCopied] = useState(false);
   const [urlCopied, setUrlCopied] = useState(false);
   const [timelineExpanded, setTimelineExpanded] = useState(false);
+  const [shareUrl, setShareUrl] = useState("");
 
-  const shareUrl =
-    typeof window !== "undefined"
-      ? `${window.location.origin}/plan/${slug}`
-      : "";
+    useEffect(() => {
+          setShareUrl(`${window.location.origin}/plan/${slug}`);
+    }, [slug]);
 
   const handleCopyText = useCallback(async () => {
     try {
