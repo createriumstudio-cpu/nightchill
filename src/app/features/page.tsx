@@ -1,15 +1,20 @@
 import Link from "next/link";
 import Header from "@/components/Header";
-import { getAllFeatures } from "@/lib/features";
-
+import { getAllFeatures, getLatestWeeklyFeatures } from "@/lib/features";
+import type { FeaturedArticle } from "@/lib/features";
 import { Metadata } from "next";
 import Footer from "@/components/Footer";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://nightchill-sr5g.vercel.app";
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://nightchill-sr5g.vercel.app";
+
+/** ISR: 1時間ごとに再生成（週次記事の反映用） */
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "特集 | futatabito",
-  description: "今話題のデートスポットを、プロの視点で厳選したデートスポットを紹介。恵比寿・渋谷・表参道・六本木・銀座・中目黒・代官山のエリア別デートガイド。",
+  description:
+    "今話題のデートスポットを、プロの視点で厳選したデートスポットを紹介。恵比寿・渋谷・表参道・六本木・銀座・中目黒・代官山のエリア別デートガイド。",
   keywords: [
     "東京 デート特集",
     "デートスポット まとめ",
@@ -26,7 +31,8 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "デート特集一覧 | futatabito",
-    description: "今話題のデートスポットを、プロの視点で厳選したデートスポットを紹介。エリア別デートガイド。",
+    description:
+      "今話題のデートスポットを、プロの視点で厳選したデートスポットを紹介。エリア別デートガイド。",
     url: `${siteUrl}/features`,
     siteName: "futatabito",
     locale: "ja_JP",
@@ -43,21 +49,99 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "デート特集一覧 | futatabito",
-    description: "今話題のデートスポットを、プロの視点で厳選したデートスポットを紹介",
-    images: [`${siteUrl}/api/og?${new URLSearchParams({ title: "デート特集一覧", subtitle: "エリア別の厳選デートスポットガイド" }).toString()}`],
+    description:
+      "今話題のデートスポットを、プロの視点で厳選したデートスポットを紹介",
+    images: [
+      `${siteUrl}/api/og?${new URLSearchParams({ title: "デート特集一覧", subtitle: "エリア別の厳選デートスポットガイド" }).toString()}`,
+    ],
   },
 };
 
+function FeatureCard({ feature }: { feature: FeaturedArticle }) {
+  return (
+    <Link
+      key={feature.slug}
+      href={`/features/${feature.slug}`}
+      className="group overflow-hidden rounded-2xl border border-border bg-surface transition-all hover:shadow-xl hover:border-primary/30"
+    >
+      {feature.heroImage ? (
+        <div className="relative h-48 w-full overflow-hidden">
+          <img
+            src={feature.heroImage}
+            alt={feature.title}
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+          <div className="absolute bottom-4 left-4">
+            <span className="text-xs font-medium text-primary-light bg-black/40 px-2 py-1 rounded-full">
+              {feature.area}エリア
+            </span>
+            {feature.dateGuide && (
+              <span className="text-xs font-medium text-orange-300 bg-black/40 px-2 py-1 rounded-full ml-1">
+                {feature.dateGuide.areaTypeLabel}
+              </span>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div className="flex h-48 items-center justify-center bg-surface-alt">
+          <span className="text-6xl">{feature.heroEmoji}</span>
+        </div>
+      )}
+      <div className="p-5">
+        <h2 className="text-xl font-bold group-hover:text-primary transition-colors">
+          {feature.title}
+        </h2>
+        <p className="mt-2 text-sm text-muted line-clamp-2">
+          {feature.subtitle}
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {feature.tags.slice(0, 3).map((tag) => (
+            <span
+              key={tag}
+              className="rounded-full bg-surface-alt px-2.5 py-0.5 text-xs text-muted"
+            >
+              #{tag}
+            </span>
+          ))}
+        </div>
+        <div className="mt-4 flex items-center gap-1 text-xs text-muted">
+          <span>📍</span>
+          <span>{feature.spots.map((s) => s.name).join(" → ")}</span>
+        </div>
+        <div className="mt-4 flex items-center justify-between text-xs text-muted">
+          <span>
+            {new Date(feature.publishedAt).toLocaleDateString("ja-JP", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}{" "}
+            公開
+          </span>
+          <span className="font-medium text-primary group-hover:translate-x-1 transition-transform">
+            詳しく見る →
+          </span>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
 export default async function FeaturesPage() {
-  const features = await getAllFeatures();
+  const [allFeatures, weeklyFeatures] = await Promise.all([
+    getAllFeatures(),
+    getLatestWeeklyFeatures(6),
+  ]);
+
+  const staticFeatures = allFeatures.filter((f) => !f.isWeekly);
 
   const itemListLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: "デート特集一覧",
     description: "エリア別の厳選デートスポットガイド",
-    numberOfItems: features.length,
-    itemListElement: features.map((feature, index) => ({
+    numberOfItems: allFeatures.length,
+    itemListElement: allFeatures.map((feature, index) => ({
       "@type": "ListItem",
       position: index + 1,
       name: feature.title,
@@ -73,7 +157,6 @@ export default async function FeaturesPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }}
       />
       <div className="min-h-screen bg-background">
-        {/* Hero */}
         <section className="px-6 pt-28 pb-12 text-center">
           <h1 className="text-4xl font-bold md:text-5xl">
             <span className="mr-2">🔥</span>デート特集
@@ -83,84 +166,73 @@ export default async function FeaturesPage() {
           </p>
         </section>
 
-        {/* Feature Cards */}
-        <section className="mx-auto max-w-4xl px-6 pb-16">
-          <div className="grid gap-8 md:grid-cols-2">
-            {features.map((feature) => (
-              <Link
-                key={feature.slug}
-                href={`/features/${feature.slug}`}
-                className="group overflow-hidden rounded-2xl border border-border bg-surface transition-all hover:shadow-xl hover:border-primary/30"
-              >
-                {/* Hero Image */}
-                {feature.heroImage ? (
-                  <div className="relative h-48 w-full overflow-hidden">
-                    <img
-                      src={feature.heroImage}
-                      alt={feature.title}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                    <div className="absolute bottom-4 left-4">
-                      <span className="text-xs font-medium text-primary-light bg-black/40 px-2 py-1 rounded-full">
-                        {feature.area}エリア
+        {weeklyFeatures.length > 0 && (
+          <section className="mx-auto max-w-4xl px-6 pb-12">
+            <div className="mb-6 flex items-center gap-2">
+              <span className="text-2xl">✨</span>
+              <h2 className="text-2xl font-bold">今週のおすすめデートプラン</h2>
+              <span className="ml-2 rounded-full bg-primary/10 px-3 py-0.5 text-xs font-medium text-primary">
+                NEW
+              </span>
+            </div>
+            <p className="mb-6 text-sm text-muted">
+              毎週月曜に更新。各都市の最新スポットとトレンドをもとに自動生成されたデートプランです。
+            </p>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {weeklyFeatures.map((feature) => (
+                <Link
+                  key={feature.slug}
+                  href={`/features/${feature.slug}`}
+                  className="group overflow-hidden rounded-2xl border border-border bg-surface transition-all hover:shadow-xl hover:border-primary/30"
+                >
+                  <div className="flex h-32 items-center justify-center bg-surface-alt">
+                    <span className="text-5xl">{feature.heroEmoji}</span>
+                  </div>
+                  <div className="p-4">
+                    <div className="mb-1 flex items-center gap-1.5">
+                      <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-primary">
+                        {feature.area}
                       </span>
-                      {feature.dateGuide && (
-                        <span className="text-xs font-medium text-orange-300 bg-black/40 px-2 py-1 rounded-full ml-1">
-                          {feature.dateGuide.areaTypeLabel}
-                        </span>
-                      )}
+                    </div>
+                    <h3 className="text-sm font-bold leading-tight group-hover:text-primary transition-colors line-clamp-2">
+                      {feature.title}
+                    </h3>
+                    <p className="mt-1 text-xs text-muted line-clamp-1">
+                      {feature.subtitle}
+                    </p>
+                    <div className="mt-2 flex items-center gap-1 text-[10px] text-muted">
+                      <span>📍</span>
+                      <span className="line-clamp-1">
+                        {feature.spots
+                          .slice(0, 3)
+                          .map((s) => s.name)
+                          .join(" → ")}
+                      </span>
+                    </div>
+                    <div className="mt-2 text-right text-xs font-medium text-primary group-hover:translate-x-1 transition-transform">
+                      詳しく見る →
                     </div>
                   </div>
-                ) : (
-                  <div className="flex h-48 items-center justify-center bg-surface-alt">
-                    <span className="text-6xl">{feature.heroEmoji}</span>
-                  </div>
-                )}
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
-                {/* Card Body */}
-                <div className="p-5">
-                  <h2 className="text-xl font-bold group-hover:text-primary transition-colors">
-                    {feature.title}
-                  </h2>
-                  <p className="mt-2 text-sm text-muted line-clamp-2">
-                    {feature.subtitle}
-                  </p>
-
-                  {/* Tags */}
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {feature.tags.slice(0, 3).map((tag) => (
-                      <span
-                        key={tag}
-                        className="rounded-full bg-surface-alt px-2.5 py-0.5 text-xs text-muted"
-                      >
-                        #{tag}
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* Spots Preview */}
-                  <div className="mt-4 flex items-center gap-1 text-xs text-muted">
-                    <span>📍</span>
-                    <span>
-                      {feature.spots.map((s) => s.name).join(" → ")}
-                    </span>
-                  </div>
-
-                  {/* Footer */}
-                  <div className="mt-4 flex items-center justify-between text-xs text-muted">
-                    <span>{new Date(feature.publishedAt).toLocaleDateString("ja-JP", { year: "numeric", month: "long", day: "numeric" })} 公開</span>
-                    <span className="font-medium text-primary group-hover:translate-x-1 transition-transform">
-                      詳しく見る →
-                    </span>
-                  </div>
-                </div>
-              </Link>
+        <section className="mx-auto max-w-4xl px-6 pb-16">
+          {weeklyFeatures.length > 0 && (
+            <div className="mb-6 flex items-center gap-2">
+              <span className="text-2xl">📖</span>
+              <h2 className="text-2xl font-bold">定番エリアガイド</h2>
+            </div>
+          )}
+          <div className="grid gap-8 md:grid-cols-2">
+            {staticFeatures.map((feature) => (
+              <FeatureCard key={feature.slug} feature={feature} />
             ))}
           </div>
         </section>
 
-        {/* CTA */}
         <section className="px-6 pb-20 text-center">
           <p className="text-muted">
             特集にないエリアやシーンも、あなただけのデートプランを作れます
