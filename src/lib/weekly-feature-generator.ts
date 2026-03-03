@@ -61,6 +61,7 @@ interface GeneratedArticle {
     genre: string;
     description: string;
     tip: string;
+    photoUrl?: string;
   }>;
 }
 
@@ -91,6 +92,33 @@ const CATEGORY_CONFIG: Record<WeeklyCategory, {
     emoji: "💑",
   },
 };
+
+/**
+ * Places photos[0].name から写真URLを構築する。
+ * Places API (New) の Photo Media エンドポイント形式。
+ */
+function buildPhotoUrl(photoName: string, apiKey: string): string {
+  return `${PLACES_API_BASE}/${photoName}/media?maxHeightPx=400&maxWidthPx=400&key=${apiKey}`;
+}
+
+/**
+ * Places API結果からスポット名→photoUrl のマップを構築する。
+ */
+function buildPhotoUrlMap(
+  spots: NonNullable<PlacesTextSearchResponse["places"]>,
+): Map<string, string> {
+  const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+  const map = new Map<string, string>();
+  if (!apiKey) return map;
+
+  for (const spot of spots) {
+    const name = spot.displayName?.text;
+    if (name && spot.photos && spot.photos.length > 0) {
+      map.set(name, buildPhotoUrl(spot.photos[0].name, apiKey));
+    }
+  }
+  return map;
+}
 
 /** 季節判定 */
 function getCurrentSeason(): string {
@@ -146,6 +174,7 @@ async function searchTrendingSpots(
             "places.location",
             "places.rating",
             "places.types",
+            "places.photos",
             "places.googleMapsUri",
             "places.editorialSummary",
           ].join(","),
@@ -267,10 +296,18 @@ JSONのみを出力し、他のテキストは含めないでください。`,
     const parsed = JSON.parse(jsonMatch[0]) as Omit<GeneratedArticle, "slug" | "area">;
     const slug = `${city.id}-${category}-${weekBatch.toLowerCase()}`;
 
+    // Places APIの写真URLをスポットに付与
+    const photoMap = buildPhotoUrlMap(spots);
+    const enrichedSpots = parsed.spots.map((s) => ({
+      ...s,
+      photoUrl: photoMap.get(s.name) ?? undefined,
+    }));
+
     return {
       ...parsed,
       slug,
       area: city.name,
+      spots: enrichedSpots,
     };
   } catch (error) {
     console.error("[weekly-gen] AI generation failed:", error);
@@ -292,6 +329,8 @@ function generateTemplateArticle(
   const season = getCurrentSeason();
   const slug = `${city.id}-${category}-${weekBatch.toLowerCase()}`;
 
+  const photoMap = buildPhotoUrlMap(spots);
+
   return {
     slug,
     title: `${season}の${city.name}デート ${config.label}`,
@@ -300,13 +339,17 @@ function generateTemplateArticle(
     area: city.name,
     tags: [city.name, season, "デート", category],
     heroEmoji: config.emoji,
-    spots: spots.slice(0, 4).map((s) => ({
-      name: s.displayName?.text ?? "スポット",
-      area: s.formattedAddress?.split(" ")[0] ?? city.name,
-      genre: guessGenre(s.types ?? []),
-      description: `${city.name}で人気の${s.displayName?.text ?? "スポット"}。評価${s.rating ?? "-"}`,
-      tip: "予約がおすすめ。ゆっくり2時間ほど楽しめます。",
-    })),
+    spots: spots.slice(0, 4).map((s) => {
+      const spotName = s.displayName?.text ?? "スポット";
+      return {
+        name: spotName,
+        area: s.formattedAddress?.split(" ")[0] ?? city.name,
+        genre: guessGenre(s.types ?? []),
+        description: `${city.name}で人気の${spotName}。評価${s.rating ?? "-"}`,
+        tip: "予約がおすすめ。ゆっくり2時間ほど楽しめます。",
+        photoUrl: photoMap.get(spotName) ?? undefined,
+      };
+    }),
   };
 }
 
