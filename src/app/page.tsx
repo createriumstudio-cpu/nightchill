@@ -1,10 +1,14 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
 import FeaturedPicks from "@/components/FeaturedPicks";
+import WeeklyPicksSection from "@/components/WeeklyPicksSection";
 import { CITIES } from "@/lib/cities";
+
+export const revalidate = 3600;
 
 const features = [
   {
@@ -84,26 +88,64 @@ const occasions = [
   { label: "仲直り", emoji: "🤝" },
 ];
 
+function WeeklyPicksLoading() {
+  return (
+    <section className="py-16 px-4">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 mb-4">
+            <span className="text-sm">✨</span>
+            <span className="text-xs font-semibold text-primary tracking-wider uppercase">
+              Weekly Update
+            </span>
+          </div>
+          <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
+            今週のおすすめデートプラン
+          </h2>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="rounded-2xl border border-border bg-surface p-5 animate-pulse"
+            >
+              <div className="flex items-start gap-3 mb-3">
+                <div className="w-10 h-10 rounded-lg bg-muted/20 shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 w-12 rounded bg-muted/20" />
+                  <div className="h-4 w-full rounded bg-muted/20" />
+                </div>
+              </div>
+              <div className="h-3 w-3/4 rounded bg-muted/20 mb-2" />
+              <div className="h-3 w-1/2 rounded bg-muted/20" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-        <JsonLd type="website" />
-        <JsonLd type="organization" />
+      <JsonLd type="website" />
+      <JsonLd type="organization" />
 
       {/* Hero */}
       <section className="relative flex min-h-[80vh] md:min-h-screen items-end justify-center overflow-hidden px-4 md:px-6 pb-12 md:pb-24">
         <div className="absolute inset-0">
-            <Image
-              src="/images/shibuya-sky-date-hero.png"
-              alt="デートシーン"
-              fill
-              className="object-cover scale-110 object-[80%_80%] md:object-center"
-              sizes="100vw"
-              priority
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/50 to-black/80" />
-          </div>
+          <Image
+            src="/images/shibuya-sky-date-hero.png"
+            alt="デートシーン"
+            fill
+            className="object-cover scale-110 object-[80%_80%] md:object-center"
+            sizes="100vw"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/50 to-black/80" />
+        </div>
         <div className="relative mx-auto max-w-4xl text-center drop-shadow-lg">
           <p className="mb-2 md:mb-4 text-xs md:text-sm font-semibold tracking-widest text-[#c9a96e] uppercase [text-shadow:_0_1px_6px_rgba(0,0,0,0.6)]">
             デートの&ldquo;どこ行く？&rdquo;を、30秒で解決。
@@ -160,9 +202,13 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Weekly Picks - Dynamic from DB */}
+      <Suspense fallback={<WeeklyPicksLoading />}>
+        <WeeklyPicksSection />
+      </Suspense>
 
-        {/* Featured Picks */}
-        <FeaturedPicks />
+      {/* Featured Picks */}
+      <FeaturedPicks />
 
       {/* City Links */}
       <section className="px-6 py-16">
@@ -211,7 +257,6 @@ export default function Home() {
               場所を並べるだけの旅行サイトとは違います。&ldquo;ふたりの時間の流れ&rdquo;を設計します。
             </p>
           </div>
-
           <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {features.map((feature) => (
               <div
@@ -240,7 +285,6 @@ export default function Home() {
               迷ったら、30秒だけください
             </h2>
           </div>
-
           <div className="mt-16 space-y-12">
             {steps.map((step) => (
               <div key={step.number} className="flex gap-6">
@@ -254,7 +298,6 @@ export default function Home() {
               </div>
             ))}
           </div>
-
           <div className="mt-12 text-center">
             <Link
               href="/plan"
@@ -277,7 +320,6 @@ export default function Home() {
               &ldquo;助かった&rdquo;の声
             </h2>
           </div>
-
           <div className="mt-16 grid gap-8 sm:grid-cols-3">
             {testimonials.map((t) => (
               <div
