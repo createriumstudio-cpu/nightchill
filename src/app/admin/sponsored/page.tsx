@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 
 interface SponsoredSpot {
@@ -110,7 +111,7 @@ export default function AdminSponsoredPage() {
                 {/\.(mp4|webm|mov)$/i.test(imageUrl) ? (
                   <video src={imageUrl} className="w-full h-32 object-cover rounded" muted loop playsInline autoPlay />
                 ) : (
-                  <img src={imageUrl} alt="Preview" className="w-full h-32 object-cover rounded" />
+                  <Image src={imageUrl} alt="Preview" className="w-full h-32 object-cover rounded" width={800} height={128} unoptimized />
                 )}
               </div>
             )}
