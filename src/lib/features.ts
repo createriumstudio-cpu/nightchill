@@ -18,6 +18,7 @@ export interface FeaturedSpot {
   genre: string;
   description: string;
   tip: string;
+  photoUrl?: string;
 }
 
 export interface DateGuide {

@@ -179,6 +179,14 @@ function FeatureCard({ feature }: { feature: FeaturedArticle }) {
             </span>
           </div>
         </div>
+      ) : feature.spots[0]?.photoUrl ? (
+        <div className="h-48 w-full overflow-hidden">
+          <img
+            src={feature.spots[0].photoUrl}
+            alt={feature.spots[0].name}
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        </div>
       ) : (
         <div className="flex h-48 items-center justify-center bg-surface-alt">
           <span className="text-6xl">{feature.heroEmoji}</span>

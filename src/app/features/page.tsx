@@ -12,7 +12,7 @@ const siteUrl =
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "特集 | futatabito",
+  title: "デート特集 | futatabito",
   description:
     "今話題のデートスポットを、プロの視点で厳選したデートスポットを紹介。恵比寿・渋谷・表参道・六本木・銀座・中目黒・代官山のエリア別デートガイド。",
   keywords: [
@@ -82,6 +82,14 @@ function FeatureCard({ feature }: { feature: FeaturedArticle }) {
               </span>
             )}
           </div>
+        </div>
+      ) : feature.spots[0]?.photoUrl ? (
+        <div className="h-48 w-full overflow-hidden">
+          <img
+            src={feature.spots[0].photoUrl}
+            alt={feature.spots[0].name}
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
         </div>
       ) : (
         <div className="flex h-48 items-center justify-center bg-surface-alt">
@@ -185,9 +193,19 @@ export default async function FeaturesPage() {
                   href={`/features/${feature.slug}`}
                   className="group overflow-hidden rounded-2xl border border-border bg-surface transition-all hover:shadow-xl hover:border-primary/30"
                 >
-                  <div className="flex h-32 items-center justify-center bg-surface-alt">
-                    <span className="text-5xl">{feature.heroEmoji}</span>
-                  </div>
+                  {feature.spots[0]?.photoUrl ? (
+                    <div className="h-32 w-full overflow-hidden">
+                      <img
+                        src={feature.spots[0].photoUrl}
+                        alt={feature.spots[0].name}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex h-32 items-center justify-center bg-surface-alt">
+                      <span className="text-5xl">{feature.heroEmoji}</span>
+                    </div>
+                  )}
                   <div className="p-4">
                     <div className="mb-1 flex items-center gap-1.5">
                       <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-primary">
