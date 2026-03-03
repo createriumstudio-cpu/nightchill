@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { getFeatureBySlug, getAllFeatures } from "@/lib/features";
 import Header from "@/components/Header";
 import { SpotPhoto } from "@/components/SpotPhoto";
@@ -177,10 +178,12 @@ export default async function FeatureDetailPage({ params }: PageProps) {
             </Link>
             {feature.heroImage ? (
               <div className="relative w-full h-48 md:h-56 rounded-2xl overflow-hidden mb-4">
-                <img
+                <Image
                   src={feature.heroImage}
                   alt={feature.title}
-                  className="w-full h-full object-cover"
+                  className="object-cover"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 768px"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-gray-950/60 to-transparent" />
               </div>

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { type DatePlan } from "@/lib/types";
@@ -134,11 +135,12 @@ function VenueCard({
       {photoUrl && (
         <a href={gbpUrl} target="_blank" rel="noopener noreferrer" className="block relative group">
           <div className="relative h-48 w-full overflow-hidden">
-            <img
+            <Image
               src={photoUrl}
               alt={`${venue.name} の写真`}
-              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-              loading="lazy"
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              fill
+              sizes="(max-width: 768px) 100vw, 672px"
             />
             <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/10" />
             {venue.rating !== null && (
@@ -305,11 +307,12 @@ function FallbackVenueCard({ venueName, index }: { venueName: string; index: num
         <div className="mt-3 rounded-xl border border-border bg-surface overflow-hidden">
           <a href={googleMapsUri || "#"} target="_blank" rel="noopener noreferrer" className="block relative group">
             <div className="relative h-48 w-full overflow-hidden">
-              <img
+              <Image
                 src={photoUri}
                 alt={`${venueName} の写真`}
-                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                loading="lazy"
+                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                fill
+                sizes="(max-width: 768px) 100vw, 672px"
               />
               <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/10" />
             </div>
@@ -409,13 +412,16 @@ function OverviewMap({ venues }: { venues: VenueFactData[] }) {
             </a>
           </div>
         ) : (
-          <img
-            src={overviewStaticUrl}
-            alt="デートプラン全体の地図"
-            className="w-full h-[300px] object-cover"
-            loading="lazy"
-            onError={() => setMapError(true)}
-          />
+          <div className="relative w-full h-[300px]">
+            <Image
+              src={overviewStaticUrl}
+              alt="デートプラン全体の地図"
+              className="object-cover"
+              fill
+              sizes="(max-width: 768px) 100vw, 672px"
+              onError={() => setMapError(true)}
+            />
+          </div>
         )}
       </div>
       <div className="mt-2 flex flex-wrap gap-2 justify-center">

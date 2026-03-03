@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 interface SpotPhotoProps {
   spotName: string;
@@ -43,11 +44,12 @@ export function SpotPhoto({ spotName, area }: SpotPhotoProps) {
 
   return (
     <div className="relative w-full h-48 rounded-lg overflow-hidden mb-4">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      <Image
         src={photoUri}
         alt={`${spotName}の写真`}
-        className="w-full h-full object-cover"
+        className="object-cover"
+        fill
+        sizes="(max-width: 768px) 100vw, 768px"
       />
       {/* Attribution overlay – compliant with Google Maps Platform policies */}
       <div className="absolute bottom-1 right-2 text-xs text-white/70 bg-black/30 px-1 rounded">

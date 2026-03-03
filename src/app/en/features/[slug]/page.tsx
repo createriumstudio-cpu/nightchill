@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { getFeatureBySlug, getAllFeatures } from "@/lib/features";
 import { featureTranslations, siteUrl, uiTranslations } from "@/lib/i18n";
 import Header from "@/components/Header";
@@ -171,10 +172,12 @@ export default async function EnglishFeatureDetailPage({ params }: PageProps) {
             </Link>
             {feature.heroImage && (
               <div className="relative w-full h-48 md:h-56 rounded-2xl overflow-hidden mb-4">
-                <img
+                <Image
                   src={feature.heroImage}
                   alt={en.title}
-                  className="w-full h-full object-cover"
+                  className="object-cover"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 768px"
                 />
               </div>
             )}
