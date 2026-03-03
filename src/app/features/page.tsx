@@ -13,7 +13,7 @@ const siteUrl =
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "デート特集 | futatabito",
+  title: "デート特集",
   description:
     "今話題のデートスポットを、プロの視点で厳選したデートスポットを紹介。恵比寿・渋谷・表参道・六本木・銀座・中目黒・代官山のエリア別デートガイド。",
   keywords: [
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     canonical: `${siteUrl}/features`,
   },
   openGraph: {
-    title: "デート特集一覧 | futatabito",
+    title: "デート特集一覧",
     description:
       "今話題のデートスポットを、プロの視点で厳選したデートスポットを紹介。エリア別デートガイド。",
     url: `${siteUrl}/features`,
@@ -43,13 +43,13 @@ export const metadata: Metadata = {
         url: `${siteUrl}/api/og?${new URLSearchParams({ title: "デート特集一覧", subtitle: "エリア別の厳選デートスポットガイド" }).toString()}`,
         width: 1200,
         height: 630,
-        alt: "デート特集一覧 | futatabito",
+        alt: "デート特集一覧",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "デート特集一覧 | futatabito",
+    title: "デート特集一覧",
     description:
       "今話題のデートスポットを、プロの視点で厳選したデートスポットを紹介",
     images: [

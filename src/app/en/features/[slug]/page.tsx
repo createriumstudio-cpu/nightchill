@@ -23,11 +23,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params;
   const feature = await getFeatureBySlug(slug);
   const en = featureTranslations[slug];
-  if (!feature || !en) return { title: "Feature Not Found | futatabito" };
+  if (!feature || !en) return { title: "Feature Not Found" };
 
   const pageUrl = `${siteUrl}/en/features/${slug}`;
   const jaPageUrl = `${siteUrl}/features/${slug}`;
-  const title = `${en.title} | futatabito`;
+  const title = en.title;
   const description = en.description;
   const ogImageUrl = `${siteUrl}/api/og?${new URLSearchParams({ title: en.title, area: en.area, subtitle: en.subtitle }).toString()}`;
 
