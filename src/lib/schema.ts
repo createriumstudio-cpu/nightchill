@@ -97,6 +97,23 @@ export const originalContents = pgTable("original_contents", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
 
+// Blog Posts (SEOメディア記事)
+export const blogPosts = pgTable("blog_posts", {
+  id: serial("id").primaryKey(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  title: text("title").notNull(),
+  excerpt: text("excerpt").notNull(),
+  content: text("content").notNull(),
+  category: varchar("category", { length: 50 }).notNull(),
+  tags: jsonb("tags").$type<string[]>().notNull().default([]),
+  city: varchar("city", { length: 50 }),
+  heroImage: text("hero_image"),
+  publishedAt: timestamp("published_at", { withTimezone: true }),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  isPublished: boolean("is_published").notNull().default(false),
+});
+
 // Chat Sessions (conversation history for AI chat)
 export const chatSessions = pgTable("chat_sessions", {
   id: serial("id").primaryKey(),

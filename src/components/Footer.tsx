@@ -26,6 +26,7 @@ export default function Footer() {
             <h3 className="text-sm font-semibold text-gray-300 mb-3">コンテンツ</h3>
             <ul className="space-y-2">
               <li><Link href="/features" className="text-sm text-gray-500 hover:text-orange-400 transition-colors">デート特集</Link></li>
+              <li><Link href="/blog" className="text-sm text-gray-500 hover:text-orange-400 transition-colors">ブログ</Link></li>
               <li><Link href="/plan" className="text-sm text-gray-500 hover:text-orange-400 transition-colors">プラン作成</Link></li>
             </ul>
           </div>

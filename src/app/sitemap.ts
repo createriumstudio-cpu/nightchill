@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
 import { CITY_IDS } from "@/lib/cities";
+import { getAllPublishedSlugs } from "@/lib/blog";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://nightchill-sr5g.vercel.app";
 
   const features = [
@@ -30,6 +31,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     {
       url: `${baseUrl}/features`,
       lastModified: new Date("2026-02-28"),
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/blog`,
+      lastModified: new Date("2026-03-03"),
       changeFrequency: "weekly",
       priority: 0.9,
     },
@@ -64,6 +71,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
         en: `${baseUrl}/en/features/${slug}`,
       },
     },
+  }));
+
+  // Blog posts
+  const blogSlugs = await getAllPublishedSlugs();
+  const blogPages: MetadataRoute.Sitemap = blogSlugs.map((slug) => ({
+    url: `${baseUrl}/blog/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: "weekly" as const,
+    priority: 0.7,
   }));
 
   // English pages
@@ -116,6 +132,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...cityPages,
     ...cityFeaturesPages,
     ...featurePages,
+    ...blogPages,
     ...enStaticPages,
     ...enFeaturePages,
   ];

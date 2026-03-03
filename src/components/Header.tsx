@@ -26,7 +26,13 @@ export default function Header() {
             href="/features"
             className="text-sm text-muted transition-colors hover:text-foreground"
           >
-            🔥 特集
+            特集
+          </Link>
+          <Link
+            href="/blog"
+            className="text-sm text-muted transition-colors hover:text-foreground"
+          >
+            ブログ
           </Link>
           <Link
             href="/#how-it-works"
@@ -75,7 +81,14 @@ export default function Header() {
               className="text-sm text-muted transition-colors hover:text-foreground"
               onClick={() => setMenuOpen(false)}
             >
-              🔥 特集
+              特集
+            </Link>
+            <Link
+              href="/blog"
+              className="text-sm text-muted transition-colors hover:text-foreground"
+              onClick={() => setMenuOpen(false)}
+            >
+              ブログ
             </Link>
             <Link
               href="/#how-it-works"
