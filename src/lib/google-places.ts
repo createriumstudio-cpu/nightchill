@@ -322,6 +322,189 @@ function createFallbackVenue(name: string, area: string): VenueFactData {
 }
 
 // ============================================================
+// エリア事前検索（AIプロンプト注入用）
+// ============================================================
+
+/** 事前検索用フィールドマスク（営業時間を含む） */
+const PRE_SEARCH_FIELD_MASK = [
+  "places.id",
+  "places.displayName",
+  "places.formattedAddress",
+  "places.location",
+  "places.rating",
+  "places.priceLevel",
+  "places.regularOpeningHours",
+  "places.types",
+  "places.photos",
+  "places.googleMapsUri",
+].join(",");
+
+/** アクティビティ → 検索クエリ マッピング */
+const ACTIVITY_SEARCH_QUERIES: Record<string, string> = {
+  dinner: "レストラン ディナー",
+  lunch: "ランチ レストラン",
+  cafe: "カフェ",
+  shopping: "ショッピング",
+  active: "アクティビティ 体験",
+  nightlife: "バー 居酒屋",
+  chill: "カフェ 落ち着いた",
+  travel: "観光スポット",
+  birthday: "レストラン 個室",
+  anniversary: "レストラン 記念日",
+};
+
+/** 雰囲気 → 検索修飾語 マッピング */
+const MOOD_MODIFIERS: Record<string, string> = {
+  romantic: "おしゃれ",
+  fun: "人気",
+  relaxed: "落ち着いた",
+  luxurious: "高級",
+  adventurous: "話題",
+};
+
+/**
+ * エリア+アクティビティ+雰囲気でGoogle Places Text Searchを実行し、
+ * 実在する店舗リストを取得する（AIプロンプト注入用の事前検索）。
+ *
+ * 写真CDN URLの解決はスキップ（Post-searchで解決するため）。
+ */
+export async function searchAreaVenues(
+  area: string,
+  citySearchName: string,
+  activities: string[],
+  mood: string,
+): Promise<VenueFactData[]> {
+  const apiKey = getPlacesApiKey();
+  if (!apiKey) {
+    console.log("[google-places] API key not set, skipping pre-search");
+    return [];
+  }
+
+  const searchArea =
+    area && area !== "指定なし" && area !== "決まってない"
+      ? `${area} ${citySearchName}`
+      : citySearchName;
+  const moodMod = MOOD_MODIFIERS[mood] || "";
+
+  // アクティビティから検索クエリを構築（最大3つ）
+  const queries: string[] = [];
+  for (const act of activities.slice(0, 3)) {
+    const base = ACTIVITY_SEARCH_QUERIES[act];
+    if (base) {
+      queries.push(`${searchArea} ${moodMod} ${base}`.trim());
+    }
+  }
+  if (queries.length === 0) {
+    queries.push(`${searchArea} ${moodMod} デート おすすめ`.trim());
+  }
+
+  const seenPlaceIds = new Set<string>();
+  const results: VenueFactData[] = [];
+
+  // 並列検索
+  const searchPromises = queries.map(
+    async (query): Promise<VenueFactData[]> => {
+      try {
+        const searchRes = await fetch(`${PLACES_API_BASE}/places:searchText`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Goog-Api-Key": apiKey,
+            "X-Goog-FieldMask": PRE_SEARCH_FIELD_MASK,
+          },
+          body: JSON.stringify({
+            textQuery: query,
+            languageCode: "ja",
+            maxResultCount: 5,
+          }),
+        });
+
+        if (!searchRes.ok) {
+          console.error(
+            `[google-places] Pre-search failed for "${query}": ${searchRes.status}`,
+          );
+          return [];
+        }
+
+        const data = (await searchRes.json()) as PlacesNewSearchResponse;
+        const places = data.places || [];
+
+        const filtered = places.filter((p) => {
+          const types = p.types ?? [];
+          return !types.some((t) => EXCLUDED_TYPES.includes(t));
+        });
+
+        const mapsKey = getMapsApiKey();
+        return filtered.map((place) => {
+          let photoReference: string | null = null;
+          let photoAttribution: string | null = null;
+          if (place.photos && place.photos.length > 0) {
+            photoReference = place.photos[0].name;
+            const author = place.photos[0].authorAttributions?.[0];
+            if (author) {
+              photoAttribution = author.uri
+                ? `<a href="${author.uri}" target="_blank" rel="noopener noreferrer">${author.displayName}</a>`
+                : author.displayName;
+            }
+          }
+
+          const mapEmbedUrl = mapsKey
+            ? `https://www.google.com/maps/embed/v1/place?key=${mapsKey}&q=place_id:${place.id}`
+            : null;
+
+          return {
+            placeId: place.id,
+            name: place.displayName?.text ?? "",
+            address: place.formattedAddress ?? searchArea,
+            lat: place.location?.latitude ?? 0,
+            lng: place.location?.longitude ?? 0,
+            rating: place.rating ?? null,
+            priceLevel: place.priceLevel
+              ? (PRICE_LEVEL_MAP[place.priceLevel] ?? null)
+              : null,
+            openingHours:
+              place.regularOpeningHours?.weekdayDescriptions ?? null,
+            isOpenNow: place.regularOpeningHours?.openNow ?? null,
+            phoneNumber: null,
+            website: null,
+            types: place.types ?? [],
+            photoReference,
+            photoUrl: null,
+            photoHtmlAttribution: photoAttribution,
+            source: "google_places" as const,
+            googleMapsUrl:
+              place.googleMapsUri ??
+              `https://www.google.com/maps/place/?q=place_id:${place.id}`,
+            mapEmbedUrl,
+          };
+        });
+      } catch (error) {
+        console.error(
+          `[google-places] Pre-search error for "${query}":`,
+          error,
+        );
+        return [];
+      }
+    },
+  );
+
+  const allResults = await Promise.all(searchPromises);
+  for (const venues of allResults) {
+    for (const venue of venues) {
+      if (venue.name && !seenPlaceIds.has(venue.placeId)) {
+        seenPlaceIds.add(venue.placeId);
+        results.push(venue);
+      }
+    }
+  }
+
+  console.log(
+    `[google-places] Pre-search found ${results.length} unique venues for area="${area}"`,
+  );
+  return results;
+}
+
+// ============================================================
 // プロンプト用フォーマット
 // ============================================================
 

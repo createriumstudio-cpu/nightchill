@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type { PlanRequest, DatePlan } from "./types";
 import { env } from "./env";
-import { searchVenue } from "./google-places";
+import { searchVenue, searchAreaVenues } from "./google-places";
 import type { VenueFactData } from "./google-places";
 import { getWalkingRoute } from "./google-maps";
 import type { WalkingRoute } from "./google-maps";
@@ -309,12 +309,17 @@ function buildUserPrompt(
   // Venue fact data injection (pre-search results as reference)
   if (venues.length > 0) {
     parts.push("");
-    parts.push("=== 以下はGoogle Places APIから取得した参考データです ===");
-    parts.push("参考にしてもよいが、これに限定せず自分の知識も活用して多様な店を提案すること：");
+    parts.push("=== Google Places APIから取得した実在店舗データ ===");
+    parts.push("以下の店舗は実在が確認済みです。積極的に活用してください（ただしこれに限定せず自分の知識も活用すること）：");
     venues.forEach((v) => {
-      const ratingStr = v.rating !== null ? `★${v.rating}` : "評価不明";
-      const priceStr = v.priceLevel !== null ? `${"¥".repeat(v.priceLevel || 1)}` : "価格不明";
-      parts.push(`− ${v.name} (${v.address}) ${ratingStr} ${priceStr}`);
+      const ratingStr = v.rating !== null ? `★${v.rating}` : "";
+      const priceStr = v.priceLevel !== null ? `${"¥".repeat(v.priceLevel || 1)}` : "";
+      const meta = [ratingStr, priceStr].filter(Boolean).join(" ");
+      const hoursStr =
+        v.openingHours && v.openingHours.length > 0
+          ? ` [営業: ${v.openingHours[0]}]`
+          : "";
+      parts.push(`− ${v.name} (${v.address}) ${meta}${hoursStr}`);
     });
   }
 
@@ -550,6 +555,15 @@ export async function generateAIPlan(request: PlanRequest): Promise<DatePlan> {
   const prItems = findRelevantPR(request.activities[0] || "dinner", request.mood, area);
   const prText = formatPRForPrompt(prItems);
 
+  // ── Step 1.5: エリア事前検索（実在店舗データをAIプロンプトに注入） ──
+  const preSearchVenues = await searchAreaVenues(
+    area,
+    cityName,
+    request.activities,
+    request.mood,
+  );
+  console.log(`[ai-planner] Pre-search returned ${preSearchVenues.length} venues for prompt injection`);
+
   // ── Step 2: AI生成（最大2回リトライ） ──
   const model = env().ANTHROPIC_MODEL;
   let lastError: Error | null = null;
@@ -564,7 +578,7 @@ export async function generateAIPlan(request: PlanRequest): Promise<DatePlan> {
         messages: [
           {
             role: "user",
-            content: buildUserPrompt(request, [], walkingRoute, prText),
+            content: buildUserPrompt(request, preSearchVenues, walkingRoute, prText),
           },
         ],
       });
