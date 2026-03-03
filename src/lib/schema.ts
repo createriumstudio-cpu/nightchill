@@ -58,6 +58,7 @@ export interface SpotJson {
   genre: string;
   description: string;
   tip: string;
+  photoUrl?: string;
 }
 
 // Sponsored Spots (Contextual PR)

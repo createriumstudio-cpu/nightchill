@@ -17,7 +17,7 @@ export default function Footer() {
               全国10都市対応のデートプランAI
             </p>
             <p className="mt-1 text-xs text-gray-600">
-              ふたりの時間を もっとおもしろく
+              「失敗しない」を、ふたりの自信に。
             </p>
           </div>
 
