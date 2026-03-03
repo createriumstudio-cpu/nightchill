@@ -6,6 +6,12 @@ jest.mock("next/navigation", () => ({
   usePathname: () => "/",
 }));
 
+jest.mock("@/components/WeeklyPicksSection", () => {
+  return function MockWeeklyPicksSection() {
+    return null;
+  };
+});
+
 describe("Home", () => {
   it("renders the hero heading", () => {
     render(<Home />);
