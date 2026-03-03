@@ -4,6 +4,10 @@
     {
       "path": "/api/cron/weekly-features",
       "schedule": "0 0 * * 1"
+    },
+    {
+      "path": "/api/cron/generate-blog-posts",
+      "schedule": "0 3 * * 3"
     }
   ]
 }
