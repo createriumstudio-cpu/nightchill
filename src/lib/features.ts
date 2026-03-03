@@ -3,6 +3,8 @@
  *
  * DB (Neon Postgres) からデータを読み込む。
  * DB接続不可の場合はJSON fallbackを使用。
+ *
+ * 静的記事 (JSON) と週次自動生成記事 (DB) をマージして返す。
  */
 
 import featuresData from "@/data/features.json";
@@ -41,64 +43,28 @@ export interface FeaturedArticle {
   heroImage?: string;
   spots: FeaturedSpot[];
   dateGuide?: DateGuide;
+  /** 週次自動生成記事かどうか */
+  isWeekly?: boolean;
 }
 
-/** JSON fallback data */
-const jsonArticles: FeaturedArticle[] = featuresData as FeaturedArticle[];
+/** JSON fallback data (静的な定番特集) */
+const jsonArticles: FeaturedArticle[] = (featuresData as FeaturedArticle[]).map(
+  (a) => ({ ...a, isWeekly: false }),
+);
 
-/**
- * 全特集を取得 (DB優先、fallback: JSON)
- */
-export async function getAllFeatures(): Promise<FeaturedArticle[]> {
-  try {
-    const db = getDb();
-    if (db) {
-      const rows = await db.select().from(featuresTable).orderBy(featuresTable.publishedAt);
-      if (rows.length > 0) {
-        return rows.map(rowToArticle);
-      }
-    }
-  } catch (e) {
-    console.warn("DB read failed, using JSON fallback:", e);
-  }
-  return jsonArticles;
-}
+/** 静的記事のslugセット */
+const staticSlugs = new Set(jsonArticles.map((a) => a.slug));
 
-/**
- * slugで特集を取得 (DB優先、fallback: JSON)
- */
-export async function getFeatureBySlug(slug: string): Promise<FeaturedArticle | undefined> {
-  try {
-    const db = getDb();
-    if (db) {
-      const rows = await db.select().from(featuresTable).where(eq(featuresTable.slug, slug));
-      if (rows.length > 0) {
-        return rowToArticle(rows[0]);
-      }
-    }
-  } catch (e) {
-    console.warn("DB read failed, using JSON fallback:", e);
-  }
-  return jsonArticles.find((a) => a.slug === slug);
-}
+// ============================================================
+// DB row → FeaturedArticle 変換
+// ============================================================
 
-/**
- * エリアで関連特集を取得
- */
-export async function getFeaturesByArea(area: string, limit = 3): Promise<FeaturedArticle[]> {
-  const all = await getAllFeatures();
-  const normalized = area.toLowerCase();
-  return all
-    .filter(
-      (a) =>
-        a.area.toLowerCase().includes(normalized) ||
-        a.tags.some((t) => t.toLowerCase().includes(normalized)),
-    )
-    .slice(0, limit);
-}
-
-/** DB row → FeaturedArticle 変換 */
 function rowToArticle(row: typeof featuresTable.$inferSelect): FeaturedArticle {
+  const isStatic = staticSlugs.has(row.slug);
+  const jsonMatch = isStatic
+    ? jsonArticles.find((a) => a.slug === row.slug)
+    : undefined;
+
   return {
     slug: row.slug,
     title: row.title,
@@ -109,8 +75,124 @@ function rowToArticle(row: typeof featuresTable.$inferSelect): FeaturedArticle {
     publishedAt: row.publishedAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
     heroEmoji: row.heroEmoji,
-    heroImage: row.heroImage || undefined,
-    spots: jsonArticles.find(a => a.slug === row.slug)?.spots || (row.spots as FeaturedSpot[]) || [],
-    dateGuide: jsonArticles.find(a => a.slug === row.slug)?.dateGuide,
+    heroImage: row.heroImage || jsonMatch?.heroImage || undefined,
+    spots: jsonMatch?.spots || (row.spots as FeaturedSpot[]) || [],
+    dateGuide: jsonMatch?.dateGuide,
+    isWeekly: !isStatic,
   };
+}
+
+// ============================================================
+// 公開API
+// ============================================================
+
+/**
+ * 全特集を取得（静的JSON + DB週次記事をマージ）
+ * 静的記事が常に含まれ、DB週次記事が追加される。
+ */
+export async function getAllFeatures(): Promise<FeaturedArticle[]> {
+  // 常にJSON静的記事を含める
+  const result = [...jsonArticles];
+
+  try {
+    const db = getDb();
+    if (db) {
+      const rows = await db
+        .select()
+        .from(featuresTable)
+        .where(eq(featuresTable.isPublished, true))
+        .orderBy(desc(featuresTable.publishedAt));
+
+      for (const row of rows) {
+        // 静的記事と同じslugならスキップ（JSONが正）
+        if (staticSlugs.has(row.slug)) continue;
+        result.push(rowToArticle(row));
+      }
+    }
+  } catch (e) {
+    console.warn("DB read failed, using JSON only:", e);
+  }
+
+  return result;
+}
+
+/**
+ * 週次自動生成記事のみを取得（新しい順）
+ */
+export async function getWeeklyFeatures(
+  cityName?: string,
+  limit = 10,
+): Promise<FeaturedArticle[]> {
+  try {
+    const db = getDb();
+    if (!db) return [];
+
+    const rows = await db
+      .select()
+      .from(featuresTable)
+      .where(eq(featuresTable.isPublished, true))
+      .orderBy(desc(featuresTable.publishedAt))
+      .limit(limit);
+
+    // 静的slugを除外 + 都市フィルタ
+    return rows
+      .filter((row) => !staticSlugs.has(row.slug))
+      .filter((row) => !cityName || row.area === cityName)
+      .map(rowToArticle);
+  } catch (e) {
+    console.warn("DB read failed for weekly features:", e);
+    return [];
+  }
+}
+
+/**
+ * 最新の週次記事を取得（トップページ等での表示用）
+ */
+export async function getLatestWeeklyFeatures(
+  limit = 6,
+): Promise<FeaturedArticle[]> {
+  return getWeeklyFeatures(undefined, limit);
+}
+
+/**
+ * slugで特集を取得 (DB優先、fallback: JSON)
+ */
+export async function getFeatureBySlug(
+  slug: string,
+): Promise<FeaturedArticle | undefined> {
+  // まずDBから
+  try {
+    const db = getDb();
+    if (db) {
+      const rows = await db
+        .select()
+        .from(featuresTable)
+        .where(eq(featuresTable.slug, slug));
+      if (rows.length > 0) {
+        return rowToArticle(rows[0]);
+      }
+    }
+  } catch (e) {
+    console.warn("DB read failed, using JSON fallback:", e);
+  }
+  // JSON fallback
+  return jsonArticles.find((a) => a.slug === slug);
+}
+
+/**
+ * エリアで関連特集を取得
+ */
+export async function getFeaturesByArea(
+  area: string,
+  limit = 3,
+): Promise<FeaturedArticle[]> {
+  const all = await getAllFeatures();
+  const normalized = area.toLowerCase();
+  return all
+    .filter(
+      (a) =>
+        a.area.toLowerCase().includes(normalized) ||
+        a.tags.some((t) => t.toLowerCase().includes(normalized)),
+    )
+    .slice(0, limit);
 }
