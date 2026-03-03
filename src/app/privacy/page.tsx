@@ -3,11 +3,11 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "プライバシーポリシー | futatabito",
+  title: "プライバシーポリシー",
   description:
     "futatabito（ふたたびと）のプライバシーポリシーです。個人情報の取り扱い、Cookie、アクセス解析について説明しています。",
   openGraph: {
-    title: "プライバシーポリシー | futatabito",
+    title: "プライバシーポリシー",
     description: "futatabitoのプライバシーポリシー。",
   },
 };

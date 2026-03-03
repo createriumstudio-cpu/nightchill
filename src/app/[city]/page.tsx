@@ -24,7 +24,7 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { city: cityId } = await params;
   const city = getCityById(cityId);
-  if (!city) return { title: "ページが見つかりません | futatabito" };
+  if (!city) return { title: "ページが見つかりません" };
 
   const pageUrl = `${siteUrl}/${city.id}`;
   const title = `${city.name}のデートプラン - AI提案`;
@@ -43,7 +43,7 @@ export async function generateMetadata({
       canonical: pageUrl,
     },
     openGraph: {
-      title: `${city.name}のデートプラン | futatabito`,
+      title: `${city.name}のデートプラン`,
       description,
       url: pageUrl,
       siteName: "futatabito",
@@ -63,7 +63,7 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title: `${city.name}のデートプラン | futatabito`,
+      title: `${city.name}のデートプラン`,
       description,
     },
   };
