@@ -4,9 +4,12 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { CITIES, getCityById, CITY_IDS } from "@/lib/cities";
+import { getWeeklyFeatures, FeaturedArticle } from "@/lib/features";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL || "https://nightchill-sr5g.vercel.app";
+
+export const revalidate = 3600;
 
 type PageProps = {
   params: Promise<{ city: string }>;
@@ -21,7 +24,6 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { city: cityId } = await params;
   const city = getCityById(cityId);
-
   if (!city) return { title: "ページが見つかりません | futatabito" };
 
   const pageUrl = `${siteUrl}/${city.id}`;
@@ -79,8 +81,9 @@ const occasions = [
 export default async function CityLandingPage({ params }: PageProps) {
   const { city: cityId } = await params;
   const city = getCityById(cityId);
-
   if (!city) notFound();
+
+  const weeklyArticles = await getWeeklyFeatures(city.name, 3);
 
   const pageUrl = `${siteUrl}/${city.id}`;
 
@@ -119,7 +122,6 @@ export default async function CityLandingPage({ params }: PageProps) {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
@@ -191,21 +193,77 @@ export default async function CityLandingPage({ params }: PageProps) {
         </div>
       </section>
 
-      {/* Features Link */}
+      {/* Weekly Features Preview */}
       <section className="px-4 py-12">
-        <div className="mx-auto max-w-4xl text-center">
-          <Link
-            href={`/${city.id}/features`}
-            className="group inline-flex items-center gap-2 rounded-2xl border border-border bg-surface px-6 py-4 transition-all hover:border-primary/50 hover:shadow-md"
-          >
-            <span className="text-lg">🔥</span>
-            <span className="text-base font-semibold group-hover:text-primary transition-colors">
-              {city.name}のデート特集を見る
-            </span>
-            <span className="text-muted group-hover:text-primary transition-colors">
-              →
-            </span>
-          </Link>
+        <div className="mx-auto max-w-4xl">
+          {weeklyArticles.length > 0 ? (
+            <>
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 mb-3">
+                  <span className="text-sm">🔥</span>
+                  <span className="text-xs font-semibold text-primary tracking-wider uppercase">
+                    {city.name} Weekly
+                  </span>
+                  <span className="inline-block bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                    NEW
+                  </span>
+                </div>
+                <h2 className="text-xl font-bold tracking-tight md:text-2xl">
+                  {city.name}の今週のおすすめ
+                </h2>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {weeklyArticles.map((article: FeaturedArticle) => (
+                  <Link
+                    key={article.slug}
+                    href={`/features/${article.slug}`}
+                    className="group block rounded-2xl border border-border bg-surface p-5 transition-all hover:border-primary/40 hover:shadow-lg"
+                  >
+                    <div className="flex items-start gap-3 mb-3">
+                      <span className="text-2xl shrink-0">{article.heroEmoji}</span>
+                      <h3 className="text-sm font-bold leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+                        {article.title}
+                      </h3>
+                    </div>
+                    <p className="text-xs text-muted line-clamp-2 mb-2">
+                      {article.subtitle || article.description}
+                    </p>
+                    {article.spots && article.spots.length > 0 && (
+                      <p className="text-[11px] text-muted/70 line-clamp-1">
+                        📍 {article.spots.map((s) => s.name).join(" → ")}
+                      </p>
+                    )}
+                    <span className="inline-block mt-2 text-xs font-semibold text-primary group-hover:translate-x-1 transition-transform">
+                      詳しく見る →
+                    </span>
+                  </Link>
+                ))}
+              </div>
+              <div className="text-center mt-6">
+                <Link
+                  href={`/${city.id}/features`}
+                  className="text-sm text-muted hover:text-primary transition-colors border border-border hover:border-primary rounded-full px-6 py-2 inline-block"
+                >
+                  {city.name}の特集をすべて見る →
+                </Link>
+              </div>
+            </>
+          ) : (
+            <div className="text-center">
+              <Link
+                href={`/${city.id}/features`}
+                className="group inline-flex items-center gap-2 rounded-2xl border border-border bg-surface px-6 py-4 transition-all hover:border-primary/50 hover:shadow-md"
+              >
+                <span className="text-lg">🔥</span>
+                <span className="text-base font-semibold group-hover:text-primary transition-colors">
+                  {city.name}のデート特集を見る
+                </span>
+                <span className="text-muted group-hover:text-primary transition-colors">
+                  →
+                </span>
+              </Link>
+            </div>
+          )}
         </div>
       </section>
 
