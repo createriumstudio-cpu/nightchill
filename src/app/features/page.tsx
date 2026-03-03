@@ -14,17 +14,17 @@ export const revalidate = 3600;
 export const metadata: Metadata = {
   title: "特集 | futatabito",
   description:
-    "今話題のデートスポットを、プロの視点で厳選したデートスポットを紹介。恵比寿・渋谷・表参道・六本木・銀座・中目黒・代官山のエリア別デートガイド。",
+    "全国10都市のデートプランを毎週更新。時間配分・お店選び・移動ルートまでまるっと提案するエリア別デートガイド。",
   keywords: [
-    "東京 デート特集",
-    "デートスポット まとめ",
-    "恵比寿 デート",
-    "渋谷 デート",
-    "表参道 デート",
-    "六本木 デート",
-    "銀座 デート",
-    "中目黒 デート",
-    "代官山 デート",
+    "デート特集",
+    "デートプラン まとめ",
+    "東京 デート",
+    "大阪 デート",
+    "京都 デート",
+    "横浜 デート",
+    "名古屋 デート",
+    "福岡 デート",
+    "神戸 デート",
   ],
   alternates: {
     canonical: `${siteUrl}/features`,
@@ -32,14 +32,14 @@ export const metadata: Metadata = {
   openGraph: {
     title: "デート特集一覧 | futatabito",
     description:
-      "今話題のデートスポットを、プロの視点で厳選したデートスポットを紹介。エリア別デートガイド。",
+      "全国10都市のデートプランを毎週更新。エリア別デートガイド。",
     url: `${siteUrl}/features`,
     siteName: "futatabito",
     locale: "ja_JP",
     type: "website",
     images: [
       {
-        url: `${siteUrl}/api/og?${new URLSearchParams({ title: "デート特集一覧", subtitle: "エリア別の厳選デートスポットガイド" }).toString()}`,
+        url: `${siteUrl}/api/og?${new URLSearchParams({ title: "デート特集一覧", subtitle: "全国10都市のエリア別デートガイド" }).toString()}`,
         width: 1200,
         height: 630,
         alt: "デート特集一覧 | futatabito",
@@ -50,9 +50,9 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "デート特集一覧 | futatabito",
     description:
-      "今話題のデートスポットを、プロの視点で厳選したデートスポットを紹介",
+      "全国10都市の最新デートプランを毎週更新。エリア別ガイドも充実",
     images: [
-      `${siteUrl}/api/og?${new URLSearchParams({ title: "デート特集一覧", subtitle: "エリア別の厳選デートスポットガイド" }).toString()}`,
+      `${siteUrl}/api/og?${new URLSearchParams({ title: "デート特集一覧", subtitle: "全国10都市のエリア別デートガイド" }).toString()}`,
     ],
   },
 };
@@ -139,7 +139,7 @@ export default async function FeaturesPage() {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: "デート特集一覧",
-    description: "エリア別の厳選デートスポットガイド",
+    description: "全国10都市のエリア別デートガイド",
     numberOfItems: allFeatures.length,
     itemListElement: allFeatures.map((feature, index) => ({
       "@type": "ListItem",
@@ -162,7 +162,7 @@ export default async function FeaturesPage() {
             <span className="mr-2">🔥</span>デート特集
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-muted">
-            今話題のデートスポットを、プロの視点で厳選したデートスポットを紹介
+            全国10都市の最新デートプランを毎週更新。エリア別ガイドも充実
           </p>
         </section>
 
