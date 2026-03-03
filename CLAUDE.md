@@ -173,6 +173,26 @@ B案: リアルタイム週次更新 — 「今週のおすすめデートプラ
 - API レート制限対策: 各生成間に2秒待機
 - slug形式: {city.id}-{category}-{weekBatch} (例: tokyo-new-spots-2026-w10)
 
+
+### Phase 3 UI統合 (完了 — 2026-03-03)
+
+#### 変更ファイル
+- `src/lib/features.ts` — getAllFeatures()が静的JSON+DB週次記事をマージ。isWeeklyフラグ追加
+- `src/app/features/page.tsx` — 「今週のおすすめ」+「定番エリアガイド」の2セクション構成。ISR 1時間
+- `src/app/features/[slug]/page.tsx` — revalidate=3600 + dynamicParams=true
+- `src/app/[city]/features/page.tsx` — 都市別週次記事表示。city.nameでのフィルタ対応
+
+#### データフロー
+1. getAllFeatures() → JSON静的記事(7件) + DB週次記事をマージして返す
+2. getWeeklyFeatures(cityName?) → DBから週次記事のみ取得（静的slug除外）
+3. getLatestWeeklyFeatures(limit) → 全都市の最新週次記事
+4. ISR revalidate=3600 で1時間ごとに再生成
+
+#### 表示構成
+- /features → 「✨今週のおすすめ」(3カラム) + 「📖定番エリアガイド」(2カラム)
+- /[city]/features → 「✨{city}の今週のおすすめ」+ 「📖定番エリアガイド」
+- /features/[slug] → 静的・週次どちらも同じ詳細ページで表示
+
 ### 環境変数
 - CRON_SECRET — Cron認証トークン（未設定時は認証なしで動作）
 - ANTHROPIC_API_KEY — 記事生成（未設定時はテンプレートフォールバック）
