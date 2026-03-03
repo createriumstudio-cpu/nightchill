@@ -18,9 +18,9 @@ npm run dev, npm run build, npm run lint, npm test, npx tsc --noEmit
 
 ## Architecture
 
-src/app/ — Next.js App Router (layout.tsx, page.tsx, [city]/page.tsx, [city]/features/page.tsx, plan/, results/, features/, error.tsx, not-found.tsx, api/plan/, globals.css)
-src/components/ — Header.tsx, Footer.tsx
-src/lib/ — types.ts, ai-planner.ts, planner.ts, cities.ts, env.ts, google-places.ts, google-maps.ts, plan-encoder.ts, contextual-pr.ts
+src/app/ — Next.js App Router (layout.tsx, page.tsx, [city]/page.tsx, [city]/features/page.tsx, plan/, results/, features/, about/, privacy/, en/, admin/, error.tsx, not-found.tsx, api/, globals.css, sitemap.ts, robots.ts)
+src/components/ — Header.tsx, Footer.tsx, WeeklyPicksSection.tsx, FeaturedPicks.tsx, JsonLd.tsx, SpotPhoto.tsx, SponsoredSpotCard.tsx, ContextualPRSection.tsx, LanguageSwitcher.tsx
+src/lib/ — types.ts, ai-planner.ts, planner.ts, cities.ts, env.ts, google-places.ts, google-maps.ts, plan-encoder.ts, contextual-pr.ts, features.ts, db.ts, schema.ts, i18n.ts, weekly-feature-generator.ts, admin-auth.ts
 src/data/ — features.json（特集データ）
 
 ## Data Flow
@@ -62,7 +62,7 @@ src/data/ — features.json（特集データ）
 - 結果画面: 服装アドバイス・注意ポイントは表示しない（AI出力のスリム化のため削除済み）
 - Places API: regularOpeningHoursフィールドは取得しない（コスト最適化）
 - 全国10都市対応: 都市マスターデータ(cities.ts) + フォームの都市/エリア2段選択
-- UGC/SNS機能は全削除済み: SocialEmbed, UgcSection, FeatureSpotEmbed, features.tsは廃止。ユーザー外部流出防止のため
+- UGC/SNS機能は全削除済み: SocialEmbed, UgcSection, FeatureSpotEmbedは廃止。ユーザー外部流出防止のため（注: src/lib/features.tsはPhase 3週次更新システムで使用中）
 
 ## Adding a New Feature
 
