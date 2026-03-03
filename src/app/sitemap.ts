@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { CITY_IDS } from "@/lib/cities";
 import { getAllPublishedSlugs } from "@/lib/blog";
+import { getRecentPlanSlugs } from "@/lib/plans";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://nightchill-sr5g.vercel.app";
@@ -127,12 +128,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
+  // Saved plan pages
+  const planSlugs = await getRecentPlanSlugs(100);
+  const planPages: MetadataRoute.Sitemap = planSlugs.map((slug) => ({
+    url: `${baseUrl}/plan/${slug}`,
+    changeFrequency: "never" as const,
+    priority: 0.4,
+  }));
+
   return [
     ...staticPages,
     ...cityPages,
     ...cityFeaturesPages,
     ...featurePages,
     ...blogPages,
+    ...planPages,
     ...enStaticPages,
     ...enFeaturePages,
   ];
