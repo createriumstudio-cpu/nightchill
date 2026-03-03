@@ -25,10 +25,10 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const feature = await getFeatureBySlug(slug);
-  if (!feature) return { title: "特集が見つかりません | futatabito" };
+  if (!feature) return { title: "特集が見つかりません" };
 
   const pageUrl = `${siteUrl}/features/${slug}`;
-  const title = `${feature.title} | futatabito`;
+  const title = feature.title;
   const description = feature.description;
   const ogImageUrl = `${siteUrl}/api/og?${new URLSearchParams({ title: feature.title, area: feature.area, subtitle: feature.subtitle }).toString()}`;
 

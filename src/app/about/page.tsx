@@ -3,11 +3,11 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "futatabito について | 運営者情報",
+  title: "運営者情報",
   description:
     "futatabito（ふたたびと）は、デート視点で東京のカルチャーを再発見するガイドメディアです。運営者情報・コンセプト・お問い合わせ先をご紹介します。",
   openGraph: {
-    title: "futatabito について | 運営者情報",
+    title: "運営者情報",
     description:
       "デート視点の東京カルチャーガイド「futatabito」の運営者情報ページ。",
   },

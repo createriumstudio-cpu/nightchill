@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const city = getCityById(cityId);
   if (!city) return {};
 
-  const title = `${city.name}のデート特集 | futatabito`;
+  const title = `${city.name}のデート特集`;
   const description = `${city.name}エリアのおすすめデートプラン特集。${city.name}で人気のデートスポットをプロの視点で厳選して紹介します。`;
 
   return {

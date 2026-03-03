@@ -9,7 +9,7 @@ import Footer from "@/components/Footer";
 const t = uiTranslations.en;
 
 export const metadata: Metadata = {
-  title: "futatabito - Tokyo Date Culture Guide",
+  title: "Tokyo Date Culture Guide",
   description:
     "Discover Tokyo's best date spots through a cultural lens. Curated guides for Omotesando, Ginza, Ebisu, Roppongi, Nakameguro, Daikanyama, and Shimokitazawa.",
   alternates: {
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "futatabito - Tokyo Date Culture Guide",
+    title: "Tokyo Date Culture Guide",
     description:
       "Discover Tokyo's best date spots through a cultural lens. Curated neighborhood guides for couples visiting Tokyo.",
     url: `${siteUrl}/en`,
@@ -32,13 +32,13 @@ export const metadata: Metadata = {
         url: `${siteUrl}/api/og`,
         width: 1200,
         height: 630,
-        alt: "futatabito - Tokyo Date Culture Guide",
+        alt: "Tokyo Date Culture Guide",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "futatabito - Tokyo Date Culture Guide",
+    title: "Tokyo Date Culture Guide",
     description:
       "Discover Tokyo's best date spots through a cultural lens.",
     images: [`${siteUrl}/api/og`],
