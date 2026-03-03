@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import Header from "@/components/Header";
 import { getAllFeatures, getLatestWeeklyFeatures } from "@/lib/features";
 import type { FeaturedArticle } from "@/lib/features";
@@ -66,10 +67,11 @@ function FeatureCard({ feature }: { feature: FeaturedArticle }) {
     >
       {feature.heroImage ? (
         <div className="relative h-48 w-full overflow-hidden">
-          <img
+          <Image
             src={feature.heroImage}
             alt={feature.title}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
           <div className="absolute bottom-4 left-4">
@@ -84,11 +86,12 @@ function FeatureCard({ feature }: { feature: FeaturedArticle }) {
           </div>
         </div>
       ) : feature.spots[0]?.photoUrl ? (
-        <div className="h-48 w-full overflow-hidden">
-          <img
+        <div className="relative h-48 w-full overflow-hidden">
+          <Image
             src={feature.spots[0].photoUrl}
             alt={feature.spots[0].name}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
         </div>
       ) : (
@@ -194,11 +197,12 @@ export default async function FeaturesPage() {
                   className="group overflow-hidden rounded-2xl border border-border bg-surface transition-all hover:shadow-xl hover:border-primary/30"
                 >
                   {feature.spots[0]?.photoUrl ? (
-                    <div className="h-32 w-full overflow-hidden">
-                      <img
+                    <div className="relative h-32 w-full overflow-hidden">
+                      <Image
                         src={feature.spots[0].photoUrl}
                         alt={feature.spots[0].name}
-                        className="h-full w-full object-cover"
+                        fill
+                        className="object-cover"
                       />
                     </div>
                   ) : (
