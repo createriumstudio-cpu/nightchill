@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { generateDatePlan } from "@/lib/planner";
 import { generateAIPlan } from "@/lib/ai-planner";
+import { savePlan } from "@/lib/plans";
 import type { PlanRequest, Mood, Budget, AgeGroup } from "@/lib/types";
 import { CITY_IDS } from "@/lib/cities";
 
@@ -102,17 +103,21 @@ export async function POST(request: Request) {
     };
 
     // Use AI if API key is configured, otherwise fall back to templates
+    let plan;
     if (process.env.ANTHROPIC_API_KEY) {
       try {
-        const plan = await generateAIPlan(sanitizedRequest);
-        return NextResponse.json(plan);
+        plan = await generateAIPlan(sanitizedRequest);
       } catch (aiError) {
         console.error("AI plan generation failed, falling back to template:", aiError);
       }
     }
 
-    const plan = generateDatePlan(sanitizedRequest);
-    return NextResponse.json(plan);
+    if (!plan) {
+      plan = generateDatePlan(sanitizedRequest);
+    }
+
+    const slug = await savePlan(plan, sanitizedRequest.city, sanitizedRequest.location);
+    return NextResponse.json({ ...plan, slug });
   } catch {
     return NextResponse.json(
       { error: "リクエストの処理中にエラーが発生しました" },

@@ -114,6 +114,29 @@ export const blogPosts = pgTable("blog_posts", {
   isPublished: boolean("is_published").notNull().default(false),
 });
 
+// Saved Date Plans (shareable via slug URLs)
+export const plans = pgTable("plans", {
+  id: serial("id").primaryKey(),
+  slug: varchar("slug", { length: 20 }).notNull().unique(),
+  title: text("title").notNull(),
+  content: jsonb("content").$type<SavedPlanContent>().notNull(),
+  city: varchar("city", { length: 50 }),
+  location: varchar("location", { length: 200 }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+// Type for plans content JSONB
+export interface SavedPlanContent {
+  id: string;
+  title: string;
+  summary: string;
+  timeline: { time: string; duration?: string; activity: string; venue: string; description: string; tip: string }[];
+  fashionAdvice: string;
+  warnings: string[];
+  venues?: unknown[];
+  walkingRoute?: unknown;
+}
+
 // Chat Sessions (conversation history for AI chat)
 export const chatSessions = pgTable("chat_sessions", {
   id: serial("id").primaryKey(),

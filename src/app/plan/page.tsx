@@ -147,9 +147,13 @@ function PlanPageContent() {
       }
 
       const data = await res.json();
-      sessionStorage.setItem("futatabito-plan", JSON.stringify(data));
-      sessionStorage.setItem("futatabito-location", combinedLocation);
-      router.push("/results");
+      if (data.slug) {
+        router.push(`/plan/${data.slug}`);
+      } else {
+        sessionStorage.setItem("futatabito-plan", JSON.stringify(data));
+        sessionStorage.setItem("futatabito-location", combinedLocation);
+        router.push("/results");
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "エラーが発生しました");
     } finally {
