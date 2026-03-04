@@ -41,6 +41,12 @@ export default function Header() {
             使い方
           </Link>
           <Link
+            href="/mypage"
+            className="text-sm text-muted transition-colors hover:text-foreground"
+          >
+            マイページ
+          </Link>
+          <Link
             href="/plan"
             className="rounded-full bg-primary px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
           >
@@ -96,6 +102,13 @@ export default function Header() {
               onClick={() => setMenuOpen(false)}
             >
               使い方
+            </Link>
+            <Link
+              href="/mypage"
+              className="text-sm text-muted transition-colors hover:text-foreground"
+              onClick={() => setMenuOpen(false)}
+            >
+              マイページ
             </Link>
             <Link
               href="/plan"

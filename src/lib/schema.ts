@@ -281,3 +281,57 @@ export const reservations = pgTable("reservations", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
+
+// ── Phase 5: リピーター獲得 ──
+
+// Users (匿名トークン + オプションメール登録)
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  token: varchar("token", { length: 64 }).notNull().unique(), // ブラウザcookie識別トークン
+  email: varchar("email", { length: 255 }),
+  nickname: varchar("nickname", { length: 100 }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});
+
+// Date History (デート履歴)
+export const dateHistory = pgTable("date_history", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  planSlug: varchar("plan_slug", { length: 20 }),
+  title: text("title").notNull(),
+  city: varchar("city", { length: 50 }),
+  location: varchar("location", { length: 200 }),
+  // プラン入力条件（パーソナライズ学習用）
+  occasion: varchar("occasion", { length: 50 }),   // activities[0]
+  mood: varchar("mood", { length: 50 }),
+  budget: varchar("budget", { length: 50 }),
+  relationship: varchar("relationship", { length: 50 }),
+  // プラン内容サマリ
+  planSummary: text("plan_summary"),
+  venueNames: jsonb("venue_names").$type<string[]>().default([]),
+  // ユーザー評価
+  rating: integer("rating"), // 1-5 (null = 未評価)
+  feedback: text("feedback"),
+  // タイムスタンプ
+  dateUsed: timestamp("date_used", { withTimezone: true }), // 実際にデートした日
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+});
+
+// User Preferences (パーソナライズ蓄積データ)
+export const userPreferences = pgTable("user_preferences", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().unique(),
+  // 蓄積された好み（過去データから自動算出）
+  preferredCities: jsonb("preferred_cities").$type<string[]>().default([]),
+  preferredMoods: jsonb("preferred_moods").$type<string[]>().default([]),
+  preferredBudgets: jsonb("preferred_budgets").$type<string[]>().default([]),
+  preferredActivities: jsonb("preferred_activities").$type<string[]>().default([]),
+  favoriteVenues: jsonb("favorite_venues").$type<string[]>().default([]),
+  // 統計
+  totalPlans: integer("total_plans").default(0),
+  averageRating: integer("average_rating"), // x10 (e.g. 42 = 4.2)
+  lastPlanAt: timestamp("last_plan_at", { withTimezone: true }),
+  // タイムスタンプ
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});

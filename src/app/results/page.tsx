@@ -463,6 +463,7 @@ export default function ResultsPage() {
   const [shareUrl, setShareUrl] = useState<string>("");
   const [urlCopied, setUrlCopied] = useState(false);
   const [timelineExpanded, setTimelineExpanded] = useState(false);
+  const [historySaved, setHistorySaved] = useState(false);
   const [planContext] = useState<{ occasion: string; mood: string; budget: string } | null>(() => {
     if (typeof window === "undefined") return null;
     const raw = sessionStorage.getItem("futatabito-context");
@@ -552,6 +553,36 @@ export default function ResultsPage() {
     const url = `https://social-plugins.line.me/lineit/share?text=${encodeURIComponent(text)}&url=${encodeURIComponent(lineUrl)}`;
     window.open(url, "_blank", "noopener,noreferrer");
   }, [plan, shareUrl]);
+
+  const handleSaveHistory = useCallback(async () => {
+    if (!plan || historySaved) return;
+    try {
+      // Ensure user exists
+      const authRes = await fetch("/api/auth");
+      const authData = await authRes.json();
+      if (!authData.user) {
+        await fetch("/api/auth", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "register" }),
+        });
+      }
+      await fetch("/api/history", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "save",
+          title: plan.title,
+          planSummary: plan.summary,
+          venueNames: plan.timeline.map(t => t.venue).filter(Boolean),
+          ...(planContext || {}),
+        }),
+      });
+      setHistorySaved(true);
+    } catch {
+      // ignore
+    }
+  }, [plan, planContext, historySaved]);
 
   const handleShareX = useCallback(() => {
     if (!plan) return;
@@ -741,6 +772,33 @@ export default function ResultsPage() {
             mood={planContext.mood}
             budget={planContext.budget}
           />
+        )}
+
+        {/* Save to History */}
+        {!isSharedView && (
+          <section className="mt-12 rounded-2xl border border-primary/20 bg-primary/5 p-5 text-center">
+            <p className="text-sm font-medium">
+              {historySaved
+                ? "履歴に保存しました ✓"
+                : "このプランを履歴に保存して、次回のおすすめに活かしましょう"}
+            </p>
+            <div className="mt-3 flex items-center justify-center gap-3">
+              {!historySaved && (
+                <button
+                  onClick={handleSaveHistory}
+                  className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                >
+                  履歴に保存
+                </button>
+              )}
+              <Link
+                href="/mypage"
+                className="text-xs text-primary hover:underline"
+              >
+                マイページを見る →
+              </Link>
+            </div>
+          </section>
         )}
 
         {/* Share */}

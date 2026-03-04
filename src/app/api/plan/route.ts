@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { generateDatePlan } from "@/lib/planner";
 import { generateAIPlan } from "@/lib/ai-planner";
 import { savePlan } from "@/lib/plans";
+import { getUserFromRequest } from "@/lib/user-auth";
+import { saveToHistory } from "@/lib/date-history";
 import type { PlanRequest, Mood, Budget, AgeGroup } from "@/lib/types";
 import { CITY_IDS } from "@/lib/cities";
 
@@ -117,6 +119,27 @@ export async function POST(request: Request) {
     }
 
     const slug = await savePlan(plan, sanitizedRequest.city, sanitizedRequest.location);
+
+    // Phase 5: Save to user history if logged in (non-blocking)
+    const user = await getUserFromRequest(request).catch(() => null);
+    if (user) {
+      saveToHistory({
+        userId: user.id,
+        planSlug: slug ?? undefined,
+        title: plan.title,
+        city: sanitizedRequest.city,
+        location: sanitizedRequest.location,
+        occasion: sanitizedRequest.activities[0],
+        mood: sanitizedRequest.mood,
+        budget: sanitizedRequest.budget,
+        relationship: sanitizedRequest.relationship,
+        planSummary: plan.summary,
+        venueNames: plan.timeline
+          .map((t) => t.venue)
+          .filter(Boolean),
+      }).catch(() => {});
+    }
+
     return NextResponse.json({ ...plan, slug });
   } catch {
     return NextResponse.json(

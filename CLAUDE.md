@@ -18,9 +18,9 @@ npm run dev, npm run build, npm run lint, npm test, npx tsc --noEmit
 
 ## Architecture
 
-src/app/ — Next.js App Router (layout.tsx, page.tsx, [city]/page.tsx, [city]/features/page.tsx, plan/, results/, features/, about/, privacy/, en/, admin/, error.tsx, not-found.tsx, api/, globals.css, sitemap.ts, robots.ts)
+src/app/ — Next.js App Router (layout.tsx, page.tsx, [city]/page.tsx, [city]/features/page.tsx, plan/, results/, features/, about/, privacy/, en/, admin/, mypage/, error.tsx, not-found.tsx, api/, globals.css, sitemap.ts, robots.ts)
 src/components/ — Header.tsx, Footer.tsx, WeeklyPicksSection.tsx, FeaturedPicks.tsx, JsonLd.tsx, SpotPhoto.tsx, SponsoredSpotCard.tsx, ContextualPRSection.tsx, LanguageSwitcher.tsx
-src/lib/ — types.ts, ai-planner.ts, planner.ts, cities.ts, env.ts, google-places.ts, google-maps.ts, plan-encoder.ts, contextual-pr.ts, features.ts, db.ts, schema.ts, i18n.ts, weekly-feature-generator.ts, admin-auth.ts
+src/lib/ — types.ts, ai-planner.ts, planner.ts, cities.ts, env.ts, google-places.ts, google-maps.ts, plan-encoder.ts, contextual-pr.ts, features.ts, db.ts, schema.ts, i18n.ts, weekly-feature-generator.ts, admin-auth.ts, user-auth.ts, date-history.ts, personalize.ts
 src/data/ — features.json（特集データ）
 
 ## Data Flow
@@ -245,3 +245,42 @@ Vercel Settings > Cron Jobs > /api/cron/weekly-features > "Run" ボタン
 ### 環境変数
 - STRIPE_SECRET_KEY — Stripe決済（未設定時は決済機能無効）
 - STRIPE_WEBHOOK_SECRET — Stripe Webhook署名検証
+
+## リピーター獲得基盤 (Phase 5)
+
+### 概要
+匿名ユーザーアカウント + デート履歴 + パーソナライズ推薦。
+cookieベースの自動アカウント作成で、ログイン不要でデート履歴蓄積→好み学習→おすすめ提案。
+
+### ファイル構成
+- src/lib/user-auth.ts — ユーザー認証（cookie匿名トークン、プロフィール更新）
+- src/lib/date-history.ts — デート履歴CRUD + 自動プリファレンス更新
+- src/lib/personalize.ts — パーソナライズ推薦ロジック
+- src/app/mypage/page.tsx — マイページ（プロフィール/履歴/おすすめ）
+
+### データベーステーブル (schema.ts)
+- users — 匿名ユーザー（token識別、オプションemail/nickname）
+- dateHistory — デート履歴（プラン条件・結果サマリ・評価）
+- userPreferences — パーソナライズ蓄積データ（好み都市/雰囲気/予算/お気に入り店舗）
+
+### API
+- GET /api/auth — 現在のユーザー取得
+- POST /api/auth — ユーザー作成(register) or プロフィール更新(update)
+- GET /api/history — デート履歴一覧
+- POST /api/history — 履歴保存(save) or 評価(rate)
+- GET /api/personalize — パーソナライズ推薦取得
+
+### ページ
+- /mypage — マイページ（プロフィール編集、統計、おすすめ、履歴一覧+評価）
+
+### データフロー
+1. /api/plan POST時にcookieユーザーがいれば自動的にdateHistoryに保存
+2. 結果画面に「履歴に保存」ボタン（手動保存も可能）
+3. 保存時にuserPreferencesを自動再計算（好み都市/雰囲気/予算を頻度集計）
+4. 高評価(4-5)のデートの店舗はfavoriteVenuesに蓄積
+5. /mypage でおすすめ表示（未訪問都市提案、好み雰囲気/予算のプリセット）
+
+### 認証方式
+- cookieベース匿名トークン（futatabito-user、httpOnly、1年有効）
+- ログイン不要：初回アクセスで自動アカウント作成
+- オプション：email/ニックネームをプロフィール更新で設定可能
