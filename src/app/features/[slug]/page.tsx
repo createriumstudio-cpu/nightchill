@@ -181,7 +181,7 @@ export default async function FeatureDetailPage({ params }: PageProps) {
               ← 特集一覧に戻る
             </Link>
             {feature.heroImage ? (
-              <div className="relative w-full h-48 md:h-56 rounded-2xl overflow-hidden mb-4">
+              <div className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden mb-4">
                 <Image
                   src={feature.heroImage}
                   alt={feature.title}

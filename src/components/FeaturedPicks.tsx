@@ -45,12 +45,11 @@ export default function FeaturedPicks() {
               href={`/features/${pick.slug}`}
               className="group block rounded-2xl overflow-hidden relative h-64 md:h-72 shadow-md hover:shadow-xl transition-all duration-300"
             >
-              {/* Background Image - scale-110 to crop out letterbox bars */}
               <Image
                 src={pick.image}
                 alt={pick.title}
                 fill
-                className="object-cover scale-110 transition-transform duration-500 group-hover:scale-[1.15]"
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
                 sizes="(max-width: 768px) 100vw, 33vw"
               />
 
