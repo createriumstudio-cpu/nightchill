@@ -6,6 +6,7 @@ import { getFeatureBySlug, getAllFeatures } from "@/lib/features";
 import Header from "@/components/Header";
 import { SpotPhoto } from "@/components/SpotPhoto";
 import ContextualPRSection from "@/components/ContextualPRSection";
+import SnsContentGenerator from "@/components/SnsContentGenerator";
 import Footer from "@/components/Footer";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://nightchill-sr5g.vercel.app";
@@ -318,6 +319,9 @@ export default async function FeatureDetailPage({ params }: PageProps) {
 
           {/* Contextual PR */}
           <ContextualPRSection area={feature.area} />
+
+          {/* SNS Content Generator */}
+          <SnsContentGenerator slug={slug} />
 
           {/* CTA */}
           <div className="mt-12 text-center">

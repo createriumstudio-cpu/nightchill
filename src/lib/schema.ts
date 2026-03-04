@@ -146,3 +146,33 @@ export const chatSessions = pgTable("chat_sessions", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
+
+// SNS Contents (SNSマルチフォーマット変換結果)
+export const snsContents = pgTable("sns_contents", {
+  id: serial("id").primaryKey(),
+  featureSlug: varchar("feature_slug", { length: 255 }).notNull(),
+  platform: varchar("platform", { length: 20 }).notNull(), // "instagram" | "x" | "tiktok"
+  content: jsonb("content").$type<SnsContentJson>().notNull(),
+  generatedAt: timestamp("generated_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+// Type for SNS content JSONB
+export type SnsPlatform = "instagram" | "x" | "tiktok";
+
+export interface InstagramContent {
+  slides: { text: string }[];
+  hashtags: string[];
+}
+
+export interface XContent {
+  tweets: { text: string }[];
+}
+
+export interface TikTokContent {
+  hook: string;
+  body: string;
+  cta: string;
+}
+
+export type SnsContentJson = InstagramContent | XContent | TikTokContent;
