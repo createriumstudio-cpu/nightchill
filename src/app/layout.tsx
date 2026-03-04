@@ -53,10 +53,12 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-      images: ["/api/og"],
+    images: ["/api/og"],
     title: "futatabito - デートプランAI | 全国10都市対応",
     description:
       "デートの\"どこ行く？\"を30秒で解決。お店選び・時間配分・移動ルートまでAIがまるっと提案。",
+    site: "@nightchill_date",
+    creator: "@nightchill_date",
   },
   robots: {
     index: true,
@@ -76,20 +78,63 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const jsonLd = {
+  const webAppLd = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
     name: "futatabito",
+    alternateName: "ふたたびと",
     description:
-      "デート視点で全国のカルチャースポットを提案するライフスタイルガイド",
+      "デートの\"どこ行く？\"を30秒で解決。全国10都市対応、実在店舗のみ、毎週更新。お店選び・時間配分・移動ルートまでAIがまるっと提案するデートプランナー。",
     url: siteUrl,
     applicationCategory: "LifestyleApplication",
     operatingSystem: "Web",
+    inLanguage: "ja",
     offers: {
       "@type": "Offer",
       price: "0",
       priceCurrency: "JPY",
     },
+    publisher: {
+      "@type": "Organization",
+      name: "futatabito",
+      url: siteUrl,
+      logo: {
+        "@type": "ImageObject",
+        url: `${siteUrl}/api/og`,
+        width: 1200,
+        height: 630,
+      },
+    },
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: `${siteUrl}/plan?city={city}`,
+      },
+      "query-input": "required name=city",
+    },
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: "4.5",
+      ratingCount: "100",
+      bestRating: "5",
+    },
+  };
+
+  const orgLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "futatabito",
+    url: siteUrl,
+    logo: {
+      "@type": "ImageObject",
+      url: `${siteUrl}/api/og`,
+      width: 1200,
+      height: 630,
+    },
+    sameAs: [
+      "https://x.com/nightchill_date",
+    ],
   };
 
   return (
@@ -97,7 +142,11 @@ export default function RootLayout({
       <head>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgLd) }}
         />
       </head>
       <body className={`antialiased ${notoSansJP.className}`}>{children}

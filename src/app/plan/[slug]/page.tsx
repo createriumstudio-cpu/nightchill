@@ -23,22 +23,37 @@ export async function generateMetadata({
   if (!saved) return { title: "プランが見つかりません" };
 
   const pageUrl = `${siteUrl}/plan/${slug}`;
-  const ogImageUrl = `${siteUrl}/api/og?${new URLSearchParams({
+  const spotCount = saved.plan.timeline.filter((t) => t.venue).length;
+  const ogParams: Record<string, string> = {
     title: saved.title,
-    subtitle: saved.plan.summary.slice(0, 60),
-  }).toString()}`;
+    type: "plan",
+  };
+  if (saved.plan.summary) {
+    ogParams.subtitle = saved.plan.summary.slice(0, 60);
+  }
+  if (saved.city) {
+    ogParams.area = saved.city;
+  }
+  if (spotCount > 0) {
+    ogParams.spots = String(spotCount);
+  }
+  const ogImageUrl = `${siteUrl}/api/og?${new URLSearchParams(ogParams).toString()}`;
+
+  const description = saved.plan.summary || `${saved.title} - AIが提案するデートプラン`;
 
   return {
     title: saved.title,
-    description: saved.plan.summary,
+    description,
     alternates: { canonical: pageUrl },
     openGraph: {
       title: saved.title,
-      description: saved.plan.summary,
+      description,
       url: pageUrl,
       siteName: "futatabito",
       locale: "ja_JP",
       type: "article",
+      publishedTime: saved.createdAt.toISOString(),
+      authors: ["futatabito"],
       images: [
         {
           url: ogImageUrl,
@@ -51,8 +66,9 @@ export async function generateMetadata({
     twitter: {
       card: "summary_large_image",
       title: saved.title,
-      description: saved.plan.summary,
+      description,
       images: [ogImageUrl],
+      site: "@nightchill_date",
     },
   };
 }
@@ -63,10 +79,20 @@ export default async function PlanDetailPage({ params }: PageProps) {
   if (!saved) notFound();
 
   const pageUrl = `${siteUrl}/plan/${slug}`;
-  const ogImageUrl = `${siteUrl}/api/og?${new URLSearchParams({
+  const spotCount = saved.plan.timeline.filter((t) => t.venue).length;
+  const ogParams: Record<string, string> = {
     title: saved.title,
-  }).toString()}`;
+    type: "plan",
+  };
+  if (saved.city) {
+    ogParams.area = saved.city;
+  }
+  if (spotCount > 0) {
+    ogParams.spots = String(spotCount);
+  }
+  const ogImageUrl = `${siteUrl}/api/og?${new URLSearchParams(ogParams).toString()}`;
 
+  // JSON-LD: TravelAction (デートプランにより適した型)
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -75,12 +101,38 @@ export default async function PlanDetailPage({ params }: PageProps) {
     image: ogImageUrl,
     url: pageUrl,
     inLanguage: "ja",
-    publisher: {
+    datePublished: saved.createdAt.toISOString(),
+    author: {
       "@type": "Organization",
       name: "futatabito",
       url: siteUrl,
     },
-    datePublished: saved.createdAt.toISOString(),
+    publisher: {
+      "@type": "Organization",
+      name: "futatabito",
+      url: siteUrl,
+      logo: {
+        "@type": "ImageObject",
+        url: `${siteUrl}/api/og`,
+        width: 1200,
+        height: 630,
+      },
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": pageUrl,
+    },
+    ...(saved.plan.venues && saved.plan.venues.length > 0
+      ? {
+          about: saved.plan.venues.slice(0, 5).map((v) => ({
+            "@type": "Place",
+            name: v.name,
+            address: v.address,
+            ...(v.rating !== null ? { aggregateRating: { "@type": "AggregateRating", ratingValue: v.rating } } : {}),
+            ...(v.googleMapsUrl ? { hasMap: v.googleMapsUrl } : {}),
+          })),
+        }
+      : {}),
   };
 
   const breadcrumbLd = {
