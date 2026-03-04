@@ -153,6 +153,10 @@ export const snsContents = pgTable("sns_contents", {
   featureSlug: varchar("feature_slug", { length: 255 }).notNull(),
   platform: varchar("platform", { length: 20 }).notNull(), // "instagram" | "x" | "tiktok"
   content: jsonb("content").$type<SnsContentJson>().notNull(),
+  status: varchar("status", { length: 20 }).notNull().default("generated"), // "generated" | "scheduled" | "published" | "failed"
+  scheduledAt: timestamp("scheduled_at", { withTimezone: true }),
+  publishedAt: timestamp("published_at", { withTimezone: true }),
+  platformPostId: varchar("platform_post_id", { length: 255 }),
   generatedAt: timestamp("generated_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
