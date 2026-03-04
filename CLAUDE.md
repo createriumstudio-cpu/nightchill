@@ -86,6 +86,8 @@ src/data/ — features.json（特集データ）
 - GOOGLE_MAPS_API_KEY — Google Maps Embed + Directions
 - NEXT_PUBLIC_SITE_URL — OGP/canonical URL
 - CONTEXTUAL_PR_ENABLED — PR ON/OFF（未設定）
+- STRIPE_SECRET_KEY — Stripe決済（未設定時は決済機能無効）
+- STRIPE_WEBHOOK_SECRET — Stripe Webhook署名検証（本番必須）
 
 ## CI/CD
 
@@ -200,3 +202,46 @@ B案: リアルタイム週次更新 — 「今週のおすすめデートプラ
 
 ### 手動実行
 Vercel Settings > Cron Jobs > /api/cron/weekly-features > "Run" ボタン
+
+## マネタイズ基盤 (Phase 4)
+
+### 概要
+自社商材の文脈連動型レコメンド + EC決済 + 提携店舗予約システム
+
+### ファイル構成
+- src/lib/products.ts — 商品マッチングロジック (findRecommendedProducts, getProductBySlug, getActiveProducts)
+- src/lib/stripe.ts — Stripe決済クライアント + 注文/予約番号生成
+- src/components/ProductRecommendation.tsx — 結果画面用の文脈連動型商品レコメンドUI
+
+### データベーステーブル (schema.ts)
+- products — 自社商材（ブレスケア、会話カード等）。targetOccasions/targetMoods/targetBudgetsでコンテキストマッチング
+- orders — 注文管理。Stripe連携（stripeSessionId, stripePaymentIntentId）
+- partnerVenues — 提携店舗マスター。エリア/都市/カテゴリでフィルタ
+- reservations — 予約管理。提携店舗への予約リクエスト
+
+### API
+- /api/products — 公開商品一覧 or コンテキストマッチング（occasion/mood/budgetパラメータ）
+- /api/products/[slug] — 商品詳細
+- /api/checkout — Stripeチェックアウトセッション作成
+- /api/webhook/stripe — Stripe Webhook（checkout.session.completed処理）
+- /api/reservations — 予約作成
+- /api/admin/products — 商品CRUD（管理者認証必須）
+- /api/admin/products/[id] — 商品個別管理
+- /api/admin/partner-venues — 提携店舗CRUD
+- /api/admin/partner-venues/[id] — 提携店舗個別管理
+- /api/admin/reservations — 予約一覧
+
+### ページ
+- /products — 商品カタログ（ISR 1時間）
+- /products/[slug] — 商品詳細 + 購入ボタン
+- /checkout/success — 購入完了
+- /checkout/cancel — 購入キャンセル
+
+### コンテキストマッチング
+プラン生成時にsessionStorageに保存されるcontext（occasion/mood/budget）を使い、
+結果画面でProductRecommendationコンポーネントが/api/productsへスコアリングリクエスト。
+マッチ度: occasion+mood+budget全マッチ(3) > occasion+mood(2) > occasion or mood(1)
+
+### 環境変数
+- STRIPE_SECRET_KEY — Stripe決済（未設定時は決済機能無効）
+- STRIPE_WEBHOOK_SECRET — Stripe Webhook署名検証

@@ -180,3 +180,104 @@ export interface TikTokContent {
 }
 
 export type SnsContentJson = InstagramContent | XContent | TikTokContent;
+
+// ── Phase 4: マネタイズ基盤 ──
+
+// Products (自社商材: ブレスケア、会話カード等)
+export const products = pgTable("products", {
+  id: serial("id").primaryKey(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  name: varchar("name", { length: 200 }).notNull(),
+  description: text("description").notNull(),
+  shortDescription: varchar("short_description", { length: 300 }),
+  price: integer("price").notNull(), // 円（税込）
+  imageUrl: text("image_url"),
+  category: varchar("category", { length: 50 }).notNull(), // "breath-care" | "conversation-card" | "gift" | "experience" | "fashion" | "other"
+  // コンテキストマッチング用
+  targetOccasions: jsonb("target_occasions").$type<string[]>().default([]),
+  targetMoods: jsonb("target_moods").$type<string[]>().default([]),
+  targetBudgets: jsonb("target_budgets").$type<string[]>().default([]),
+  // Stripe連携
+  stripeProductId: varchar("stripe_product_id", { length: 255 }),
+  stripePriceId: varchar("stripe_price_id", { length: 255 }),
+  // 管理
+  isActive: boolean("is_active").default(true),
+  stock: integer("stock"), // null = 無制限
+  sortOrder: integer("sort_order").default(0),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});
+
+// Product type for JSONB references
+export interface ProductJson {
+  id: number;
+  slug: string;
+  name: string;
+  price: number;
+  imageUrl: string | null;
+  category: string;
+}
+
+// Orders (注文)
+export const orders = pgTable("orders", {
+  id: serial("id").primaryKey(),
+  orderNumber: varchar("order_number", { length: 50 }).notNull().unique(),
+  productId: integer("product_id").notNull(),
+  quantity: integer("quantity").notNull().default(1),
+  totalAmount: integer("total_amount").notNull(), // 円
+  status: varchar("status", { length: 30 }).notNull().default("pending"), // "pending" | "paid" | "shipped" | "delivered" | "cancelled" | "refunded"
+  // 顧客情報
+  customerEmail: varchar("customer_email", { length: 255 }).notNull(),
+  customerName: varchar("customer_name", { length: 200 }),
+  shippingAddress: text("shipping_address"),
+  // Stripe連携
+  stripeSessionId: varchar("stripe_session_id", { length: 255 }),
+  stripePaymentIntentId: varchar("stripe_payment_intent_id", { length: 255 }),
+  // 紐づけ（どのプランから購入したか）
+  planSlug: varchar("plan_slug", { length: 20 }),
+  // タイムスタンプ
+  paidAt: timestamp("paid_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});
+
+// Partner Venues (提携店舗 — 予約対応)
+export const partnerVenues = pgTable("partner_venues", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 200 }).notNull(),
+  description: text("description"),
+  category: varchar("category", { length: 50 }).notNull(), // "restaurant" | "hotel" | "experience" | "other"
+  area: varchar("area", { length: 100 }).notNull(),
+  city: varchar("city", { length: 50 }).notNull(),
+  address: text("address"),
+  phone: varchar("phone", { length: 30 }),
+  websiteUrl: text("website_url"),
+  imageUrl: text("image_url"),
+  bookingUrl: text("booking_url"), // 外部予約URL（ホットペッパー等）
+  priceRange: varchar("price_range", { length: 50 }), // "3,000〜5,000円"
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});
+
+// Reservations (予約)
+export const reservations = pgTable("reservations", {
+  id: serial("id").primaryKey(),
+  reservationNumber: varchar("reservation_number", { length: 50 }).notNull().unique(),
+  venueId: integer("venue_id").notNull(),
+  status: varchar("status", { length: 30 }).notNull().default("pending"), // "pending" | "confirmed" | "cancelled" | "completed"
+  // 予約情報
+  date: varchar("date", { length: 10 }).notNull(), // "2026-03-15"
+  time: varchar("time", { length: 5 }).notNull(), // "18:00"
+  partySize: integer("party_size").notNull().default(2),
+  // 顧客情報
+  customerName: varchar("customer_name", { length: 200 }).notNull(),
+  customerEmail: varchar("customer_email", { length: 255 }).notNull(),
+  customerPhone: varchar("customer_phone", { length: 30 }),
+  specialRequests: text("special_requests"),
+  // 紐づけ
+  planSlug: varchar("plan_slug", { length: 20 }),
+  // タイムスタンプ
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});

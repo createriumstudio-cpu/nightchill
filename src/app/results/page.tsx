@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import ProductRecommendation from "@/components/ProductRecommendation";
 import { type DatePlan } from "@/lib/types";
 import { decodePlan, buildShareUrl } from "@/lib/plan-encoder";
 import type { VenueFactData } from "@/lib/google-places";
@@ -462,6 +463,12 @@ export default function ResultsPage() {
   const [shareUrl, setShareUrl] = useState<string>("");
   const [urlCopied, setUrlCopied] = useState(false);
   const [timelineExpanded, setTimelineExpanded] = useState(false);
+  const [planContext] = useState<{ occasion: string; mood: string; budget: string } | null>(() => {
+    if (typeof window === "undefined") return null;
+    const raw = sessionStorage.getItem("futatabito-context");
+    if (!raw) return null;
+    try { return JSON.parse(raw); } catch { return null; }
+  });
 
   // URLハッシュからプランを読み込み
   useEffect(() => {
@@ -727,6 +734,14 @@ export default function ResultsPage() {
           <OverviewMap venues={plan.venues} />
         )}
 
+        {/* Product Recommendations - 文脈連動型商品レコメンド */}
+        {planContext && !isSharedView && (
+          <ProductRecommendation
+            occasion={planContext.occasion}
+            mood={planContext.mood}
+            budget={planContext.budget}
+          />
+        )}
 
         {/* Share */}
         <section className="mt-12 rounded-2xl border border-border bg-surface p-6">
