@@ -100,6 +100,18 @@ export default function AdminDashboard() {
               >
                 PR 管理
           </Link>
+          <Link
+            href="/admin/products"
+            className="bg-amber-700 hover:bg-amber-600 px-4 py-2 rounded text-sm font-medium"
+          >
+            商品管理
+          </Link>
+          <Link
+            href="/admin/partner-venues"
+            className="bg-teal-700 hover:bg-teal-600 px-4 py-2 rounded text-sm font-medium"
+          >
+            提携店舗
+          </Link>
       </header>
 
       <main className="max-w-5xl mx-auto px-6 py-8">

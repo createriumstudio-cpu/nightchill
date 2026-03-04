@@ -152,6 +152,11 @@ function PlanPageContent() {
       } else {
         sessionStorage.setItem("futatabito-plan", JSON.stringify(data));
         sessionStorage.setItem("futatabito-location", combinedLocation);
+        sessionStorage.setItem("futatabito-context", JSON.stringify({
+          occasion: activities[0] || "dinner",
+          mood,
+          budget,
+        }));
         router.push("/results");
       }
     } catch (err) {
