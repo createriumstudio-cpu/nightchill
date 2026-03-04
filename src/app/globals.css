@@ -127,6 +127,16 @@ html {
   animation: fadeIn 0.3s ease-out;
 }
 
+/* Toast notification animation */
+@keyframes toast-in {
+  0% { opacity: 0; transform: translate(-50%, 16px); }
+  100% { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.animate-toast-in {
+  animation: toast-in 0.3s ease-out;
+}
+
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;

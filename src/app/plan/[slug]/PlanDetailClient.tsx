@@ -460,6 +460,84 @@ function OverviewMap({ venues }: { venues: VenueFactData[] }) {
 }
 
 // ============================================================
+// SVG アイコン
+// ============================================================
+function LineIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.105.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314" />
+    </svg>
+  );
+}
+
+function XIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  );
+}
+
+function FacebookIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+    </svg>
+  );
+}
+
+function CopyIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+    </svg>
+  );
+}
+
+function CheckIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  );
+}
+
+function ShareIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+      <polyline points="16 6 12 2 8 6" />
+      <line x1="12" y1="2" x2="12" y2="15" />
+    </svg>
+  );
+}
+
+function LinkIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+    </svg>
+  );
+}
+
+// ============================================================
+// トースト通知コンポーネント
+// ============================================================
+function Toast({ message, visible }: { message: string; visible: boolean }) {
+  if (!visible) return null;
+  return (
+    <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 animate-toast-in">
+      <div className="flex items-center gap-2 rounded-full bg-foreground px-5 py-3 text-sm font-medium text-background shadow-lg">
+        <CheckIcon className="h-4 w-4" />
+        {message}
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
 // メインコンポーネント
 // ============================================================
 export default function PlanDetailClient({
@@ -472,50 +550,47 @@ export default function PlanDetailClient({
   const [copied, setCopied] = useState(false);
   const [urlCopied, setUrlCopied] = useState(false);
   const [timelineExpanded, setTimelineExpanded] = useState(false);
-  const [shareUrl, setShareUrl] = useState("");
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastVisible, setToastVisible] = useState(false);
 
-    useEffect(() => {
-          setShareUrl(`${window.location.origin}/plan/${slug}`);
-    }, [slug]);
+  const shareUrl = typeof window !== "undefined" ? `${window.location.origin}/plan/${slug}` : "";
+  const canNativeShare = typeof navigator !== "undefined" && !!navigator.share;
 
-  const handleCopyText = useCallback(async () => {
+  const showToast = useCallback((message: string) => {
+    setToastMessage(message);
+    setToastVisible(true);
+    setTimeout(() => setToastVisible(false), 2500);
+  }, []);
+
+  const copyToClipboard = useCallback(async (text: string): Promise<void> => {
     try {
-      await navigator.clipboard.writeText(planToText(plan));
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      await navigator.clipboard.writeText(text);
     } catch {
       const textarea = document.createElement("textarea");
-      textarea.value = planToText(plan);
+      textarea.value = text;
       textarea.style.position = "fixed";
       textarea.style.opacity = "0";
       document.body.appendChild(textarea);
       textarea.select();
       document.execCommand("copy");
       document.body.removeChild(textarea);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
     }
-  }, [plan]);
+  }, []);
+
+  const handleCopyText = useCallback(async () => {
+    await copyToClipboard(planToText(plan));
+    setCopied(true);
+    showToast("プランをコピーしました");
+    setTimeout(() => setCopied(false), 2500);
+  }, [plan, copyToClipboard, showToast]);
 
   const handleCopyUrl = useCallback(async () => {
     if (!shareUrl) return;
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      setUrlCopied(true);
-      setTimeout(() => setUrlCopied(false), 2000);
-    } catch {
-      const textarea = document.createElement("textarea");
-      textarea.value = shareUrl;
-      textarea.style.position = "fixed";
-      textarea.style.opacity = "0";
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textarea);
-      setUrlCopied(true);
-      setTimeout(() => setUrlCopied(false), 2000);
-    }
-  }, [shareUrl]);
+    await copyToClipboard(shareUrl);
+    setUrlCopied(true);
+    showToast("URLをコピーしました");
+    setTimeout(() => setUrlCopied(false), 2500);
+  }, [shareUrl, copyToClipboard, showToast]);
 
   const handleShareLine = useCallback(() => {
     const timelineText = plan.timeline
@@ -537,6 +612,31 @@ export default function PlanDetailClient({
       (typeof window !== "undefined" ? window.location.origin : "");
     const url = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(xUrl)}`;
     window.open(url, "_blank", "noopener,noreferrer");
+  }, [plan, shareUrl]);
+
+  const handleShareFacebook = useCallback(() => {
+    const fbUrl =
+      shareUrl ||
+      (typeof window !== "undefined" ? window.location.origin : "");
+    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(fbUrl)}`;
+    window.open(url, "_blank", "noopener,noreferrer,width=600,height=400");
+  }, [shareUrl]);
+
+  const handleNativeShare = useCallback(async () => {
+    if (!navigator.share) return;
+    const timelineText = plan.timeline
+      .filter((item) => item.venue)
+      .map((item) => `${item.time} ${item.venue}`)
+      .join(" → ");
+    try {
+      await navigator.share({
+        title: plan.title,
+        text: `${plan.title}\n${timelineText}`,
+        url: shareUrl,
+      });
+    } catch {
+      // User cancelled or share failed — silently ignore
+    }
   }, [plan, shareUrl]);
 
   // Venue matching: timeline.venue -> VenueFactData (3段階マッチング)
@@ -732,6 +832,7 @@ export default function PlanDetailClient({
 
         {shareUrl && (
           <div className="mb-5 flex items-center gap-2 rounded-xl border border-border bg-background p-3">
+            <LinkIcon className="h-4 w-4 shrink-0 text-muted" />
             <input
               type="text"
               readOnly
@@ -741,34 +842,70 @@ export default function PlanDetailClient({
             />
             <button
               onClick={handleCopyUrl}
-              className="shrink-0 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-white transition-opacity hover:opacity-90"
+              className="shrink-0 flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-white transition-all hover:bg-primary-dark hover:shadow-md active:scale-95"
             >
-              {urlCopied ? "コピー済み ✓" : "URLをコピー"}
+              {urlCopied ? (
+                <>
+                  <CheckIcon className="h-3.5 w-3.5" />
+                  コピー済み
+                </>
+              ) : (
+                <>
+                  <CopyIcon className="h-3.5 w-3.5" />
+                  URLをコピー
+                </>
+              )}
             </button>
           </div>
         )}
 
-        <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+        <div className="flex flex-wrap items-center justify-center gap-3">
           <button
             onClick={handleCopyText}
-            className="flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-medium transition-all hover:border-primary/50 hover:bg-primary/5"
+            className="group flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-medium transition-all duration-200 hover:border-primary/50 hover:bg-primary/5 hover:shadow-md active:scale-95"
           >
+            {copied ? (
+              <CheckIcon className="h-4 w-4 text-green-600" />
+            ) : (
+              <CopyIcon className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
+            )}
             {copied ? "コピーしました！" : "テキストをコピー"}
           </button>
           <button
             onClick={handleShareLine}
-            className="flex items-center gap-2 rounded-full bg-[#06C755] px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+            className="group flex items-center gap-2 rounded-full bg-[#06C755] px-5 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:bg-[#05b34c] hover:shadow-md hover:shadow-[#06C755]/25 active:scale-95"
           >
-            LINEで共有
+            <LineIcon className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
+            LINE
           </button>
           <button
             onClick={handleShareX}
-            className="flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-opacity hover:opacity-90"
+            className="group flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-all duration-200 hover:opacity-90 hover:shadow-md hover:shadow-foreground/25 active:scale-95"
           >
-            Xでシェア
+            <XIcon className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
+            X
           </button>
+          <button
+            onClick={handleShareFacebook}
+            className="group flex items-center gap-2 rounded-full bg-[#1877F2] px-5 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:bg-[#166fe5] hover:shadow-md hover:shadow-[#1877F2]/25 active:scale-95"
+          >
+            <FacebookIcon className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
+            Facebook
+          </button>
+          {canNativeShare && (
+            <button
+              onClick={handleNativeShare}
+              className="group flex items-center gap-2 rounded-full border border-primary bg-primary/5 px-5 py-2.5 text-sm font-medium text-primary transition-all duration-200 hover:bg-primary/10 hover:shadow-md active:scale-95 sm:hidden"
+            >
+              <ShareIcon className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
+              その他で共有
+            </button>
+          )}
         </div>
       </section>
+
+      {/* Toast notification */}
+      <Toast message={toastMessage} visible={toastVisible} />
 
       {/* Actions */}
       <div className="mt-12 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
