@@ -73,6 +73,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title,
       description,
       images: [ogImageUrl],
+      site: "@nightchill_date",
     },
   };
 }
@@ -100,11 +101,14 @@ export default async function FeatureDetailPage({ params }: PageProps) {
       logo: {
         "@type": "ImageObject",
         url: `${siteUrl}/api/og`,
+        width: 1200,
+        height: 630,
       },
     },
     author: {
       "@type": "Organization",
       name: "futatabito",
+      url: siteUrl,
     },
     datePublished: feature.publishedAt,
     dateModified: feature.updatedAt,
@@ -118,13 +122,12 @@ export default async function FeatureDetailPage({ params }: PageProps) {
       address: {
         "@type": "PostalAddress",
         addressLocality: feature.area,
-        addressRegion: "東京都",
         addressCountry: "JP",
       },
     },
     keywords: [
       `${feature.area} デート`,
-      `${feature.area} ディナー`,
+      `${feature.area} おすすめ`,
       ...feature.tags,
     ],
   };

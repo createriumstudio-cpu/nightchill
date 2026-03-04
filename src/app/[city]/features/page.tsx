@@ -29,6 +29,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = `${city.name}のデート特集`;
   const description = `${city.name}エリアのおすすめデートプラン特集。${city.name}で人気のデートスポットをプロの視点で厳選して紹介します。`;
 
+  const ogImageUrl = `${siteUrl}/api/og?${new URLSearchParams({
+    title: `${city.name}のデート特集`,
+    area: city.name,
+    subtitle: `${city.name}で人気のデートスポットを厳選紹介`,
+  }).toString()}`;
+
   return {
     title,
     description,
@@ -40,6 +46,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       siteName: "futatabito",
       locale: "ja_JP",
       type: "website",
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${city.name}のデート特集`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImageUrl],
+      site: "@nightchill_date",
     },
   };
 }

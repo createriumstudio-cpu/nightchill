@@ -65,6 +65,13 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: `${city.name}のデートプラン`,
       description,
+      images: [
+        `${siteUrl}/api/og?${new URLSearchParams({
+          title: `${city.name}のデートプラン`,
+          area: city.name,
+        }).toString()}`,
+      ],
+      site: "@nightchill_date",
     },
   };
 }
@@ -110,6 +117,7 @@ export default async function CityLandingPage({ params }: PageProps) {
     "@context": "https://schema.org",
     "@type": "Place",
     name: city.name,
+    description: city.description,
     address: {
       "@type": "PostalAddress",
       addressLocality: city.name,

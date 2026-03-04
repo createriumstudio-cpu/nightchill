@@ -3,13 +3,201 @@ import { NextRequest } from "next/server";
 
 export const runtime = "edge";
 
+const BRAND_TAGLINE = "「失敗しない」を、ふたりの自信に。";
+
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const title = searchParams.get("title");
   const area = searchParams.get("area");
   const subtitle = searchParams.get("subtitle");
+  const type = searchParams.get("type"); // "plan" | "feature" | null
+  const spots = searchParams.get("spots"); // タイムラインのスポット数
 
-  // エリア指定ありの場合: 特集ページ用画像
+  // ── プラン専用OG画像 ──
+  if (type === "plan") {
+    const spotCount = spots ? parseInt(spots, 10) : 0;
+    return new ImageResponse(
+      (
+        <div
+          style={{
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            background:
+              "linear-gradient(135deg, #1a1a2e 0%, #16213e 30%, #1e3a5f 60%, #1a1a2e 100%)",
+            fontFamily: "system-ui, sans-serif",
+            position: "relative",
+          }}
+        >
+          {/* 上部アクセントライン */}
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              height: "6px",
+              background: "linear-gradient(90deg, #c9a96e, #c9485b, #c9a96e)",
+              display: "flex",
+            }}
+          />
+
+          {/* メインコンテンツ */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "16px",
+              padding: "0 60px",
+            }}
+          >
+            {/* プランバッジ */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+              }}
+            >
+              {area && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    background: "rgba(201, 169, 110, 0.15)",
+                    border: "1px solid rgba(201, 169, 110, 0.4)",
+                    borderRadius: "9999px",
+                    padding: "6px 20px",
+                  }}
+                >
+                  <span style={{ fontSize: "16px", display: "flex" }}>📍</span>
+                  <span
+                    style={{
+                      fontSize: "20px",
+                      fontWeight: "bold",
+                      color: "#c9a96e",
+                      display: "flex",
+                    }}
+                  >
+                    {area}
+                  </span>
+                </div>
+              )}
+              {spotCount > 0 && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    background: "rgba(201, 72, 91, 0.15)",
+                    border: "1px solid rgba(201, 72, 91, 0.4)",
+                    borderRadius: "9999px",
+                    padding: "6px 20px",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: "20px",
+                      fontWeight: "bold",
+                      color: "#c9485b",
+                      display: "flex",
+                    }}
+                  >
+                    {spotCount}スポット
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* タイトル */}
+            <div
+              style={{
+                fontSize: title && title.length > 20 ? "40px" : "48px",
+                fontWeight: "bold",
+                color: "#ffffff",
+                textAlign: "center",
+                lineHeight: 1.3,
+                display: "flex",
+                maxWidth: "900px",
+              }}
+            >
+              {title || "デートプラン"}
+            </div>
+
+            {/* サブタイトル */}
+            {subtitle && (
+              <div
+                style={{
+                  fontSize: "20px",
+                  color: "#94a3b8",
+                  textAlign: "center",
+                  lineHeight: 1.5,
+                  maxWidth: "800px",
+                  display: "flex",
+                }}
+              >
+                {subtitle}
+              </div>
+            )}
+          </div>
+
+          {/* 下部ロゴ */}
+          <div
+            style={{
+              position: "absolute",
+              bottom: "36px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "6px",
+            }}
+          >
+            <div
+              style={{
+                fontSize: "26px",
+                fontWeight: "bold",
+                color: "#ffffff",
+                display: "flex",
+              }}
+            >
+              <span style={{ color: "#c9a96e" }}>futa</span>
+              <span>tabito</span>
+            </div>
+            <div
+              style={{
+                fontSize: "13px",
+                color: "#94a3b8",
+                display: "flex",
+              }}
+            >
+              デートプランAI | 全国10都市対応
+            </div>
+          </div>
+
+          {/* 下部アクセントライン */}
+          <div
+            style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: "4px",
+              background: "linear-gradient(90deg, #c9a96e, #c9485b, #c9a96e)",
+              display: "flex",
+            }}
+          />
+        </div>
+      ),
+      { width: 1200, height: 630 },
+    );
+  }
+
+  // ── タイトル/エリア指定あり: 特集・記事・都市ページ用画像 ──
   if (title || area) {
     return new ImageResponse(
       (
@@ -27,7 +215,7 @@ export async function GET(request: NextRequest) {
             position: "relative",
           }}
         >
-          {/* 装飾: 上部アクセントライン */}
+          {/* 上部アクセントライン */}
           <div
             style={{
               position: "absolute",
@@ -64,7 +252,11 @@ export async function GET(request: NextRequest) {
                 }}
               >
                 <span
-                  style={{ fontSize: "20px", color: "#c9a96e", display: "flex" }}
+                  style={{
+                    fontSize: "20px",
+                    color: "#c9a96e",
+                    display: "flex",
+                  }}
                 >
                   📍
                 </span>
@@ -113,7 +305,7 @@ export async function GET(request: NextRequest) {
             )}
           </div>
 
-          {/* 下部: ロゴ + サブタイトル */}
+          {/* 下部ロゴ */}
           <div
             style={{
               position: "absolute",
@@ -142,19 +334,16 @@ export async function GET(request: NextRequest) {
                 display: "flex",
               }}
             >
-              デート視点の東京カルチャーガイド
+              デートプランAI | 全国10都市対応
             </div>
           </div>
         </div>
       ),
-      {
-        width: 1200,
-        height: 630,
-      },
+      { width: 1200, height: 630 },
     );
   }
 
-  // デフォルト: トップページ用画像（現在のグラデーションデザイン）
+  // ── デフォルト: トップページ用画像 ──
   return new ImageResponse(
     (
       <div
@@ -171,7 +360,7 @@ export async function GET(request: NextRequest) {
           position: "relative",
         }}
       >
-        {/* 装飾: 上部アクセントライン */}
+        {/* 上部アクセントライン */}
         <div
           style={{
             position: "absolute",
@@ -210,7 +399,7 @@ export async function GET(request: NextRequest) {
               display: "flex",
             }}
           >
-            デート視点の東京カルチャーガイド
+            デートプランAI | 全国10都市対応
           </div>
           <div
             style={{
@@ -220,7 +409,7 @@ export async function GET(request: NextRequest) {
               display: "flex",
             }}
           >
-            ふたりの時間を、もっとおもしろく。
+            {BRAND_TAGLINE}
           </div>
         </div>
 
@@ -238,9 +427,6 @@ export async function GET(request: NextRequest) {
         />
       </div>
     ),
-    {
-      width: 1200,
-      height: 630,
-    },
+    { width: 1200, height: 630 },
   );
 }

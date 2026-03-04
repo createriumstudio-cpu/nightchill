@@ -2,6 +2,8 @@
 
 import Script from "next/script";
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://futatabito.com";
+
 interface JsonLdProps {
   type?: "website" | "article" | "organization";
   title?: string;
@@ -11,8 +13,6 @@ interface JsonLdProps {
 }
 
 export default function JsonLd({ type = "website", title, description, url, image }: JsonLdProps) {
-  const siteUrl = "https://nightchill-sr5g.vercel.app";
-
   const baseData = {
     "@context": "https://schema.org",
   };
@@ -31,10 +31,9 @@ export default function JsonLd({ type = "website", title, description, url, imag
         width: 1200,
         height: 630,
       },
-      description: "デート視点の東京カルチャーガイド。ふたりの時間を、もっとおもしろく。",
+      description: "デートの\"どこ行く？\"を30秒で解決。全国10都市対応のデートプランAI。",
       sameAs: [
         "https://x.com/nightchill_date",
-        "https://www.instagram.com/nightchill_date",
       ],
     };
   } else if (type === "article") {
@@ -44,11 +43,17 @@ export default function JsonLd({ type = "website", title, description, url, imag
       headline: title || "futatabito",
       description: description || "",
       url: url || siteUrl,
-      image: image || `${siteUrl}/favicon.ico`,
+      image: image || `${siteUrl}/api/og`,
+      inLanguage: "ja",
       publisher: {
         "@type": "Organization",
         name: "futatabito",
-        logo: { "@type": "ImageObject", url: `${siteUrl}/favicon.ico` },
+        logo: {
+          "@type": "ImageObject",
+          url: `${siteUrl}/api/og`,
+          width: 1200,
+          height: 630,
+        },
       },
     };
   } else {
@@ -57,10 +62,14 @@ export default function JsonLd({ type = "website", title, description, url, imag
       "@type": "WebSite",
       name: "futatabito",
       url: siteUrl,
-      description: description || "デート視点の東京カルチャーガイド。ふたりの時間を、もっとおもしろく。",
+      description: description || "デートの\"どこ行く？\"を30秒で解決。全国10都市対応のデートプランAI。",
+      inLanguage: "ja",
       potentialAction: {
         "@type": "SearchAction",
-        target: `${siteUrl}/plan?q={search_term_string}`,
+        target: {
+          "@type": "EntryPoint",
+          urlTemplate: `${siteUrl}/plan?city={search_term_string}`,
+        },
         "query-input": "required name=search_term_string",
       },
     };
