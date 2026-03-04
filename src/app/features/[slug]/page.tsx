@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { getFeatureBySlug, getAllFeatures } from "@/lib/features";
 import Header from "@/components/Header";
-import { SpotPhoto } from "@/components/SpotPhoto";
+import SpotImage from "@/components/SpotImage";
 import ContextualPRSection from "@/components/ContextualPRSection";
 import SnsContentGenerator from "@/components/SnsContentGenerator";
 import Footer from "@/components/Footer";
@@ -273,7 +273,7 @@ export default async function FeatureDetailPage({ params }: PageProps) {
                     </div>
                   </div>
 
-                  <SpotPhoto spotName={spot.name} area={spot.area} />
+                  <SpotImage spotName={spot.name} area={spot.area} genre={spot.genre} photoUrl={spot.photoUrl} />
 
 <p className="text-gray-300 leading-relaxed mb-4">
                     {spot.description}

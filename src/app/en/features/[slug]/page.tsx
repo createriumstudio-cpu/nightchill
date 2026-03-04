@@ -7,7 +7,7 @@ import { featureTranslations, siteUrl, uiTranslations } from "@/lib/i18n";
 import Header from "@/components/Header";
 import ContextualPRSection from "@/components/ContextualPRSection";
 import Footer from "@/components/Footer";
-import { SpotPhoto } from "@/components/SpotPhoto";
+import SpotImage from "@/components/SpotImage";
 
 const t = uiTranslations.en;
 
@@ -211,7 +211,7 @@ export default async function EnglishFeatureDetailPage({ params }: PageProps) {
                     <p className="text-sm text-gray-400">{spot.genre}</p>
                   </div>
                 </div>
-                    <SpotPhoto spotName={spot.name} area={spot.area} />
+                    <SpotImage spotName={spot.name} area={spot.area} genre={spot.genre} photoUrl={spot.photoUrl} />
                 <p className="text-gray-300 mb-4">{spot.description}</p>
               </div>
             ))}
