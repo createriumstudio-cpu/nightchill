@@ -197,13 +197,23 @@ export default async function FeaturesPage() {
                   href={`/features/${feature.slug}`}
                   className="group overflow-hidden rounded-2xl border border-border bg-surface transition-all hover:shadow-xl hover:border-primary/30"
                 >
-                  {feature.spots[0]?.photoUrl ? (
+                  {feature.heroImage ? (
+                    <div className="relative h-32 w-full overflow-hidden">
+                      <Image
+                        src={feature.heroImage}
+                        alt={feature.title}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    </div>
+                  ) : feature.spots[0]?.photoUrl ? (
                     <div className="relative h-32 w-full overflow-hidden">
                       <Image
                         src={feature.spots[0].photoUrl}
                         alt={feature.spots[0].name}
                         fill
-                        className="object-cover"
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     </div>
                   ) : (
