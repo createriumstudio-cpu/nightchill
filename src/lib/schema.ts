@@ -181,6 +181,38 @@ export interface TikTokContent {
 
 export type SnsContentJson = InstagramContent | XContent | TikTokContent;
 
+// ── Phase 5: リピーター獲得 ──
+
+// Users (匿名ユーザー — Cookie-based)
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  anonId: varchar("anon_id", { length: 100 }).notNull().unique(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  lastSeenAt: timestamp("last_seen_at", { withTimezone: true }).defaultNow(),
+});
+
+// Date History (デート履歴)
+export const dateHistory = pgTable("date_history", {
+  id: serial("id").primaryKey(),
+  anonId: varchar("anon_id", { length: 100 }).notNull(),
+  city: varchar("city", { length: 50 }).notNull(),
+  area: varchar("area", { length: 100 }).notNull(),
+  occasion: varchar("occasion", { length: 50 }).notNull(),
+  mood: varchar("mood", { length: 50 }).notNull(),
+  budget: varchar("budget", { length: 50 }).notNull(),
+  planTitle: text("plan_title").notNull(),
+  planData: jsonb("plan_data").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+});
+
+// User Preferences (ユーザー嗜好 — 履歴から自動計算)
+export const userPreferences = pgTable("user_preferences", {
+  id: serial("id").primaryKey(),
+  anonId: varchar("anon_id", { length: 100 }).notNull().unique(),
+  preferences: jsonb("preferences").notNull().default({}),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});
+
 // ── Phase 4: マネタイズ基盤 ──
 
 // Products (自社商材: ブレスケア、会話カード等)

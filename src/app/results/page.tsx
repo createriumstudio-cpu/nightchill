@@ -463,6 +463,8 @@ export default function ResultsPage() {
   const [shareUrl, setShareUrl] = useState<string>("");
   const [urlCopied, setUrlCopied] = useState(false);
   const [timelineExpanded, setTimelineExpanded] = useState(false);
+  const [historySaved, setHistorySaved] = useState(false);
+  const [historySaving, setHistorySaving] = useState(false);
   const [planContext] = useState<{ occasion: string; mood: string; budget: string } | null>(() => {
     if (typeof window === "undefined") return null;
     const raw = sessionStorage.getItem("futatabito-context");
@@ -552,6 +554,25 @@ export default function ResultsPage() {
     const url = `https://social-plugins.line.me/lineit/share?text=${encodeURIComponent(text)}&url=${encodeURIComponent(lineUrl)}`;
     window.open(url, "_blank", "noopener,noreferrer");
   }, [plan, shareUrl]);
+
+  const handleSaveToHistory = useCallback(async () => {
+    if (!plan || historySaved || historySaving) return;
+    setHistorySaving(true);
+    try {
+      await fetch("/api/auth");
+      const context = planContext || { occasion: "", mood: "", budget: "" };
+      const res = await fetch("/api/history", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan, context: { city: location || "tokyo", area: "", ...context } }),
+      });
+      if (res.ok) setHistorySaved(true);
+    } catch {
+      // silent fail
+    } finally {
+      setHistorySaving(false);
+    }
+  }, [plan, planContext, location, historySaved, historySaving]);
 
   const handleShareX = useCallback(() => {
     if (!plan) return;
@@ -792,13 +813,36 @@ export default function ResultsPage() {
           </div>
         </section>
 
+        {/* Save to History */}
+        {!isSharedView && (
+          <div className="mt-8 text-center">
+            <button
+              onClick={handleSaveToHistory}
+              disabled={historySaved || historySaving}
+              className={`inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-all ${
+                historySaved
+                  ? "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+                  : "border border-border hover:border-primary/50 hover:bg-primary/5"
+              }`}
+            >
+              {historySaving ? "保存中..." : historySaved ? "履歴に保存しました ✓" : "📝 この履歴をマイページに保存"}
+            </button>
+          </div>
+        )}
+
         {/* Actions */}
-        <div className="mt-12 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+        <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
           <Link
             href="/plan"
             className="rounded-full bg-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-primary/25 transition-all hover:bg-primary-dark"
           >
             {isSharedView ? "自分のプランを作成" : "別のプランを作成"}
+          </Link>
+          <Link
+            href="/mypage"
+            className="rounded-full border border-border px-8 py-3.5 text-base font-semibold transition-colors hover:bg-surface"
+          >
+            マイページ
           </Link>
           <Link
             href="/"

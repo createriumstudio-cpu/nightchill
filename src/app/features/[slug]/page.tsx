@@ -3,10 +3,10 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { getFeatureBySlug, getAllFeatures } from "@/lib/features";
+import { searchVenue, type VenueFactData } from "@/lib/google-places";
 import Header from "@/components/Header";
 import SpotImage from "@/components/SpotImage";
 import ContextualPRSection from "@/components/ContextualPRSection";
-import SnsContentGenerator from "@/components/SnsContentGenerator";
 import Footer from "@/components/Footer";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://nightchill-sr5g.vercel.app";
@@ -18,6 +18,34 @@ export const dynamicParams = true;
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
+
+/** Rate-limit helper: 2sec delay between API calls */
+function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/** ISR時に各スポットのGoogle Business Profile情報を取得 */
+async function resolveSpotVenues(
+  spots: { name: string; area: string; genre: string }[],
+): Promise<Map<string, VenueFactData>> {
+  const map = new Map<string, VenueFactData>();
+  for (let i = 0; i < spots.length; i++) {
+    const spot = spots[i];
+    try {
+      const venue = await searchVenue(spot.name, spot.area, spot.genre);
+      if (venue) {
+        map.set(spot.name, venue);
+      }
+    } catch (e) {
+      console.warn(`[feature-detail] searchVenue failed for "${spot.name}":`, e);
+    }
+    // 2sec delay between API calls for rate limiting (skip after last)
+    if (i < spots.length - 1) {
+      await delay(2000);
+    }
+  }
+  return map;
+}
 
 export async function generateStaticParams() {
   const features = await getAllFeatures();
@@ -83,6 +111,9 @@ export default async function FeatureDetailPage({ params }: PageProps) {
   const { slug } = await params;
   const feature = await getFeatureBySlug(slug);
   if (!feature) notFound();
+
+  // ISR時にGoogle Business Profile情報を取得
+  const venueMap = await resolveSpotVenues(feature.spots);
 
   const pageUrl = `${siteUrl}/features/${slug}`;
   const ogImageUrl = `${siteUrl}/api/og?${new URLSearchParams({ title: feature.title, area: feature.area }).toString()}`;
@@ -252,49 +283,85 @@ export default async function FeatureDetailPage({ params }: PageProps) {
         {/* Spots */}
         <section className="max-w-3xl mx-auto px-4 pb-16">
           <div className="space-y-12">
-            {feature.spots.map((spot, index) => (
-              <article
-                key={spot.name}
-                className="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden"
-              >
-                {/* Spot Header */}
-                <div className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="flex items-center justify-center w-10 h-10 rounded-full bg-[#c9485b] text-white font-bold text-lg">
-                      {index + 1}
-                    </span>
-                    <div>
-                      <h2 className="text-xl font-bold"><a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.name + " " + spot.area)}`} target="_blank" rel="noopener noreferrer" className="hover:underline">{spot.name}</a></h2>
-                      <div className="flex items-center gap-2 text-sm text-gray-400">
-                        <span>{spot.area}</span>
-                        <span className="text-gray-600">|</span>
-                        <span>{spot.genre}</span>
-                      </div>
-                    </div>
-                  </div>
+            {feature.spots.map((spot, index) => {
+              const venue = venueMap.get(spot.name);
+              const resolvedPhotoUrl = venue?.photoUrl || spot.photoUrl;
+              const resolvedRating = venue?.rating ?? null;
+              const resolvedGoogleMapsUrl = venue?.googleMapsUrl || null;
+              const spotMapsLink = resolvedGoogleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(spot.name + " " + spot.area)}`;
 
-                  <SpotImage spotName={spot.name} area={spot.area} genre={spot.genre} photoUrl={spot.photoUrl} />
-
-<p className="text-gray-300 leading-relaxed mb-4">
-                    {spot.description}
-                  </p>
-
-                  {/* Tip */}
-                  <div className="bg-[#c9485b]/10 border border-orange-500/20 rounded-xl p-4 mb-4">
-                    <div className="flex items-start gap-2">
-                      <span className="text-orange-400 text-lg">💡</span>
-                      <div>
-                        <div className="text-xs text-orange-400 font-medium mb-1">
-                          デートのコツ
+              return (
+                <article
+                  key={spot.name}
+                  className="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden"
+                >
+                  {/* Spot Header */}
+                  <div className="p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="flex items-center justify-center w-10 h-10 rounded-full bg-[#c9485b] text-white font-bold text-lg">
+                        {index + 1}
+                      </span>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <h2 className="text-xl font-bold">
+                            <a href={spotMapsLink} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                              {spot.name}
+                            </a>
+                          </h2>
+                          {resolvedRating !== null && (
+                            <span className="inline-flex items-center gap-1 rounded-lg bg-amber-500/20 px-2 py-0.5 text-xs font-semibold text-amber-300">
+                              ⭐ {resolvedRating}
+                            </span>
+                          )}
                         </div>
-                        <p className="text-sm text-gray-300">{spot.tip}</p>
+                        <div className="flex items-center gap-2 text-sm text-gray-400">
+                          <span>{spot.area}</span>
+                          <span className="text-gray-600">|</span>
+                          <span>{spot.genre}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                </div>
-              </article>
-            ))}
+                    {/* Photo: Google Places photo > spot.photoUrl > emoji fallback */}
+                    <SpotImage spotName={spot.name} area={spot.area} genre={spot.genre} photoUrl={resolvedPhotoUrl} />
+
+                    <p className="text-gray-300 leading-relaxed mb-4">
+                      {spot.description}
+                    </p>
+
+                    {/* Tip */}
+                    <div className="bg-[#c9485b]/10 border border-orange-500/20 rounded-xl p-4 mb-4">
+                      <div className="flex items-start gap-2">
+                        <span className="text-orange-400 text-lg">💡</span>
+                        <div>
+                          <div className="text-xs text-orange-400 font-medium mb-1">
+                            デートのコツ
+                          </div>
+                          <p className="text-sm text-gray-300">{spot.tip}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Google Maps Link */}
+                    {resolvedGoogleMapsUrl && (
+                      <a
+                        href={resolvedGoogleMapsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-sm text-orange-400 hover:text-orange-300 transition-colors"
+                      >
+                        📍 Google Maps で見る
+                      </a>
+                    )}
+                    {venue?.source === "google_places" && (
+                      <p className="mt-2 text-[11px] text-gray-500">
+                        店舗情報提供: <span translate="no" className="font-normal" style={{ fontFamily: "Roboto, sans-serif" }}>Google Maps</span>
+                      </p>
+                    )}
+                  </div>
+                </article>
+              );
+            })}
           </div>
 
           {/* Walking Route Suggestion */}
@@ -319,9 +386,6 @@ export default async function FeatureDetailPage({ params }: PageProps) {
 
           {/* Contextual PR */}
           <ContextualPRSection area={feature.area} />
-
-          {/* SNS Content Generator */}
-          <SnsContentGenerator slug={slug} />
 
           {/* CTA */}
           <div className="mt-12 text-center">
