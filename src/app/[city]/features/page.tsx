@@ -188,7 +188,7 @@ function FeatureCard({ feature }: { feature: FeaturedArticle }) {
       className="group overflow-hidden rounded-2xl border border-border bg-surface transition-all hover:shadow-xl hover:border-primary/30"
     >
       {feature.heroImage ? (
-        <div className="relative h-48 w-full overflow-hidden">
+        <div className="relative w-full aspect-[16/9] overflow-hidden">
           <Image
             src={feature.heroImage}
             alt={feature.title}
@@ -203,7 +203,7 @@ function FeatureCard({ feature }: { feature: FeaturedArticle }) {
           </div>
         </div>
       ) : feature.spots[0]?.photoUrl ? (
-        <div className="relative h-48 w-full overflow-hidden">
+        <div className="relative w-full aspect-[16/9] overflow-hidden">
           <Image
             src={feature.spots[0].photoUrl}
             alt={feature.spots[0].name}
@@ -212,7 +212,7 @@ function FeatureCard({ feature }: { feature: FeaturedArticle }) {
           />
         </div>
       ) : (
-        <div className="flex h-48 items-center justify-center bg-surface-alt">
+        <div className="flex aspect-[16/9] items-center justify-center bg-surface-alt">
           <span className="text-6xl">{feature.heroEmoji}</span>
         </div>
       )}
