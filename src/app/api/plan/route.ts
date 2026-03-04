@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { generateDatePlan } from "@/lib/planner";
 import { generateAIPlan } from "@/lib/ai-planner";
 import { savePlan } from "@/lib/plans";
+import { saveToHistory } from "@/lib/date-history";
+import { getUserIdFromRequest } from "@/lib/user-auth";
 import type { PlanRequest, Mood, Budget, AgeGroup } from "@/lib/types";
 import { CITY_IDS } from "@/lib/cities";
 
@@ -117,6 +119,23 @@ export async function POST(request: Request) {
     }
 
     const slug = await savePlan(plan, sanitizedRequest.city, sanitizedRequest.location);
+
+    // Auto-save to history (best-effort, don't block response)
+    try {
+      const anonId = getUserIdFromRequest(request);
+      if (anonId) {
+        await saveToHistory(anonId, plan, {
+          city: sanitizedRequest.city,
+          area: sanitizedRequest.location,
+          occasion: sanitizedRequest.relationship || "",
+          mood: sanitizedRequest.mood || "",
+          budget: sanitizedRequest.budget || "",
+        });
+      }
+    } catch (historyError) {
+      console.error("[api/plan] Auto-save to history failed:", historyError);
+    }
+
     return NextResponse.json({ ...plan, slug });
   } catch {
     return NextResponse.json(
