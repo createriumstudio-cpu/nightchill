@@ -409,7 +409,7 @@ export async function generateWeeklyFeature(
       publishedAt: now,
       updatedAt: now,
       heroEmoji: article.heroEmoji,
-      heroImage: null,
+      heroImage: article.spots?.[0]?.photoUrl || null,
       spots: article.spots,
       isPublished: true,
     }).onConflictDoUpdate({
