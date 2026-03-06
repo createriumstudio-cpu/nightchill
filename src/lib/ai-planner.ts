@@ -112,6 +112,20 @@ const SYSTEM_PROMPT = `あなたは日本全国のデートプランニングの
 7. venue の例: "ABOUT LIFE COFFEE BREWERS", "代々木公園", "恵比寿ガーデンプレイス", "森美術館"
 8. 「カフェで休憩」のような一般名ではなく、具体的な実在店舗名を必ず入れる
 
+【venue フィールドの絶対ルール ― 最重要・厳守】
+− venueには必ず「固有名詞の店舗名・施設名」を書くこと。これが最も重要なルール
+− 禁止パターン（以下は絶対に書いてはいけない）：
+  × 「国分町で待ち合わせ」「国分町のカフェ」「新宿のレストラン」（エリア名+一般名）
+  × 「ランチ」「ディナー」「カフェで休憩」「バーで乾杯」（ジャンル名のみ）
+  × 「待ち合わせ」「集合」「移動」（行動の説明のみ）
+  × 「おしゃれなカフェ」「人気のイタリアン」（形容詞+ジャンル名）
+− 正しい例：
+  ○ 「牛たん炭焼 利久 一番町本店」「ずんだ茶寮」「カフェ モーツァルト」
+  ○ 「仙台朝市」「瑞鳳殿」「SENDAI COFFEE STAND」
+  ○ 「鉄板焼き 國分」「Bar Andy」「Cafe BLUE」
+− 待ち合わせ場所もvenueに具体的な場所名を入れる（例：「仙台駅 ペデストリアンデッキ」「渋谷ハチ公前」）
+− あなたが知っている実在の店舗名を使うこと。知らない場合は、そのエリアにありそうな具体的な店名を推測して書くこと
+
 以下のJSON構造で応答してください：
 {
   "title": "プランのタイトル（20文字以内）",
@@ -265,7 +279,8 @@ function buildUserPrompt(
     parts.push("※宿泊プランではありません。ホテルチェックインや宿泊施設の提案は不要です。");
   }
 
-  parts.push("→ 【重要】timeline各項目のvenueには必ず実在する店舗名を入れてください。空にしないでください");
+  const areaName = request.location || "エリア名";
+  parts.push(`→ 【最重要】timeline各項目のvenueには必ず「固有名詞の実在店舗名」を入れてください。「${areaName}でランチ」のような一般的表現は禁止。具体的な店名（例：牛たん炭焼 利久、Cafe BLUE等）を必ず書くこと`);
 
   // Season-specific prompt
   if (month >= 3 && month <= 5) {
@@ -591,6 +606,15 @@ export async function generateAIPlan(request: PlanRequest): Promise<DatePlan> {
       console.log(`AI response (attempt ${attempt + 1}, first 300 chars):`, textBlock.text.slice(0, 300));
 
       const parsed = robustJsonParse(textBlock.text);
+
+      // ── Step 2.5: venue名のバリデーション — 一般名はエリア名付きで再検索可能にする ──
+      const genericPatterns = /^(待ち合わせ|集合|移動|ランチ|ディナー|カフェ|バー|レストラン|散歩|休憩)$/;
+      const areaGenericPattern = /^.{2,5}(で|の)(待ち合わせ|ランチ|ディナー|カフェ|バー|休憩|集合|散歩)/;
+      for (const item of parsed.timeline as Array<{ venue?: string; activity?: string }>) {
+        if (!item.venue || genericPatterns.test(item.venue) || areaGenericPattern.test(item.venue)) {
+          console.warn(`[ai-planner] Generic venue detected: "${item.venue}" for activity "${item.activity}"`);
+        }
+      }
 
       // ── Step 3: タイムラインの店舗名でGoogle Places検索 → ファクトデータ付与 ──
       const timelineVenues = (parsed.timeline as Array<{ venue?: string }>)
