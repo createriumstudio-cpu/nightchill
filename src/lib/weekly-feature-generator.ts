@@ -234,8 +234,16 @@ async function generateArticleWithAI(
 
   const spotsInfo = spots
     .map(
-      (s, i) =>
-        `${i + 1}. ${s.displayName?.text ?? "不明"} (住所: ${s.formattedAddress ?? "不明"}, 評価: ${s.rating ?? "不明"}, タイプ: ${(s.types ?? []).slice(0, 3).join(", ")})`,
+      (s, i) => {
+        const parts = [
+          `${i + 1}. ${s.displayName?.text ?? "不明"}`,
+          `(住所: ${s.formattedAddress ?? "不明"}, 評価: ${s.rating ?? "不明"}, タイプ: ${(s.types ?? []).slice(0, 3).join(", ")})`,
+        ];
+        if (s.editorialSummary?.text) {
+          parts.push(`  Google紹介文: 「${s.editorialSummary.text}」`);
+        }
+        return parts.join("\n");
+      },
     )
     .join("\n");
 
@@ -260,7 +268,7 @@ async function generateArticleWithAI(
 【Google Places APIから取得した実際のスポット情報】
 ${spotsInfo}
 
-【出力形式】以下のJSON形式で出力してください。説明文は事実に基づき、店舗名・住所は改変しないでください。ご飯スポットは2時間滞在を想定してtipに記載してください。
+【出力形式】以下のJSON形式で出力してください。店舗名・住所は改変しないでください。descriptionはGoogle紹介文がある場合はそれを元に書き、ない場合はタイプと評価から事実ベースで簡潔に書いてください。架空の特徴や口コミを捏造しないこと。ご飯スポットは2時間滞在を想定してtipに記載してください。
 {
   "title": "記事タイトル（共感型、NO.1などの表現は避ける）",
   "subtitle": "サブタイトル",
