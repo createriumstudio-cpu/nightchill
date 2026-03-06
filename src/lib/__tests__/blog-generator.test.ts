@@ -21,6 +21,7 @@ const mockCity: CityData = {
   name: "東京",
   searchName: "東京",
   description: "トレンドとカルチャーが交差する首都",
+  heroImage: "/images/cities/tokyo.png",
   areas: ["渋谷", "新宿", "表参道"],
 };
 

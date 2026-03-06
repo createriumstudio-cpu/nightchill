@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -141,10 +142,14 @@ export default async function CityLandingPage({ params }: PageProps) {
 
       {/* Hero */}
       <section className="relative flex min-h-[60vh] items-end justify-center overflow-hidden px-4 pb-12 pt-24 md:pb-20">
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/90 via-primary/80 to-primary-dark" />
-        <div className="absolute inset-0 opacity-10">
-          <div className="h-full w-full bg-[radial-gradient(circle_at_30%_50%,rgba(201,169,110,0.3),transparent_50%),radial-gradient(circle_at_70%_80%,rgba(201,72,91,0.2),transparent_50%)]" />
-        </div>
+        <Image
+          src={city.heroImage}
+          alt={`${city.name}の街並み`}
+          fill
+          className="object-cover"
+          priority
+        />
+        <div className="absolute inset-0 bg-black/50" />
         <div className="relative mx-auto max-w-4xl text-center">
           <p className="mb-3 text-sm font-semibold tracking-widest text-[#c9a96e] uppercase">
             {city.name} Date Plan
