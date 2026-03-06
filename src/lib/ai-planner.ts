@@ -607,12 +607,28 @@ export async function generateAIPlan(request: PlanRequest): Promise<DatePlan> {
 
       const parsed = robustJsonParse(textBlock.text);
 
-      // ── Step 2.5: venue名のバリデーション — 一般名はエリア名付きで再検索可能にする ──
-      const genericPatterns = /^(待ち合わせ|集合|移動|ランチ|ディナー|カフェ|バー|レストラン|散歩|休憩)$/;
-      const areaGenericPattern = /^.{2,5}(で|の)(待ち合わせ|ランチ|ディナー|カフェ|バー|休憩|集合|散歩)/;
-      for (const item of parsed.timeline as Array<{ venue?: string; activity?: string }>) {
-        if (!item.venue || genericPatterns.test(item.venue) || areaGenericPattern.test(item.venue)) {
+      // ── Step 2.5: venue名のバリデーション — 一般名をpre-search実在店舗で置換 ──
+      const genericPatterns = /^(待ち合わせ|集合|移動|ランチ|ディナー|カフェ|バー|レストラン|散歩|休憩|居酒屋|ショッピング)$/;
+      const areaGenericPattern = /^.{2,5}(で|の)(待ち合わせ|ランチ|ディナー|カフェ|バー|休憩|集合|散歩|食事|買い物)/;
+      const adjectiveGenericPattern = /^(おしゃれな|人気の|素敵な|有名な|話題の|隠れ家的な)(カフェ|レストラン|バー|イタリアン|フレンチ|居酒屋|ダイニング|ビストロ)/;
+      const usedVenueNames = new Set<string>();
+      const timelineItems = parsed.timeline as Array<{ venue?: string; activity?: string }>;
+      for (const item of timelineItems) {
+        if (item.venue) usedVenueNames.add(item.venue);
+      }
+      for (const item of timelineItems) {
+        const isGeneric = !item.venue
+          || genericPatterns.test(item.venue)
+          || areaGenericPattern.test(item.venue)
+          || adjectiveGenericPattern.test(item.venue);
+        if (isGeneric) {
           console.warn(`[ai-planner] Generic venue detected: "${item.venue}" for activity "${item.activity}"`);
+          const replacement = preSearchVenues.find(v => !usedVenueNames.has(v.name));
+          if (replacement) {
+            console.log(`[ai-planner] Replacing generic "${item.venue}" with real venue "${replacement.name}"`);
+            item.venue = replacement.name;
+            usedVenueNames.add(replacement.name);
+          }
         }
       }
 
