@@ -6,6 +6,8 @@
 interface EnvConfig {
   ANTHROPIC_API_KEY: string;
   ANTHROPIC_MODEL: string;
+  GEMINI_API_KEY: string | undefined;
+  GEMINI_MODEL: string;
   NEXT_PUBLIC_SITE_URL: string;
 }
 
@@ -28,6 +30,8 @@ export function env(): EnvConfig {
   _env = {
     ANTHROPIC_API_KEY: getEnvVar("ANTHROPIC_API_KEY"),
     ANTHROPIC_MODEL: getEnvVar("ANTHROPIC_MODEL", "claude-sonnet-4-6"),
+    GEMINI_API_KEY: process.env.GEMINI_API_KEY || undefined,
+    GEMINI_MODEL: process.env.GEMINI_MODEL || "gemini-2.0-flash",
     NEXT_PUBLIC_SITE_URL: getEnvVar(
       "NEXT_PUBLIC_SITE_URL",
       "https://futatabito.com"

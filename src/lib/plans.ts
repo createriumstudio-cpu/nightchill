@@ -101,6 +101,36 @@ export async function getPlanBySlug(
   }
 }
 
+export async function updatePlanContent(
+  slug: string,
+  plan: DatePlan,
+): Promise<boolean> {
+  const db = getDb();
+  if (!db) return false;
+
+  try {
+    await db
+      .update(plans)
+      .set({
+        content: {
+          id: plan.id,
+          title: plan.title,
+          summary: plan.summary,
+          timeline: plan.timeline,
+          fashionAdvice: plan.fashionAdvice,
+          warnings: plan.warnings,
+          venues: plan.venues,
+          walkingRoute: plan.walkingRoute,
+        },
+      })
+      .where(eq(plans.slug, slug));
+    return true;
+  } catch (e) {
+    console.error("Failed to update plan:", e);
+    return false;
+  }
+}
+
 export async function getRecentPlanSlugs(
   limit: number = 100,
 ): Promise<string[]> {
