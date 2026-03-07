@@ -171,7 +171,7 @@ export default async function PlanDetailPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
       <Header />
-      <PlanDetailClient plan={saved.plan} slug={slug} />
+      <PlanDetailClient plan={saved.plan} slug={slug} city={saved.city} location={saved.location} />
       <Footer />
     </>
   );

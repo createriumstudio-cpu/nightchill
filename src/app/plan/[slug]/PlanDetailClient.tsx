@@ -37,7 +37,7 @@ interface PlacePhotoData {
   mapEmbedUrl: string | null;
 }
 
-function useVenuePhoto(venueName: string | null, enabled: boolean) {
+function useVenuePhoto(venueName: string | null, enabled: boolean, area?: string) {
   const [data, setData] = useState<PlacePhotoData | null>(null);
   const fetchedRef = useRef<string | null>(null);
 
@@ -46,7 +46,9 @@ function useVenuePhoto(venueName: string | null, enabled: boolean) {
     fetchedRef.current = venueName;
     let cancelled = false;
 
-    fetch(`/api/place-photo?q=${encodeURIComponent(venueName)}`)
+    const params = new URLSearchParams({ q: venueName });
+    if (area) params.set("area", area);
+    fetch(`/api/place-photo?${params.toString()}`)
       .then((res) => res.json())
       .then((json: PlacePhotoData) => {
         if (!cancelled) setData(json);
@@ -56,7 +58,7 @@ function useVenuePhoto(venueName: string | null, enabled: boolean) {
     return () => {
       cancelled = true;
     };
-  }, [venueName, enabled]);
+  }, [venueName, enabled, area]);
 
   return { data };
 }
@@ -74,10 +76,12 @@ function VenueCard({
   venue,
   index,
   compact = false,
+  area,
 }: {
   venue: VenueFactData;
   index: number;
   compact?: boolean;
+  area?: string;
 }) {
   const gbpUrl =
     venue.googleMapsUrl ||
@@ -88,6 +92,7 @@ function VenueCard({
   const { data: lazyPhoto } = useVenuePhoto(
     needsPhoto ? venue.name : null,
     needsPhoto,
+    area,
   );
   const photoUrl = venue.photoUrl || lazyPhoto?.photoUri || null;
   const photoAttribution =
@@ -279,11 +284,13 @@ function VenueEmbed({ venue }: { venue: VenueFactData }) {
 function FallbackVenueCard({
   venueName,
   index,
+  area,
 }: {
   venueName: string;
   index: number;
+  area?: string;
 }) {
-  const { data } = useVenuePhoto(venueName, true);
+  const { data } = useVenuePhoto(venueName, true, area);
 
   const photoUri = data?.photoUri || null;
   const attribution = data?.attribution || null;
@@ -543,10 +550,15 @@ function Toast({ message, visible }: { message: string; visible: boolean }) {
 export default function PlanDetailClient({
   plan,
   slug,
+  city,
+  location,
 }: {
   plan: DatePlan;
   slug: string;
+  city?: string | null;
+  location?: string | null;
 }) {
+  const venueArea = location || city || "";
   const [copied, setCopied] = useState(false);
   const [urlCopied, setUrlCopied] = useState(false);
   const [timelineExpanded, setTimelineExpanded] = useState(false);
@@ -774,6 +786,7 @@ export default function PlanDetailClient({
                                 venue={matchedVenue}
                                 index={venueIdx}
                                 compact
+                                area={venueArea}
                               />
                             </div>
                           )}
@@ -782,6 +795,7 @@ export default function PlanDetailClient({
                             <FallbackVenueCard
                               venueName={item.venue}
                               index={venueIdx}
+                              area={venueArea}
                             />
                           )}
                         </div>

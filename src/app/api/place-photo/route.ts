@@ -38,6 +38,7 @@ async function resolvePhotoByName(
 export async function GET(req: NextRequest) {
   const query = req.nextUrl.searchParams.get("q");
   const photoName = req.nextUrl.searchParams.get("name");
+  const area = req.nextUrl.searchParams.get("area") || "";
 
   if (!query && !photoName) {
     return NextResponse.json({ error: "Missing q or name parameter" }, { status: 400 });
@@ -101,7 +102,7 @@ export async function GET(req: NextRequest) {
           "X-Goog-FieldMask": "places.id,places.photos,places.googleMapsUri",
         },
         body: JSON.stringify({
-          textQuery: `${query} 東京`,
+          textQuery: area ? `${query} ${area}` : query!,
           languageCode: "ja",
           maxResultCount: 1,
         }),

@@ -234,8 +234,8 @@ export async function searchVenue(
           console.log(`[google-places] Genre match for "${query}" hint="${genreHint}": selected "${matched.displayName?.text}"`);
           place = matched;
         } else {
-          console.warn(`[google-places] No genre match for "${query}" hint="${genreHint}", returning null`);
-          return null;
+          console.warn(`[google-places] No genre match for "${query}" hint="${genreHint}", using first result "${filtered[0].displayName?.text}"`);
+          place = filtered[0];
         }
       }
     }

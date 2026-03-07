@@ -72,7 +72,7 @@ interface PlacePhotoData {
   mapEmbedUrl: string | null;
 }
 
-function useVenuePhoto(venueName: string | null, enabled: boolean) {
+function useVenuePhoto(venueName: string | null, enabled: boolean, area?: string) {
   const [data, setData] = useState<PlacePhotoData | null>(null);
   const fetchedRef = useRef<string | null>(null);
 
@@ -81,7 +81,9 @@ function useVenuePhoto(venueName: string | null, enabled: boolean) {
     fetchedRef.current = venueName;
     let cancelled = false;
 
-    fetch(`/api/place-photo?q=${encodeURIComponent(venueName)}`)
+    const params = new URLSearchParams({ q: venueName });
+    if (area) params.set("area", area);
+    fetch(`/api/place-photo?${params.toString()}`)
       .then(res => res.json())
       .then((json: PlacePhotoData) => {
         if (!cancelled) setData(json);
@@ -91,7 +93,7 @@ function useVenuePhoto(venueName: string | null, enabled: boolean) {
       });
 
     return () => { cancelled = true; };
-  }, [venueName, enabled]);
+  }, [venueName, enabled, area]);
 
   return { data };
 }
@@ -109,10 +111,12 @@ function VenueCard({
   venue,
   index,
   compact = false,
+  area,
 }: {
   venue: VenueFactData;
   index: number;
   compact?: boolean;
+  area?: string;
 }) {
   const gbpUrl = venue.googleMapsUrl || `https://www.google.com/maps/place/?q=place_id:${venue.placeId}`;
   const showAgeBadge = isAlcoholVenue(venue.types);
@@ -122,6 +126,7 @@ function VenueCard({
   const { data: lazyPhoto } = useVenuePhoto(
     needsPhoto ? venue.name : null,
     needsPhoto,
+    area,
   );
   const photoUrl = venue.photoUrl || lazyPhoto?.photoUri || null;
   const photoAttribution = venue.photoHtmlAttribution
@@ -291,8 +296,8 @@ function VenueEmbed({ venue }: { venue: VenueFactData }) {
 // ============================================================
 // 未マッチ店舗のフォールバック表示
 // ============================================================
-function FallbackVenueCard({ venueName, index }: { venueName: string; index: number }) {
-  const { data } = useVenuePhoto(venueName, true);
+function FallbackVenueCard({ venueName, index, area }: { venueName: string; index: number; area?: string }) {
+  const { data } = useVenuePhoto(venueName, true, area);
 
   const photoUri = data?.photoUri || null;
   const attribution = data?.attribution || null;
@@ -719,7 +724,7 @@ export default function ResultsPage() {
                             {/* Venue card (consolidated component) */}
                             {matchedVenue && (
                               <div className="mt-3">
-                                <VenueCard venue={matchedVenue} index={venueIdx} compact />
+                                <VenueCard venue={matchedVenue} index={venueIdx} compact area={location} />
                               </div>
                             )}
 
@@ -728,7 +733,7 @@ export default function ResultsPage() {
 
                             {/* フォールバック: マッチしなかった場合にクライアント側で写真・マップ取得 */}
                             {!matchedVenue && item.venue && (
-                              <FallbackVenueCard venueName={item.venue} index={venueIdx} />
+                              <FallbackVenueCard venueName={item.venue} index={venueIdx} area={location} />
                             )}
                           </div>
                         </div>
