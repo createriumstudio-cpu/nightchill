@@ -70,7 +70,7 @@ describe("searchVenue - EXCLUDED_TYPES filtering", () => {
     expect(result).toBeNull();
   });
 
-  it("should return null when genreHint matching finds no candidates in filtered list", async () => {
+  it("should fall back to first result when genreHint matching finds no candidates in filtered list", async () => {
     mockFetch.mockResolvedValueOnce(
       makePlacesResponse([
         { id: "1", name: "美容室A", types: ["beauty_salon"] },
@@ -79,10 +79,11 @@ describe("searchVenue - EXCLUDED_TYPES filtering", () => {
     );
 
     const result = await searchVenue("レストラン", "渋谷", "ディナー");
-    expect(result).toBeNull();
+    expect(result).not.toBeNull();
+    expect(result!.name).toBe("美容室A");
   });
 
-  it("should return null when single result does not match genreHint", async () => {
+  it("should fall back to first result when single result does not match genreHint", async () => {
     mockFetch.mockResolvedValueOnce(
       makePlacesResponse([
         { id: "1", name: "美容室", types: ["beauty_salon"] },
@@ -90,7 +91,8 @@ describe("searchVenue - EXCLUDED_TYPES filtering", () => {
     );
 
     const result = await searchVenue("レストラン", "渋谷", "ディナー");
-    expect(result).toBeNull();
+    expect(result).not.toBeNull();
+    expect(result!.name).toBe("美容室");
   });
 
   it("should return first filtered result when no genreHint is provided", async () => {

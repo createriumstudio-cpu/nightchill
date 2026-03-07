@@ -24,7 +24,8 @@ describe("generateDatePlan", () => {
     expect(plan.summary).toBeDefined();
     expect(plan.timeline.length).toBeGreaterThan(0);
     expect(plan.fashionAdvice).toBeDefined();
-    expect((plan.conversationTopics ?? []).length).toBeGreaterThan(0);
+    // conversationTopics はオプション（AI出力スリム化のため削除済み）
+    expect(plan.timeline[0].venue).toBeTruthy();
   });
 
   it("should include location in plan", () => {
