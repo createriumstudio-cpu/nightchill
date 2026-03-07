@@ -4,8 +4,11 @@ import { generateAIPlan } from "@/lib/ai-planner";
 import { savePlan } from "@/lib/plans";
 import { saveToHistory } from "@/lib/date-history";
 import { getUserIdFromRequest } from "@/lib/user-auth";
-import type { PlanRequest, Mood, Budget, AgeGroup } from "@/lib/types";
-import { CITY_IDS } from "@/lib/cities";
+import type { PlanRequest, DatePlan, Mood, Budget, AgeGroup } from "@/lib/types";
+import { CITY_IDS, getCityById } from "@/lib/cities";
+import { searchVenue } from "@/lib/google-places";
+import type { VenueFactData } from "@/lib/google-places";
+import { getWalkingRoute } from "@/lib/google-maps";
 
 const validMoods: Mood[] = ["romantic", "fun", "relaxed", "luxurious", "adventurous"];
 const validBudgets: Budget[] = ["low", "medium", "high", "unlimited"];
@@ -46,6 +49,74 @@ function isRateLimited(ip: string): boolean {
 
   entry.count++;
   return entry.count > RATE_LIMIT_MAX_REQUESTS;
+}
+
+/**
+ * テンプレートプランのvenue名でGoogle Places検索し、GBPデータを付与する。
+ * ai-planner.ts の Step 3 と同等の処理。
+ */
+async function enrichTemplatePlan(plan: DatePlan, request: PlanRequest): Promise<DatePlan> {
+  const cityData = getCityById(request.city || "tokyo");
+  const cityName = cityData?.searchName || "東京";
+  const area = request.location || cityName;
+
+  // venue名の一覧（空文字を除外）
+  const venueNames = [...new Set(
+    plan.timeline.map(t => t.venue).filter(v => v.length > 0)
+  )];
+  if (venueNames.length === 0) return plan;
+
+  try {
+    // 全店舗を並列検索
+    const searchResults = await Promise.all(
+      venueNames.map(name => {
+        const item = plan.timeline.find(t => t.venue === name);
+        return searchVenue(name, area, item?.activity);
+      })
+    );
+
+    // venueデータマップ構築
+    const venueMap = new Map<string, VenueFactData>();
+    const venues: VenueFactData[] = [];
+    for (let i = 0; i < venueNames.length; i++) {
+      const result = searchResults[i];
+      if (result) {
+        venueMap.set(venueNames[i], result);
+        venues.push(result);
+      }
+    }
+
+    // タイムラインの description をファクトデータで上書き
+    for (const item of plan.timeline) {
+      const venueData = venueMap.get(item.venue);
+      if (venueData && venueData.source === "google_places") {
+        const parts: string[] = [];
+        if (venueData.rating !== null) parts.push(`★${venueData.rating}`);
+        if (venueData.priceLevel !== null) parts.push("¥".repeat(venueData.priceLevel || 1));
+        parts.push(venueData.address);
+        item.description = parts.join(" | ");
+      }
+    }
+
+    // 徒歩ルート取得（最初と2番目の店舗間）
+    const googleVenues = venues.filter(v => v.source === "google_places");
+    let walkingRoute = plan.walkingRoute;
+    if (googleVenues.length >= 2 && googleVenues[0].lat !== 0 && googleVenues[1].lat !== 0) {
+      walkingRoute = (await getWalkingRoute(
+        { lat: googleVenues[0].lat, lng: googleVenues[0].lng },
+        { lat: googleVenues[1].lat, lng: googleVenues[1].lng },
+      )) ?? undefined;
+    }
+
+    return {
+      ...plan,
+      venues: googleVenues.length > 0 ? googleVenues : venues,
+      walkingRoute,
+    };
+  } catch (error) {
+    console.error("[api/plan] Template enrichment failed:", error);
+    return plan;
+  }
 }
 
 export async function POST(request: Request) {
@@ -116,6 +187,8 @@ export async function POST(request: Request) {
 
     if (!plan) {
       plan = generateDatePlan(sanitizedRequest);
+      // テンプレートプランをGoogle Placesで enrichment（AI版の Step 3相当）
+      plan = await enrichTemplatePlan(plan, sanitizedRequest);
     }
 
     const slug = await savePlan(plan, sanitizedRequest.city, sanitizedRequest.location);
