@@ -248,10 +248,17 @@ function VenueCard({
             店舗情報提供: <span translate="no" className="font-normal" style={{ fontFamily: "Roboto, sans-serif" }}>Google Maps</span>
           </p>
         )}
-        {venue.source === "fallback" && (
-          <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
-            ※ 詳細情報はGoogle Places API設定後に表示されます
-          </p>
+        {venue.source === "fallback" && venue.name && (
+          <div className="mt-2 flex gap-2">
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(venue.name + " " + venue.address.replace(/（.*$/, ""))}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 text-xs font-medium transition-colors hover:bg-surface"
+            >
+              Google Mapsで確認
+            </a>
+          </div>
         )}
       </div>
     </div>

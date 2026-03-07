@@ -16,7 +16,7 @@ function getClient(): Anthropic {
   return client;
 }
 
-const SYSTEM_PROMPT = `あなたは日本全国のデートプランニングの専門家です。
+export const SYSTEM_PROMPT = `あなたは日本全国のデートプランニングの専門家です。
 ユーザーが指定した都市・エリアに合わせて、具体的で実在する店舗・スポットを使ったデートプランを提案します。
 指定された都市のローカルな名店や特色あるスポットを積極的に提案してください。
 
@@ -486,7 +486,7 @@ function generateId(): string {
   return Math.random().toString(36).substring(2, 10);
 }
 
-function robustJsonParse(text: string): Record<string, unknown> {
+export function robustJsonParse(text: string): Record<string, unknown> {
   const sanitized = sanitizeJsonResponse(text);
 
   // 1回目: クリーンアップしてパース
@@ -544,7 +544,7 @@ function robustJsonParse(text: string): Record<string, unknown> {
 // Google Places ファクトデータ → description 変換
 // ============================================================
 
-function buildFactDescription(venue: VenueFactData): string {
+export function buildFactDescription(venue: VenueFactData): string {
   const parts: string[] = [];
   if (venue.rating !== null) {
     parts.push(`★${venue.rating}`);

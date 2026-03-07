@@ -24,7 +24,6 @@ describe("generateDatePlan", () => {
     expect(plan.summary).toBeDefined();
     expect(plan.timeline.length).toBeGreaterThan(0);
     expect(plan.fashionAdvice).toBeDefined();
-    // conversationTopics はオプション（AI出力スリム化のため削除済み）
     expect(plan.timeline[0].venue).toBeTruthy();
   });
 
@@ -70,5 +69,57 @@ describe("generateDatePlan", () => {
     };
     const plan = generateDatePlan(unknownRequest);
     expect(plan.title).toContain("東京");
+  });
+
+  it("should include bar for nightlife activity with 20-plus", () => {
+    const barRequest: PlanRequest = {
+      ...mockRequest,
+      activities: ["nightlife", "dinner"],
+      startTime: "18:00",
+      endTime: "23:00",
+    };
+    const plan = generateDatePlan(barRequest);
+    const hasBar = plan.timeline.some(t => t.description === "バー");
+    expect(hasBar).toBe(true);
+  });
+
+  it("should not include bar for under-20", () => {
+    const underageBarRequest: PlanRequest = {
+      ...mockRequest,
+      activities: ["nightlife", "dinner"],
+      startTime: "18:00",
+      endTime: "23:00",
+      ageGroup: "under-20",
+    };
+    const plan = generateDatePlan(underageBarRequest);
+    const hasBar = plan.timeline.some(t => t.description === "バー");
+    expect(hasBar).toBe(false);
+  });
+
+  it("should use mood prefix in activity descriptions", () => {
+    const romanticRequest: PlanRequest = {
+      ...mockRequest,
+      mood: "romantic",
+    };
+    const plan = generateDatePlan(romanticRequest);
+    const hasPrefix = plan.timeline.some(t => t.activity.includes("雰囲気抜群の"));
+    expect(hasPrefix).toBe(true);
+  });
+
+  it("should prioritize dinner for dinner-focused activities", () => {
+    const dinnerRequest: PlanRequest = {
+      ...mockRequest,
+      activities: ["dinner"],
+    };
+    const plan = generateDatePlan(dinnerRequest);
+    const hasDinner = plan.timeline.some(t => t.description === "ディナー");
+    expect(hasDinner).toBe(true);
+  });
+
+  it("should have duration on all timeline items", () => {
+    const plan = generateDatePlan(mockRequest);
+    for (const item of plan.timeline) {
+      expect(item.duration).toBeTruthy();
+    }
   });
 });

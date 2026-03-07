@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { generateDatePlan } from "@/lib/planner";
 import { generateAIPlan } from "@/lib/ai-planner";
+import { generateGeminiPlan } from "@/lib/gemini-planner";
 import { savePlan } from "@/lib/plans";
 import { saveToHistory } from "@/lib/date-history";
 import { getUserIdFromRequest } from "@/lib/user-auth";
@@ -175,19 +176,28 @@ export async function POST(request: Request) {
       additionalNotes: sanitizeText(body.additionalNotes || "", 500),
     };
 
-    // Use AI if API key is configured, otherwise fall back to templates
+    // フォールバックチェーン: 1. Anthropic → 2. Gemini → 3. テンプレート
     let plan;
     if (process.env.ANTHROPIC_API_KEY) {
       try {
         plan = await generateAIPlan(sanitizedRequest);
       } catch (aiError) {
-        console.error("AI plan generation failed, falling back to template:", aiError);
+        console.error("Anthropic plan generation failed:", aiError);
+      }
+    }
+
+    if (!plan && process.env.GEMINI_API_KEY) {
+      try {
+        console.log("[api/plan] Trying Gemini fallback...");
+        plan = await generateGeminiPlan(sanitizedRequest);
+      } catch (geminiError) {
+        console.error("Gemini plan generation failed:", geminiError);
       }
     }
 
     if (!plan) {
+      console.log("[api/plan] All AI providers failed, using template fallback");
       plan = generateDatePlan(sanitizedRequest);
-      // テンプレートプランをGoogle Placesで enrichment（AI版の Step 3相当）
       plan = await enrichTemplatePlan(plan, sanitizedRequest);
     }
 
