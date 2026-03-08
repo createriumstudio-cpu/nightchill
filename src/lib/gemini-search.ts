@@ -128,7 +128,7 @@ export async function searchVenueWithGemini(
 
   try {
     const prompt = `「${query}」（${area}付近）について、以下の情報をJSON形式で返してください。
-Google検索で実在を確認し、正確な情報のみ記載してください。見つからない場合は null を返してください。
+Google Maps上の店舗情報を検索してください。Googleマップのクチコミ評価（星の数、例: 4.2）を必ず確認し、評価が存在する場合は必ず数値で記載してください。見つからない場合のみnullにしてください。
 
 {
   "name": "正式な店舗名",
@@ -246,7 +246,7 @@ export async function batchSearchVenuesWithGemini(
 
   try {
     const prompt = `以下の店舗・スポット（${area}付近）について、それぞれの情報をJSON配列で返してください。
-Google検索で実在を確認し、正確な情報のみ記載してください。
+Google Maps上の店舗情報を検索してください。Googleマップのクチコミ評価（星の数、例: 4.2）を必ず確認し、評価が存在する場合は必ず数値で記載してください。見つからない場合のみnullにしてください。
 
 ${venueList}
 
@@ -262,7 +262,8 @@ ${venueList}
   }
 ]
 
-必ずJSON配列のみを出力してください。マークダウンのコードブロック（\`\`\`json ... \`\`\`）は使わないでください。説明文も不要です。`;
+必ずJSON配列のみを出力してください。マークダウンのコードブロック（\`\`\`json ... \`\`\`）は使わないでください。説明文も不要です。
+重要: 必ず上記の店舗リストの順番通りにJSON配列で返してください。配列の要素数は店舗リストと同じにしてください。`;
 
     const { text } = await callGeminiWithSearch(prompt);
 
@@ -440,14 +441,15 @@ async function fallbackToIndividualSearch(
   resultMap: Map<string, VenueFactData>,
 ): Promise<Map<string, VenueFactData>> {
   console.log(`[gemini-search] Falling back to individual search for ${venues.length} venues`);
-  for (const v of venues) {
-    try {
-      const result = await searchVenueWithGemini(v.name, area, v.activity);
-      if (result) {
-        resultMap.set(v.name, result);
-      }
-    } catch (error) {
-      console.error(`[gemini-search] Individual search failed for "${v.name}":`, error);
+  const results = await Promise.allSettled(
+    venues.map(v => searchVenueWithGemini(v.name, area, v.activity)),
+  );
+  for (let i = 0; i < venues.length; i++) {
+    const result = results[i];
+    if (result.status === "fulfilled" && result.value) {
+      resultMap.set(venues[i].name, result.value);
+    } else if (result.status === "rejected") {
+      console.error(`[gemini-search] Individual search failed for "${venues[i].name}":`, result.reason);
     }
   }
   console.log(`[gemini-search] Individual fallback found ${resultMap.size}/${venues.length} venues`);
