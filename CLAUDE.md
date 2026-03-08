@@ -12,6 +12,17 @@ npm install
 cp .env.example .env.local
 npm run dev
 
+## インフラ
+
+- ドメイン: futatabito.com (お名前.com, ID: 56570202, 有効期限: 2027/03/08)
+- DNS: お名前.com (01-04.dnsv.jp)
+- A: @ → 216.150.1.1
+- CNAME: www → bb10f4715a198941.vercel-dns-017.com
+- Vercel: nightchill-sr5g (createriumstudio-cpus-projects)
+- 本番URL: https://www.futatabito.com (futatabito.com → 307 redirect → www.futatabito.com)
+- DB: Neon PostgreSQL (futatabito-db, project: twilight-darkness-40445586)
+- Google Cloud: cobalt-broker-488519-c5 (Maps Platform Starter plan, $100/mo)
+
 ## Commands
 
 npm run dev, npm run build, npm run lint, npm test, npx tsc --noEmit
@@ -57,7 +68,7 @@ src/data/ — features.json（特集データ）
    - batchSearchVenuesWithGemini() で複数店舗を1回のAPI呼び出しでまとめて検索
 4. 徒歩ルート取得（最初と2番目の店舗間）
 
-注意: 事前検索(preSearch)は廃止済み。Google Places API は BILLING_DISABLED のため Gemini Google Search grounding に移行済み。
+注意: 事前検索(preSearch)は廃止済み。店舗検索は Gemini Google Search grounding で行い、写真は Google Places API (Place Photos) で取得。
 
 ## Key Design Decisions
 
@@ -66,7 +77,7 @@ src/data/ — features.json（特集データ）
 - レート制限: 10リクエスト/分/IP
 - 入力サニタイズ: HTMLタグ除去 + 文字数制限
 - 結果画面: 服装アドバイス・注意ポイントは表示しない（AI出力のスリム化のため削除済み）
-- 店舗検索: Gemini Google Search grounding で実在店舗データを取得（Google Places API は廃止）
+- 店舗検索: Gemini Google Search grounding で実在店舗データを取得。写真: Google Places API (Place Photos) で GBP 実写真を表示
 - 全国10都市対応: 都市マスターデータ(cities.ts) + フォームの都市/エリア2段選択
 - UGC/SNS機能は全削除済み: SocialEmbed, UgcSection, FeatureSpotEmbedは廃止。ユーザー外部流出防止のため（注: src/lib/features.tsはPhase 3週次更新システムで使用中）
 
@@ -90,7 +101,7 @@ src/data/ — features.json（特集データ）
 - ANTHROPIC_MODEL — デフォルト: claude-sonnet-4-6
 - GEMINI_API_KEY — Gemini API（プライマリAIプロバイダー）
 - GEMINI_MODEL — デフォルト: gemini-2.5-flash
-- GOOGLE_PLACES_API_KEY — Google Places API（廃止: BILLING_DISABLED。Gemini Search grounding に移行済み）
+- GOOGLE_PLACES_API_KEY — Google Places API (New) — Maps Platform Starter plan ($100/mo) で有効。Place Details + Place Photos で実店舗データ・写真を取得
 - GOOGLE_MAPS_API_KEY — Google Maps Embed + Directions
 - NEXT_PUBLIC_SITE_URL — OGP/canonical URL
 - CONTEXTUAL_PR_ENABLED — PR ON/OFF（未設定）
@@ -132,12 +143,13 @@ GitHub Actions: Lint → Type check → Test → Build
 - 対策: UGC/SNS関連コンポーネント・機能を全削除（PR #84）
 - 禁止: SNS埋め込み・外部リンク導線の再追加。features.jsonのinstagramHashtag/tiktokHashtag/embedsフィールドも削除済み
 
-### 地雷7: Google Places API の BILLING_DISABLED
-- 症状: Google Places API が 403 エラーを返す
-- 原因: Google Cloud の課金が無効化されている (BILLING_DISABLED)
-- 対策: Gemini Google Search grounding (google_search ツール) で店舗データを取得する方式に移行
-- ファイル: src/lib/gemini-search.ts（searchVenueWithGemini, batchSearchVenuesWithGemini, searchTrendingSpotsWithGemini）
-- 禁止: Google Places API への依存を再追加しない。google-places.ts の VenueFactData 型定義のみ参照可
+### 地雷7: Google Places API の BILLING_DISABLED → 解決済み
+- 症状: Google Places API が 403 エラーを返していた
+- 原因: Google Cloud の課金が無効化されていた (BILLING_DISABLED)
+- 解決: Maps Platform Starter plan ($100/mo) を有効化。Place Details + Place Photos が正常動作
+- 現状: Gemini Google Search grounding で店舗データ取得 + Google Places API で GBP 写真取得のハイブリッド構成
+- ファイル: src/lib/gemini-search.ts, src/lib/google-places.ts
+- 注意: regularOpeningHours フィールドは取得しない（コスト最適化）
 
 ### 地雷9: アフィリエイト都市マッチングで city ID と city name の不一致
 - 症状: ReservationAffiliate が提携店舗を一切表示しない
