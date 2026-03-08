@@ -47,7 +47,11 @@ export async function POST(request: NextRequest) {
       websiteUrl: body.websiteUrl || null,
       imageUrl: body.imageUrl || null,
       bookingUrl: body.bookingUrl || null,
+      affiliateUrl: body.affiliateUrl || null,
+      affiliateProvider: body.affiliateProvider || null,
       priceRange: body.priceRange || null,
+      targetOccasions: body.targetOccasions || [],
+      targetMoods: body.targetMoods || [],
       isActive: body.isActive ?? true,
     })
     .returning();

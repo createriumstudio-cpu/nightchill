@@ -7,6 +7,7 @@ import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductRecommendation from "@/components/ProductRecommendation";
+import ReservationAffiliate from "@/components/ReservationAffiliate";
 import { type DatePlan } from "@/lib/types";
 import { decodePlan, buildShareUrl } from "@/lib/plan-encoder";
 import type { VenueFactData } from "@/lib/google-places";
@@ -773,6 +774,15 @@ export default function ResultsPage() {
             occasion={planContext.occasion}
             mood={planContext.mood}
             budget={planContext.budget}
+          />
+        )}
+
+        {/* Reservation Affiliate - 予約アフィリエイトレコメンド */}
+        {planContext && !isSharedView && location && (
+          <ReservationAffiliate
+            city={location}
+            occasion={planContext.occasion}
+            mood={planContext.mood}
           />
         )}
 
