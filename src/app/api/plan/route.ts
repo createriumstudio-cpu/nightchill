@@ -173,16 +173,15 @@ export async function POST(request: Request) {
       try {
         plan = await generateGeminiPlan(sanitizedRequest);
       } catch (geminiError) {
-        console.error("Gemini plan generation failed:", geminiError);
+        console.warn("[api/plan] Gemini failed:", (geminiError as Error).message);
       }
     }
 
     if (!plan && process.env.ANTHROPIC_API_KEY) {
       try {
-        console.log("[api/plan] Trying Anthropic fallback...");
         plan = await generateAIPlan(sanitizedRequest);
       } catch (aiError) {
-        console.error("Anthropic plan generation failed:", aiError);
+        console.warn("[api/plan] Anthropic failed:", (aiError as Error).message);
       }
     }
 

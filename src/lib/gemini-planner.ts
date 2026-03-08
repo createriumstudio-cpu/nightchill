@@ -136,7 +136,7 @@ export async function generateGeminiPlan(request: PlanRequest): Promise<DatePlan
         }
       }
 
-      // Step 3: Gemini Search grounding で店舗ファクトデータ取得（Google Places API 代替）
+      // Step 3+4: バッチ検索と徒歩ルートを並列実行
       const timelineVenues = (parsed.timeline as Array<{ venue?: string; activity?: string }>)
         .filter((t): t is { venue: string; activity?: string } => !!t.venue && t.venue.length > 0)
         .map(t => ({ name: t.venue, activity: t.activity }));
@@ -144,8 +144,21 @@ export async function generateGeminiPlan(request: PlanRequest): Promise<DatePlan
         (v, i, arr) => arr.findIndex(a => a.name === v.name) === i,
       );
 
-      // バッチ検索で全店舗のファクトデータを1回のAPI呼び出しで取得
-      const venueDataMap = await batchSearchVenuesWithGemini(uniqueVenues, area);
+      // バッチ検索と徒歩ルートを Promise.all で並列実行
+      // walkingRoute は venue名 + area で呼び出すため batchSearch 完了を待つ必要がない
+      const walkingRoutePromise = uniqueVenues.length >= 2
+        ? getWalkingRoute(
+            uniqueVenues[0].name + " " + area,
+            uniqueVenues[1].name + " " + area,
+          )
+        : Promise.resolve(null);
+
+      const [venueDataMap, resolvedWalkingRoute] = await Promise.all([
+        batchSearchVenuesWithGemini(uniqueVenues, area),
+        walkingRoutePromise,
+      ]);
+
+      walkingRoute = resolvedWalkingRoute;
 
       const enrichedVenues: VenueFactData[] = [];
       for (const v of uniqueVenues) {
@@ -154,20 +167,12 @@ export async function generateGeminiPlan(request: PlanRequest): Promise<DatePlan
       }
       const finalVenues = enrichedVenues;
 
-      // Step 3.5: description をファクトデータで上書き
+      // description をファクトデータで上書き
       const timeline = parsed.timeline as Array<{ venue?: string; description?: string }>;
       for (const item of timeline) {
         if (item.venue && venueDataMap.has(item.venue)) {
           item.description = buildFactDescription(venueDataMap.get(item.venue)!);
         }
-      }
-
-      // Step 4: 徒歩ルート取得
-      if (finalVenues.length >= 2) {
-        walkingRoute = await getWalkingRoute(
-          finalVenues[0].name + " " + area,
-          finalVenues[1].name + " " + area,
-        );
       }
 
       return {
