@@ -44,10 +44,14 @@ src/data/ — features.json（特集データ）
 - /features/[slug] — 特集記事詳細
 - sitemap.ts: 全都市LP + 全都市features + feature記事詳細を自動生成
 
-## AI生成フロー (ai-planner.ts)
+## AI生成フロー (gemini-planner.ts / ai-planner.ts)
+
+プライマリ: Gemini 2.5 Flash (gemini-planner.ts)
+フォールバック: Anthropic Claude Sonnet (ai-planner.ts)
+フォールバック順序: Gemini → Anthropic → テンプレート
 
 1. Contextual PR取得
-2. Claude API呼び出し（max_tokens: 768, リトライ最大2回）— SYSTEM_PROMPTは「日本全国のデートプランニングの専門家」
+2. AI API呼び出し（リトライ最大2回）— SYSTEM_PROMPTは「日本全国のデートプランニングの専門家」
 3. タイムライン店舗名でGoogle Places検索（Post-search）→ ファクトデータ付与
 4. 徒歩ルート取得（最初と2番目の店舗間）
 
@@ -80,8 +84,10 @@ src/data/ — features.json（特集データ）
 
 ## Environment Variables
 
-- ANTHROPIC_API_KEY (Vercel nightchill-sr5g) — Claude API
+- ANTHROPIC_API_KEY (Vercel nightchill-sr5g) — Claude API（フォールバック、optional）
 - ANTHROPIC_MODEL — デフォルト: claude-sonnet-4-6
+- GEMINI_API_KEY — Gemini API（プライマリAIプロバイダー）
+- GEMINI_MODEL — デフォルト: gemini-2.5-flash
 - GOOGLE_PLACES_API_KEY — Google Places API
 - GOOGLE_MAPS_API_KEY — Google Maps Embed + Directions
 - NEXT_PUBLIC_SITE_URL — OGP/canonical URL

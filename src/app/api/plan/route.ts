@@ -176,22 +176,22 @@ export async function POST(request: Request) {
       additionalNotes: sanitizeText(body.additionalNotes || "", 500),
     };
 
-    // フォールバックチェーン: 1. Anthropic → 2. Gemini → 3. テンプレート
+    // フォールバックチェーン: 1. Gemini → 2. Anthropic → 3. テンプレート
     let plan;
-    if (process.env.ANTHROPIC_API_KEY) {
+    if (process.env.GEMINI_API_KEY) {
       try {
-        plan = await generateAIPlan(sanitizedRequest);
-      } catch (aiError) {
-        console.error("Anthropic plan generation failed:", aiError);
-      }
-    }
-
-    if (!plan && process.env.GEMINI_API_KEY) {
-      try {
-        console.log("[api/plan] Trying Gemini fallback...");
         plan = await generateGeminiPlan(sanitizedRequest);
       } catch (geminiError) {
         console.error("Gemini plan generation failed:", geminiError);
+      }
+    }
+
+    if (!plan && process.env.ANTHROPIC_API_KEY) {
+      try {
+        console.log("[api/plan] Trying Anthropic fallback...");
+        plan = await generateAIPlan(sanitizedRequest);
+      } catch (aiError) {
+        console.error("Anthropic plan generation failed:", aiError);
       }
     }
 
