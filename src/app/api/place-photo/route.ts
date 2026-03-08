@@ -50,44 +50,49 @@ async function generateImageWithGemini(
 
   const prompt = `${query}${area ? `（${area}）` : ""}の外観または内装のリアルな写真風画像。デートスポットとして魅力的な構図。`;
 
-  try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation:generateContent?key=${geminiApiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { responseModalities: ["TEXT", "IMAGE"] },
-        }),
-      },
-    );
+  // gemini-2.0-flash-exp → gemini-2.5-flash の順にフォールバック
+  const models = ["gemini-2.0-flash-exp", "gemini-2.5-flash"];
 
-    if (!res.ok) {
-      const errText = await res.text();
-      console.warn(`place-photo: Gemini image generation failed ${res.status}: ${errText}`);
-      return { photoUri: null, attribution: null };
-    }
+  for (const model of models) {
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiApiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { responseModalities: ["TEXT", "IMAGE"] },
+          }),
+        },
+      );
 
-    const data = await res.json();
-    const parts = data.candidates?.[0]?.content?.parts;
-    if (!parts) return { photoUri: null, attribution: null };
-
-    for (const part of parts) {
-      if (part.inlineData) {
-        const { mimeType, data: base64Data } = part.inlineData;
-        return {
-          photoUri: `data:${mimeType};base64,${base64Data}`,
-          attribution: "AI Generated Image",
-        };
+      if (!res.ok) {
+        const errText = await res.text();
+        console.warn(`place-photo: Gemini image generation failed with ${model} ${res.status}: ${errText}`);
+        continue;
       }
-    }
 
-    return { photoUri: null, attribution: null };
-  } catch (err) {
-    console.warn("place-photo: Gemini image generation error:", err);
-    return { photoUri: null, attribution: null };
+      const data = await res.json();
+      const parts = data.candidates?.[0]?.content?.parts;
+      if (!parts) continue;
+
+      for (const part of parts) {
+        if (part.inlineData) {
+          const { mimeType, data: base64Data } = part.inlineData;
+          return {
+            photoUri: `data:${mimeType};base64,${base64Data}`,
+            attribution: "AI Generated Image",
+          };
+        }
+      }
+    } catch (err) {
+      console.warn(`place-photo: Gemini image generation error with ${model}:`, err);
+      continue;
+    }
   }
+
+  return { photoUri: null, attribution: null };
 }
 
 export async function GET(req: NextRequest) {
