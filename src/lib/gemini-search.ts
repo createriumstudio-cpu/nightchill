@@ -89,9 +89,15 @@ async function callGeminiWithSearch(
 
   const data = (await res.json()) as GeminiResponse;
   const candidate = data.candidates?.[0];
-  const text = candidate?.content?.parts
-    ?.map((p) => p.text ?? "")
-    .join("") ?? "";
+
+  // With Google Search grounding enabled, Gemini returns multiple parts:
+  // functionCall/functionResponse parts (no text) and multiple text parts.
+  // Earlier text parts may contain partial/duplicate JSON.
+  // Use only the LAST text part (the final synthesized answer).
+  const textParts = (candidate?.content?.parts ?? [])
+    .map((p) => p.text)
+    .filter((t): t is string => typeof t === "string" && t.trim().length > 0);
+  const text = textParts.length > 0 ? textParts[textParts.length - 1] : "";
 
   const groundingChunks = (candidate?.groundingMetadata?.groundingChunks ?? [])
     .map((c) => c.web ?? {})
