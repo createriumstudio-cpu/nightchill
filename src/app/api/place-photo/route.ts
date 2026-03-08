@@ -35,6 +35,61 @@ async function resolvePhotoByName(
   }
 }
 
+/**
+ * Gemini画像生成APIでイメージ画像を生成するフォールバック
+ */
+async function generateImageWithGemini(
+  query: string,
+  area: string,
+): Promise<{ photoUri: string | null; attribution: string | null }> {
+  const geminiApiKey = process.env.GEMINI_API_KEY;
+  if (!geminiApiKey) {
+    console.warn("place-photo: GEMINI_API_KEY not configured, skipping image generation fallback");
+    return { photoUri: null, attribution: null };
+  }
+
+  const prompt = `${query}${area ? `（${area}）` : ""}の外観または内装のリアルな写真風画像。デートスポットとして魅力的な構図。`;
+
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation:generateContent?key=${geminiApiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { responseModalities: ["TEXT", "IMAGE"] },
+        }),
+      },
+    );
+
+    if (!res.ok) {
+      const errText = await res.text();
+      console.warn(`place-photo: Gemini image generation failed ${res.status}: ${errText}`);
+      return { photoUri: null, attribution: null };
+    }
+
+    const data = await res.json();
+    const parts = data.candidates?.[0]?.content?.parts;
+    if (!parts) return { photoUri: null, attribution: null };
+
+    for (const part of parts) {
+      if (part.inlineData) {
+        const { mimeType, data: base64Data } = part.inlineData;
+        return {
+          photoUri: `data:${mimeType};base64,${base64Data}`,
+          attribution: "AI Generated Image",
+        };
+      }
+    }
+
+    return { photoUri: null, attribution: null };
+  } catch (err) {
+    console.warn("place-photo: Gemini image generation error:", err);
+    return { photoUri: null, attribution: null };
+  }
+}
+
 export async function GET(req: NextRequest) {
   const query = req.nextUrl.searchParams.get("q");
   const photoName = req.nextUrl.searchParams.get("name");
@@ -46,9 +101,6 @@ export async function GET(req: NextRequest) {
 
   // Use GOOGLE_PLACES_API_KEY, fallback to GOOGLE_MAPS_API_KEY
   const apiKey = process.env.GOOGLE_PLACES_API_KEY || process.env.GOOGLE_MAPS_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json({ error: "API key not configured" }, { status: 500 });
-  }
 
   // ── Mode 1: 写真リソース名から直接解決 ──
   if (photoName) {
@@ -61,26 +113,32 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const result = await resolvePhotoByName(photoName, apiKey);
-    if (result.photoUri) {
-      setCacheEntry(cacheKey, {
-        photoUri: result.photoUri,
-        attribution: "",
-        attributionUri: "",
-        googleMapsUri: "",
-        placeId: "",
-        mapEmbedUrl: "",
-        cachedAt: Date.now(),
-      });
+    if (apiKey) {
+      const result = await resolvePhotoByName(photoName, apiKey);
+      if (result.photoUri) {
+        setCacheEntry(cacheKey, {
+          photoUri: result.photoUri,
+          attribution: "",
+          attributionUri: "",
+          googleMapsUri: "",
+          placeId: "",
+          mapEmbedUrl: "",
+          cachedAt: Date.now(),
+        });
+        return NextResponse.json(
+          { photoUri: result.photoUri },
+          { headers: { "Cache-Control": "public, max-age=3600, stale-while-revalidate=3600" } },
+        );
+      }
     }
 
     return NextResponse.json(
-      { photoUri: result.photoUri },
+      { photoUri: null },
       { headers: { "Cache-Control": "public, max-age=3600, stale-while-revalidate=3600" } },
     );
   }
 
-  // ── Mode 2: テキスト検索 → 写真取得 ──
+  // ── Mode 2: テキスト検索 → 写真取得 (+ Gemini画像生成フォールバック) ──
   const cacheKey = query!.toLowerCase().trim();
   const cached = photoCache.get(cacheKey);
   if (cached && Date.now() - cached.cachedAt < CACHE_TTL) {
@@ -92,31 +150,34 @@ export async function GET(req: NextRequest) {
 
   try {
     // Step 1: Text Search (New) to find the place and get photo references + Google Maps URI
-    const searchRes = await fetch(
-      `${PLACES_API_BASE}/places:searchText`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Goog-Api-Key": apiKey,
-          "X-Goog-FieldMask": "places.id,places.photos,places.googleMapsUri",
-        },
-        body: JSON.stringify({
-          textQuery: area ? `${query} ${area}` : query!,
-          languageCode: "ja",
-          maxResultCount: 1,
-        }),
+    let place = null;
+    if (apiKey) {
+      const searchRes = await fetch(
+        `${PLACES_API_BASE}/places:searchText`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Goog-Api-Key": apiKey,
+            "X-Goog-FieldMask": "places.id,places.photos,places.googleMapsUri",
+          },
+          body: JSON.stringify({
+            textQuery: area ? `${query} ${area}` : query!,
+            languageCode: "ja",
+            maxResultCount: 1,
+          }),
+        }
+      );
+
+      if (!searchRes.ok) {
+        const errText = await searchRes.text();
+        console.warn(`place-photo: searchText failed ${searchRes.status}: ${errText}`);
+        // searchText失敗 → Gemini画像生成フォールバック
+      } else {
+        const searchData = await searchRes.json();
+        place = searchData.places?.[0] ?? null;
       }
-    );
-
-    if (!searchRes.ok) {
-      const errText = await searchRes.text();
-      console.error(`place-photo: searchText failed ${searchRes.status}: ${errText}`);
-      return NextResponse.json({ photoUri: null, attribution: null, attributionUri: null, googleMapsUri: null });
     }
-
-    const searchData = await searchRes.json();
-    const place = searchData.places?.[0];
 
     const placeId = place?.id ?? null;
     const googleMapsUri = place?.googleMapsUri ?? null;
@@ -125,37 +186,64 @@ export async function GET(req: NextRequest) {
       ? `https://www.google.com/maps/embed/v1/place?key=${mapsApiKey}&q=place_id:${placeId}`
       : null;
 
-    if (!place?.photos?.length) {
-      return NextResponse.json({ photoUri: null, attribution: null, attributionUri: null, googleMapsUri, placeId, mapEmbedUrl });
+    // Step 2: Places APIで写真取得を試みる
+    if (place?.photos?.length && apiKey) {
+      const photoResourceName = place.photos[0].name;
+      const authorAttribution = place.photos[0].authorAttributions?.[0];
+      const attribution = authorAttribution?.displayName ?? null;
+      const attributionUri = authorAttribution?.uri ?? null;
+
+      const photoRes = await fetch(
+        `${PLACES_API_BASE}/${photoResourceName}/media?maxHeightPx=400&maxWidthPx=600&skipHttpRedirect=true&key=${apiKey}`
+      );
+
+      if (photoRes.ok) {
+        const photoData = await photoRes.json();
+        const photoUri = photoData.photoUri ?? null;
+
+        if (photoUri) {
+          setCacheEntry(cacheKey, { photoUri, attribution: attribution ?? "", attributionUri: attributionUri ?? "", googleMapsUri: googleMapsUri ?? "", placeId: placeId ?? "", mapEmbedUrl: mapEmbedUrl ?? "", cachedAt: Date.now() });
+        }
+
+        return NextResponse.json(
+          { photoUri, attribution, attributionUri, googleMapsUri, placeId, mapEmbedUrl },
+          { headers: { "Cache-Control": "public, max-age=3600, stale-while-revalidate=3600" } },
+        );
+      }
     }
 
-    const photoResourceName = place.photos[0].name;
-    const authorAttribution = place.photos[0].authorAttributions?.[0];
-    const attribution = authorAttribution?.displayName ?? null;
-    const attributionUri = authorAttribution?.uri ?? null;
-
-    // Step 2: Get photo URL
-    const photoRes = await fetch(
-      `${PLACES_API_BASE}/${photoResourceName}/media?maxHeightPx=400&maxWidthPx=600&skipHttpRedirect=true&key=${apiKey}`
-    );
-
-    if (!photoRes.ok) {
-      return NextResponse.json({ photoUri: null, attribution: null, attributionUri: null, googleMapsUri, placeId, mapEmbedUrl });
-    }
-
-    const photoData = await photoRes.json();
-    const photoUri = photoData.photoUri ?? null;
-
-    if (photoUri) {
-      setCacheEntry(cacheKey, { photoUri, attribution: attribution ?? "", attributionUri: attributionUri ?? "", googleMapsUri: googleMapsUri ?? "", placeId: placeId ?? "", mapEmbedUrl: mapEmbedUrl ?? "", cachedAt: Date.now() });
+    // Step 3: Gemini画像生成フォールバック
+    const geminiResult = await generateImageWithGemini(query!, area);
+    if (geminiResult.photoUri) {
+      setCacheEntry(cacheKey, {
+        photoUri: geminiResult.photoUri,
+        attribution: geminiResult.attribution ?? "",
+        attributionUri: "",
+        googleMapsUri: googleMapsUri ?? "",
+        placeId: placeId ?? "",
+        mapEmbedUrl: mapEmbedUrl ?? "",
+        cachedAt: Date.now(),
+      });
     }
 
     return NextResponse.json(
-      { photoUri, attribution, attributionUri, googleMapsUri, placeId, mapEmbedUrl },
+      { photoUri: geminiResult.photoUri, attribution: geminiResult.attribution, attributionUri: null, googleMapsUri, placeId, mapEmbedUrl },
       { headers: { "Cache-Control": "public, max-age=3600, stale-while-revalidate=3600" } },
     );
   } catch (err) {
-    console.error("place-photo API error:", err);
+    console.warn("place-photo API error:", err);
+
+    // 最終フォールバック: Gemini画像生成
+    if (query) {
+      const geminiResult = await generateImageWithGemini(query, area);
+      if (geminiResult.photoUri) {
+        return NextResponse.json(
+          { photoUri: geminiResult.photoUri, attribution: geminiResult.attribution, attributionUri: null, googleMapsUri: null, placeId: null, mapEmbedUrl: null },
+          { headers: { "Cache-Control": "public, max-age=3600, stale-while-revalidate=3600" } },
+        );
+      }
+    }
+
     return NextResponse.json({ photoUri: null, attribution: null, attributionUri: null, googleMapsUri: null, placeId: null, mapEmbedUrl: null });
   }
 }
