@@ -2,7 +2,7 @@
  * 週次特集記事自動生成システム
  *
  * 毎週月曜に Vercel Cron から実行される。
- * Google Places API (New) で各都市の注目スポットを取得し、
+ * Gemini Google Search grounding で各都市の注目スポットを取得し、
  * Anthropic Claude でデートプラン特集記事を生成する。
  *
  * B案: リアルタイム週次更新 — 「今週のおすすめデートプラン」
@@ -12,6 +12,7 @@ import { CITIES, type CityData } from "./cities";
 import { getDb } from "./db";
 import { features as featuresTable } from "./schema";
 import Anthropic from "@anthropic-ai/sdk";
+import { searchTrendingSpotsWithGemini, type TrendingSpotInfo } from "./gemini-search";
 
 // ============================================================
 // 型定義
@@ -27,25 +28,6 @@ export type WeeklyCategory =
   | "new-spots"       // 注目の新店・話題のスポット
   | "seasonal-menu"   // 季節限定メニュー・期間限定イベント
   | "classic-date";   // この季節の外さないデートプラン
-
-interface PlacesTextSearchResponse {
-  places?: Array<{
-    id: string;
-    displayName?: { text: string; languageCode: string };
-    formattedAddress?: string;
-    location?: { latitude: number; longitude: number };
-    rating?: number;
-    priceLevel?: string;
-    regularOpeningHours?: {
-      weekdayDescriptions?: string[];
-      openNow?: boolean;
-    };
-    types?: string[];
-    photos?: Array<{ name: string }>;
-    googleMapsUri?: string;
-    editorialSummary?: { text: string };
-  }>;
-}
 
 interface GeneratedArticle {
   slug: string;
@@ -69,8 +51,6 @@ interface GeneratedArticle {
 // 定数
 // ============================================================
 
-const PLACES_API_BASE = "https://places.googleapis.com/v1";
-
 const CATEGORY_CONFIG: Record<WeeklyCategory, {
   label: string;
   searchSuffix: string;
@@ -93,33 +73,6 @@ const CATEGORY_CONFIG: Record<WeeklyCategory, {
   },
 };
 
-/**
- * Places photos[0].name から写真URLを構築する。
- * Places API (New) の Photo Media エンドポイント形式。
- */
-function buildPhotoUrl(photoName: string, apiKey: string): string {
-  return `${PLACES_API_BASE}/${photoName}/media?maxHeightPx=400&maxWidthPx=400&key=${apiKey}`;
-}
-
-/**
- * Places API結果からスポット名→photoUrl のマップを構築する。
- */
-function buildPhotoUrlMap(
-  spots: NonNullable<PlacesTextSearchResponse["places"]>,
-): Map<string, string> {
-  const apiKey = process.env.GOOGLE_PLACES_API_KEY;
-  const map = new Map<string, string>();
-  if (!apiKey) return map;
-
-  for (const spot of spots) {
-    const name = spot.displayName?.text;
-    if (name && spot.photos && spot.photos.length > 0) {
-      map.set(name, buildPhotoUrl(spot.photos[0].name, apiKey));
-    }
-  }
-  return map;
-}
-
 /** 季節判定 */
 function getCurrentSeason(): string {
   const month = new Date().getMonth() + 1;
@@ -140,87 +93,13 @@ function getWeekBatch(): string {
 }
 
 // ============================================================
-// Google Places API: スポット検索
-// ============================================================
-
-async function searchTrendingSpots(
-  city: CityData,
-  category: WeeklyCategory,
-): Promise<PlacesTextSearchResponse["places"]> {
-  const apiKey = process.env.GOOGLE_PLACES_API_KEY;
-  if (!apiKey) {
-    console.warn("[weekly-gen] GOOGLE_PLACES_API_KEY not set");
-    return [];
-  }
-
-  const config = CATEGORY_CONFIG[category];
-  // ランダムにエリアを2-3つ選択して検索の多様性を確保
-  const shuffled = [...city.areas].sort(() => Math.random() - 0.5);
-  const selectedAreas = shuffled.slice(0, 3);
-
-  const allPlaces: NonNullable<PlacesTextSearchResponse["places"]> = [];
-
-  for (const area of selectedAreas) {
-    try {
-      const res = await fetch(`${PLACES_API_BASE}/places:searchText`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Goog-Api-Key": apiKey,
-          "X-Goog-FieldMask": [
-            "places.id",
-            "places.displayName",
-            "places.formattedAddress",
-            "places.location",
-            "places.rating",
-            "places.types",
-            "places.photos",
-            "places.googleMapsUri",
-            "places.editorialSummary",
-          ].join(","),
-        },
-        body: JSON.stringify({
-          textQuery: `${area} ${config.searchSuffix}`,
-          languageCode: "ja",
-          maxResultCount: 5,
-        }),
-      });
-
-      if (!res.ok) {
-        console.error(`[weekly-gen] Places API error for ${area}: ${res.status}`);
-        continue;
-      }
-
-      const data = (await res.json()) as PlacesTextSearchResponse;
-      if (data.places) {
-        allPlaces.push(...data.places);
-      }
-    } catch (error) {
-      console.error(`[weekly-gen] Places search failed for ${area}:`, error);
-    }
-  }
-
-  // 重複除去 & レーティング順ソート
-  const unique = new Map<string, (typeof allPlaces)[0]>();
-  for (const place of allPlaces) {
-    if (place.id && !unique.has(place.id)) {
-      unique.set(place.id, place);
-    }
-  }
-
-  return [...unique.values()]
-    .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))
-    .slice(0, 6);
-}
-
-// ============================================================
 // Anthropic Claude: 記事生成
 // ============================================================
 
 async function generateArticleWithAI(
   city: CityData,
   category: WeeklyCategory,
-  spots: NonNullable<PlacesTextSearchResponse["places"]>,
+  spots: TrendingSpotInfo[],
   weekBatch: string,
 ): Promise<GeneratedArticle | null> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -236,11 +115,11 @@ async function generateArticleWithAI(
     .map(
       (s, i) => {
         const parts = [
-          `${i + 1}. ${s.displayName?.text ?? "不明"}`,
-          `(住所: ${s.formattedAddress ?? "不明"}, 評価: ${s.rating ?? "不明"}, タイプ: ${(s.types ?? []).slice(0, 3).join(", ")})`,
+          `${i + 1}. ${s.name}`,
+          `(住所: ${s.address}, 評価: ${s.rating ?? "不明"}, ジャンル: ${s.genre})`,
         ];
-        if (s.editorialSummary?.text) {
-          parts.push(`  Google紹介文: 「${s.editorialSummary.text}」`);
+        if (s.description) {
+          parts.push(`  紹介文: 「${s.description}」`);
         }
         return parts.join("\n");
       },
@@ -265,10 +144,10 @@ async function generateArticleWithAI(
 - 季節: ${season}
 - 週: ${weekBatch}
 
-【Google Places APIから取得した実際のスポット情報】
+【Google検索から取得した実際のスポット情報】
 ${spotsInfo}
 
-【出力形式】以下のJSON形式で出力してください。店舗名・住所は改変しないでください。descriptionはGoogle紹介文がある場合はそれを元に書き、ない場合はタイプと評価から事実ベースで簡潔に書いてください。架空の特徴や口コミを捏造しないこと。ご飯スポットは2時間滞在を想定してtipに記載してください。
+【出力形式】以下のJSON形式で出力してください。店舗名・住所は改変しないでください。descriptionは紹介文がある場合はそれを元に書き、ない場合はジャンルと評価から事実ベースで簡潔に書いてください。架空の特徴や口コミを捏造しないこと。ご飯スポットは2時間滞在を想定してtipに記載してください。
 {
   "title": "記事タイトル（共感型、NO.1などの表現は避ける）",
   "subtitle": "サブタイトル",
@@ -277,7 +156,7 @@ ${spotsInfo}
   "heroEmoji": "絵文字1つ",
   "spots": [
     {
-      "name": "店舗名（Google Placesのデータそのまま）",
+      "name": "店舗名（取得データそのまま）",
       "area": "エリア名",
       "genre": "ジャンル（cafe/restaurant/bar/spot）",
       "description": "100文字程度の紹介文",
@@ -293,7 +172,7 @@ JSONのみを出力し、他のテキストは含めないでください。`,
 
     const text =
       response.content[0].type === "text" ? response.content[0].text : "";
-    
+
     // JSON部分を抽出
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
@@ -304,18 +183,10 @@ JSONのみを出力し、他のテキストは含めないでください。`,
     const parsed = JSON.parse(jsonMatch[0]) as Omit<GeneratedArticle, "slug" | "area">;
     const slug = `${city.id}-${category}-${weekBatch.toLowerCase()}`;
 
-    // Places APIの写真URLをスポットに付与
-    const photoMap = buildPhotoUrlMap(spots);
-    const enrichedSpots = parsed.spots.map((s) => ({
-      ...s,
-      photoUrl: photoMap.get(s.name) ?? undefined,
-    }));
-
     return {
       ...parsed,
       slug,
       area: city.name,
-      spots: enrichedSpots,
     };
   } catch (error) {
     console.error("[weekly-gen] AI generation failed:", error);
@@ -330,14 +201,12 @@ JSONのみを出力し、他のテキストは含めないでください。`,
 function generateTemplateArticle(
   city: CityData,
   category: WeeklyCategory,
-  spots: NonNullable<PlacesTextSearchResponse["places"]>,
+  spots: TrendingSpotInfo[],
   weekBatch: string,
 ): GeneratedArticle {
   const config = CATEGORY_CONFIG[category];
   const season = getCurrentSeason();
   const slug = `${city.id}-${category}-${weekBatch.toLowerCase()}`;
-
-  const photoMap = buildPhotoUrlMap(spots);
 
   return {
     slug,
@@ -347,27 +216,14 @@ function generateTemplateArticle(
     area: city.name,
     tags: [city.name, season, "デート", category],
     heroEmoji: config.emoji,
-    spots: spots.slice(0, 4).map((s) => {
-      const spotName = s.displayName?.text ?? "スポット";
-      return {
-        name: spotName,
-        area: s.formattedAddress?.split(" ")[0] ?? city.name,
-        genre: guessGenre(s.types ?? []),
-        description: `${city.name}で人気の${spotName}。評価${s.rating ?? "-"}`,
-        tip: "予約がおすすめ。ゆっくり2時間ほど楽しめます。",
-        photoUrl: photoMap.get(spotName) ?? undefined,
-      };
-    }),
+    spots: spots.slice(0, 4).map((s) => ({
+      name: s.name,
+      area: s.address.split(" ")[0] || city.name,
+      genre: s.genre,
+      description: `${city.name}で人気の${s.name}。評価${s.rating ?? "-"}`,
+      tip: "予約がおすすめ。ゆっくり2時間ほど楽しめます。",
+    })),
   };
-}
-
-function guessGenre(types: string[]): string {
-  if (types.some((t) => t.includes("restaurant") || t.includes("food")))
-    return "restaurant";
-  if (types.some((t) => t.includes("cafe") || t.includes("coffee")))
-    return "cafe";
-  if (types.some((t) => t.includes("bar"))) return "bar";
-  return "spot";
 }
 
 // ============================================================
@@ -388,9 +244,13 @@ export async function generateWeeklyFeature(
   );
 
   try {
-    // 1. Google Places API でスポット検索
-    const spots = await searchTrendingSpots(city, category);
-    if (!spots || spots.length === 0) {
+    // 1. Gemini Google Search grounding でスポット検索
+    const spots = await searchTrendingSpotsWithGemini(
+      city.name,
+      city.areas,
+      config.searchSuffix,
+    );
+    if (spots.length === 0) {
       return { success: false, error: `No spots found for ${city.name}` };
     }
 
@@ -417,7 +277,7 @@ export async function generateWeeklyFeature(
       publishedAt: now,
       updatedAt: now,
       heroEmoji: article.heroEmoji,
-      heroImage: article.spots?.[0]?.photoUrl || null,
+      heroImage: null,
       spots: article.spots,
       isPublished: true,
     }).onConflictDoUpdate({

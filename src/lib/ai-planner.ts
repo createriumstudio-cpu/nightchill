@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type { PlanRequest, DatePlan } from "./types";
 import { env } from "./env";
-import { searchVenue, searchAreaVenues } from "./google-places";
+import { batchSearchVenuesWithGemini } from "./gemini-search";
 import type { VenueFactData } from "./google-places";
 import { getWalkingRoute } from "./google-maps";
 import type { WalkingRoute } from "./google-maps";
@@ -326,7 +326,7 @@ function buildUserPrompt(
   // Venue fact data injection (pre-search results as reference)
   if (venues.length > 0) {
     parts.push("");
-    parts.push("=== Google Places APIから取得した実在店舗データ ===");
+    parts.push("=== 実在が確認済みの店舗データ ===");
     parts.push("以下の店舗は実在が確認済みです。積極的に活用してください（ただしこれに限定せず自分の知識も活用すること）：");
     venues.forEach((v) => {
       const ratingStr = v.rating !== null ? `★${v.rating}` : "";
@@ -572,14 +572,9 @@ export async function generateAIPlan(request: PlanRequest): Promise<DatePlan> {
   const prItems = findRelevantPR(request.activities[0] || "dinner", request.mood, area);
   const prText = formatPRForPrompt(prItems);
 
-  // ── Step 1.5: エリア事前検索（実在店舗データをAIプロンプトに注入） ──
-  const preSearchVenues = await searchAreaVenues(
-    area,
-    cityName,
-    request.activities,
-    request.mood,
-  );
-  console.log(`[ai-planner] Pre-search returned ${preSearchVenues.length} venues for prompt injection`);
+  // Note: Pre-search (searchAreaVenues) を廃止。
+  // Gemini Search grounding で店舗のファクトデータを取得するため、事前検索は不要。
+  const preSearchVenues: VenueFactData[] = [];
 
   // ── Step 2: AI生成（最大2回リトライ） ──
   const model = env().ANTHROPIC_MODEL;
@@ -634,36 +629,25 @@ export async function generateAIPlan(request: PlanRequest): Promise<DatePlan> {
         }
       }
 
-      // ── Step 3: タイムラインの店舗名でGoogle Places検索 → ファクトデータ付与 ──
-      const timelineVenues = (parsed.timeline as Array<{ venue?: string }>)
-        .map(t => t.venue)
-        .filter((v): v is string => !!v && v.length > 0);
-
-      const uniqueVenueNames = [...new Set(timelineVenues)];
-
-      // 全店舗を並列検索（activityをgenreHintとして渡す）
-      const venueSearchResults = await Promise.all(
-        uniqueVenueNames.map(name => {
-          const item = (parsed.timeline as Array<{ venue?: string; activity?: string }>).find(t => t.venue === name);
-          return searchVenue(name, area, item?.activity);
-        })
-      );
-      const enrichedVenues = venueSearchResults.filter(
-        (v): v is VenueFactData => v !== null
+      // ── Step 3: Gemini Search grounding で店舗ファクトデータ取得 ──
+      const timelineVenues = (parsed.timeline as Array<{ venue?: string; activity?: string }>)
+        .filter((t): t is { venue: string; activity?: string } => !!t.venue && t.venue.length > 0)
+        .map(t => ({ name: t.venue, activity: t.activity }));
+      const uniqueVenues = timelineVenues.filter(
+        (v, i, arr) => arr.findIndex(a => a.name === v.name) === i,
       );
 
-      // Google Places で見つかった実データを優先
-      const googleVenues = enrichedVenues.filter(v => v.source === "google_places");
-      const finalVenues = googleVenues.length > 0 ? googleVenues : enrichedVenues;
+      // バッチ検索で全店舗のファクトデータを1回のAPI呼び出しで取得
+      const venueDataMap = await batchSearchVenuesWithGemini(uniqueVenues, area);
 
-      // ── Step 3.5: タイムラインの description を Google Places ファクトデータで上書き ──
-      const venueDataMap = new Map<string, VenueFactData>();
-      for (let i = 0; i < uniqueVenueNames.length; i++) {
-        const result = venueSearchResults[i];
-        if (result && result.source === "google_places") {
-          venueDataMap.set(uniqueVenueNames[i], result);
-        }
+      const enrichedVenues: VenueFactData[] = [];
+      for (const v of uniqueVenues) {
+        const data = venueDataMap.get(v.name);
+        if (data) enrichedVenues.push(data);
       }
+      const finalVenues = enrichedVenues;
+
+      // ── Step 3.5: タイムラインの description をファクトデータで上書き ──
       const timeline = parsed.timeline as Array<{ venue?: string; description?: string }>;
       for (const item of timeline) {
         if (item.venue && venueDataMap.has(item.venue)) {
@@ -672,12 +656,7 @@ export async function generateAIPlan(request: PlanRequest): Promise<DatePlan> {
       }
 
       // ── Step 4: 徒歩ルート取得（最初と2番目の店舗間） ──
-      if (finalVenues.length >= 2 && finalVenues[0].lat !== 0 && finalVenues[1].lat !== 0) {
-        walkingRoute = await getWalkingRoute(
-          { lat: finalVenues[0].lat, lng: finalVenues[0].lng },
-          { lat: finalVenues[1].lat, lng: finalVenues[1].lng },
-        );
-      } else if (finalVenues.length >= 2) {
+      if (finalVenues.length >= 2) {
         walkingRoute = await getWalkingRoute(
           finalVenues[0].name + " " + area,
           finalVenues[1].name + " " + area,
