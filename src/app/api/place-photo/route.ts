@@ -50,8 +50,8 @@ async function generateImageWithGemini(
 
   const prompt = `${query}${area ? `（${area}）` : ""}の外観または内装のリアルな写真風画像。デートスポットとして魅力的な構図。`;
 
-  // gemini-2.0-flash-exp → gemini-2.5-flash の順にフォールバック
-  const models = ["gemini-2.0-flash-exp", "gemini-2.5-flash"];
+  // gemini-2.5-flash-image → gemini-3.1-flash-image-preview の順にフォールバック
+  const models = ["gemini-2.5-flash-image", "gemini-3.1-flash-image-preview"];
 
   for (const model of models) {
     try {
