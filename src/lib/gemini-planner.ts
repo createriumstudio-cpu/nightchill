@@ -137,8 +137,9 @@ export async function generateGeminiPlan(request: PlanRequest): Promise<DatePlan
       }
 
       // Step 3+4: バッチ検索と徒歩ルートを並列実行
+      const NON_VENUE_PATTERN = /^(徒歩移動|徒歩|移動|バス移動|電車移動|タクシー移動|待ち合わせ|集合|解散|散歩)$/;
       const timelineVenues = (parsed.timeline as Array<{ venue?: string; activity?: string }>)
-        .filter((t): t is { venue: string; activity?: string } => !!t.venue && t.venue.length > 0)
+        .filter((t): t is { venue: string; activity?: string } => !!t.venue && t.venue.length > 0 && !NON_VENUE_PATTERN.test(t.venue))
         .map(t => ({ name: t.venue, activity: t.activity }));
       const uniqueVenues = timelineVenues.filter(
         (v, i, arr) => arr.findIndex(a => a.name === v.name) === i,
