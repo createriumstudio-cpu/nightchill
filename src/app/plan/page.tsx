@@ -156,6 +156,7 @@ function PlanPageContent() {
           occasion: activities[0] || "dinner",
           mood,
           budget,
+          city: cityId,
         }));
         router.push("/results");
       }

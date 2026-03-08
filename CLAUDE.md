@@ -139,6 +139,14 @@ GitHub Actions: Lint → Type check → Test → Build
 - ファイル: src/lib/gemini-search.ts（searchVenueWithGemini, batchSearchVenuesWithGemini, searchTrendingSpotsWithGemini）
 - 禁止: Google Places API への依存を再追加しない。google-places.ts の VenueFactData 型定義のみ参照可
 
+### 地雷9: アフィリエイト都市マッチングで city ID と city name の不一致
+- 症状: ReservationAffiliate が提携店舗を一切表示しない
+- 原因1: 結果画面が location（エリア名 "渋谷, 新宿"）を city として渡していた
+- 原因2: findAffiliateVenues が v.city === city の完全一致のみで、city ID ("tokyo") と city name ("東京") の変換をしていなかった
+- 対策: (1) planContext に city ID を保存し結果画面で使用 (2) findAffiliateVenues で cities.ts を使い ID/name 両方でマッチング
+- ファイル: src/app/plan/page.tsx, src/app/results/page.tsx, src/lib/affiliate.ts
+- 禁止: city パラメータに location（エリア名）を渡さない。必ず city ID を使う
+
 ### 地雷8: GitHub Web Editor の CodeMirror autocomplete
 - 症状: JSXの閉じタグが重複する（例: </Link>Link>）
 - 原因: GitHub Web Editor (github.com/.../edit/) でTSXファイルを編集すると、CodeMirrorのautocompleteが閉じタグ名を重複挿入する

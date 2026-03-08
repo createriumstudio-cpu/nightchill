@@ -11,6 +11,7 @@ import { getDb } from "./db";
 import { partnerVenues } from "./schema";
 import { eq, and } from "drizzle-orm";
 import type { Activity, Mood } from "./types";
+import { getCityById, getCityByName } from "./cities";
 
 export type AffiliateProvider =
   | "hotpepper"
@@ -90,9 +91,19 @@ export async function findAffiliateVenues(
 
   if (allVenues.length === 0) return [];
 
+  // city ID と city name の両方でマッチングできるようにする
+  // 例: city="tokyo" → "東京" もマッチ、city="東京" → "tokyo" もマッチ
+  const cityData = getCityById(city) || getCityByName(city);
+  const cityMatches = new Set<string>();
+  cityMatches.add(city);
+  if (cityData) {
+    cityMatches.add(cityData.id);
+    cityMatches.add(cityData.name);
+  }
+
   // city + アフィリエイトURL必須フィルタ
   const candidates = allVenues.filter(
-    (v) => v.city === city && v.affiliateUrl,
+    (v) => cityMatches.has(v.city) && v.affiliateUrl,
   );
 
   if (candidates.length === 0) return [];
