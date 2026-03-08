@@ -19,8 +19,8 @@ npm run dev, npm run build, npm run lint, npm test, npx tsc --noEmit
 ## Architecture
 
 src/app/ — Next.js App Router (layout.tsx, page.tsx, [city]/page.tsx, [city]/features/page.tsx, plan/, results/, features/, about/, privacy/, en/, admin/, error.tsx, not-found.tsx, api/, globals.css, sitemap.ts, robots.ts)
-src/components/ — Header.tsx, Footer.tsx, WeeklyPicksSection.tsx, FeaturedPicks.tsx, JsonLd.tsx, SpotPhoto.tsx, SponsoredSpotCard.tsx, ContextualPRSection.tsx, LanguageSwitcher.tsx
-src/lib/ — types.ts, ai-planner.ts, planner.ts, cities.ts, env.ts, gemini-search.ts, google-places.ts, google-maps.ts, plan-encoder.ts, contextual-pr.ts, features.ts, db.ts, schema.ts, i18n.ts, weekly-feature-generator.ts, admin-auth.ts
+src/components/ — Header.tsx, Footer.tsx, WeeklyPicksSection.tsx, FeaturedPicks.tsx, JsonLd.tsx, SpotPhoto.tsx, SponsoredSpotCard.tsx, ContextualPRSection.tsx, LanguageSwitcher.tsx, ProductRecommendation.tsx, ReservationAffiliate.tsx
+src/lib/ — types.ts, ai-planner.ts, planner.ts, cities.ts, env.ts, gemini-search.ts, google-places.ts, google-maps.ts, plan-encoder.ts, contextual-pr.ts, features.ts, db.ts, schema.ts, i18n.ts, weekly-feature-generator.ts, admin-auth.ts, products.ts, affiliate.ts, stripe.ts
 src/data/ — features.json（特集データ）
 
 ## Data Flow
@@ -222,18 +222,54 @@ Vercel Settings > Cron Jobs > /api/cron/weekly-features > "Run" ボタン
 ## マネタイズ基盤 (Phase 4)
 
 ### 概要
-自社商材の文脈連動型レコメンド + EC決済 + 提携店舗予約システム
+自社商材の文脈連動型レコメンド + EC決済 + 提携店舗予約アフィリエイトシステム
+
+### 収益チャネル（3本柱）
+1. **自社EC** — ブレスケア・会話カードなどのデート関連グッズをStripe決済で販売
+2. **予約アフィリエイト** — 提携店舗の予約リンク経由でアフィリエイト収益（ホットペッパー・一休・食べログ等）
+3. **コンテキストPR** — スポンサー店舗の文脈連動型紹介（CONTEXTUAL_PR_ENABLED=trueで有効化）
 
 ### ファイル構成
 - src/lib/products.ts — 商品マッチングロジック (findRecommendedProducts, getProductBySlug, getActiveProducts)
+- src/lib/affiliate.ts — 予約アフィリエイトリンク生成 + 提携店舗コンテキストマッチング (findAffiliateVenues, buildAffiliateLink, getProviderLabel)
 - src/lib/stripe.ts — Stripe決済クライアント + 注文/予約番号生成
 - src/components/ProductRecommendation.tsx — 結果画面用の文脈連動型商品レコメンドUI
+- src/components/ReservationAffiliate.tsx — 結果画面用の予約アフィリエイトレコメンドUI
 
 ### データベーステーブル (schema.ts)
 - products — 自社商材（ブレスケア、会話カード等）。targetOccasions/targetMoods/targetBudgetsでコンテキストマッチング
 - orders — 注文管理。Stripe連携（stripeSessionId, stripePaymentIntentId）
-- partnerVenues — 提携店舗マスター。エリア/都市/カテゴリでフィルタ
+- partnerVenues — 提携店舗マスター。エリア/都市/カテゴリ + affiliateUrl/affiliateProvider + targetOccasions/targetMoodsでコンテキストマッチング
 - reservations — 予約管理。提携店舗への予約リクエスト
+
+### 予約アフィリエイト
+
+#### 仕組み
+1. 管理者がpartnerVenuesにaffiliateUrl（アフィリエイトリンク）とaffiliateProvider（プロバイダー名）を登録
+2. 結果画面でReservationAffiliateコンポーネントがcity + occasion + moodでマッチングリクエスト
+3. 合致する提携店舗があればアフィリエイトリンク付きカードを表示
+4. リンクにはUTMパラメータ（utm_source=futatabito, utm_medium=referral, utm_campaign=date-plan）を自動付与
+5. ユーザーがリンク経由で予約 → アフィリエイト収益
+
+#### 対応プロバイダー (AffiliateProvider)
+- hotpepper — ホットペッパーグルメ
+- ikyu — 一休.com レストラン
+- tabelog — 食べログ
+- otonamie — OZmall
+- other — その他予約サイト
+
+#### マッチングスコア
+- occasion + mood マッチ: スコア2（「このデートにぴったりのお店」）
+- occasion のみマッチ: スコア1（「このシーンにおすすめ」）
+- mood のみマッチ: スコア1（「今の雰囲気にぴったり」）
+- city マッチのみ: スコア0.5（「{city}のおすすめ店」）
+
+#### 提携店舗登録
+POST /api/admin/partner-venues に以下を追加:
+- affiliateUrl: アフィリエイトリンクURL（プロバイダーが発行するトラッキングURL）
+- affiliateProvider: "hotpepper" | "ikyu" | "tabelog" | "otonamie" | "other"
+- targetOccasions: マッチング対象のoccasion配列
+- targetMoods: マッチング対象のmood配列
 
 ### API
 - /api/products — 公開商品一覧 or コンテキストマッチング（occasion/mood/budgetパラメータ）
@@ -241,9 +277,10 @@ Vercel Settings > Cron Jobs > /api/cron/weekly-features > "Run" ボタン
 - /api/checkout — Stripeチェックアウトセッション作成
 - /api/webhook/stripe — Stripe Webhook（checkout.session.completed処理）
 - /api/reservations — 予約作成
+- /api/affiliate-venues — 文脈連動型アフィリエイト店舗レコメンド（city/occasion/moodパラメータ）
 - /api/admin/products — 商品CRUD（管理者認証必須）
 - /api/admin/products/[id] — 商品個別管理
-- /api/admin/partner-venues — 提携店舗CRUD
+- /api/admin/partner-venues — 提携店舗CRUD（affiliateUrl/affiliateProvider/targetOccasions/targetMoods対応）
 - /api/admin/partner-venues/[id] — 提携店舗個別管理
 - /api/admin/reservations — 予約一覧
 
@@ -257,6 +294,15 @@ Vercel Settings > Cron Jobs > /api/cron/weekly-features > "Run" ボタン
 プラン生成時にsessionStorageに保存されるcontext（occasion/mood/budget）を使い、
 結果画面でProductRecommendationコンポーネントが/api/productsへスコアリングリクエスト。
 マッチ度: occasion+mood+budget全マッチ(3) > occasion+mood(2) > occasion or mood(1)
+
+結果画面でReservationAffiliateコンポーネントが/api/affiliate-venuesへマッチングリクエスト。
+マッチ度: occasion+mood(2) > occasion or mood(1) > cityのみ(0.5)
+
+### 表示ルール
+- アフィリエイトリンクには rel="sponsored" を必ず付与
+- マッチ0件の場合はセクション自体を非表示（バナー広告は厳禁）
+- 「PR: 提携店舗のご紹介です」の注記を表示
+- 共有ビューでは非表示（自分で生成したプランのみ表示）
 
 ### 環境変数
 - STRIPE_SECRET_KEY — Stripe決済（未設定時は決済機能無効）

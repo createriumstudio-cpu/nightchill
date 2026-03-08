@@ -286,7 +286,11 @@ export const partnerVenues = pgTable("partner_venues", {
   websiteUrl: text("website_url"),
   imageUrl: text("image_url"),
   bookingUrl: text("booking_url"), // 外部予約URL（ホットペッパー等）
+  affiliateUrl: text("affiliate_url"), // アフィリエイトリンクURL
+  affiliateProvider: varchar("affiliate_provider", { length: 50 }), // "hotpepper" | "ikyu" | "tabelog" | "otonamie" | "other"
   priceRange: varchar("price_range", { length: 50 }), // "3,000〜5,000円"
+  targetOccasions: jsonb("target_occasions").$type<string[]>().default([]), // コンテキストマッチング用
+  targetMoods: jsonb("target_moods").$type<string[]>().default([]),
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
