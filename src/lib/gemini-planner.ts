@@ -61,8 +61,8 @@ async function callGeminiWithGrounding(
       ],
       tools: [{ google_search: {} }],
       generationConfig: {
-        temperature: 1.0,
-        maxOutputTokens: 2048,
+        temperature: 0.7,
+        maxOutputTokens: 8192,
       },
     }),
   });
