@@ -20,7 +20,7 @@ npm run dev, npm run build, npm run lint, npm test, npx tsc --noEmit
 
 src/app/ — Next.js App Router (layout.tsx, page.tsx, [city]/page.tsx, [city]/features/page.tsx, plan/, results/, features/, about/, privacy/, en/, admin/, error.tsx, not-found.tsx, api/, globals.css, sitemap.ts, robots.ts)
 src/components/ — Header.tsx, Footer.tsx, WeeklyPicksSection.tsx, FeaturedPicks.tsx, JsonLd.tsx, SpotPhoto.tsx, SponsoredSpotCard.tsx, ContextualPRSection.tsx, LanguageSwitcher.tsx
-src/lib/ — types.ts, ai-planner.ts, planner.ts, cities.ts, env.ts, google-places.ts, google-maps.ts, plan-encoder.ts, contextual-pr.ts, features.ts, db.ts, schema.ts, i18n.ts, weekly-feature-generator.ts, admin-auth.ts
+src/lib/ — types.ts, ai-planner.ts, planner.ts, cities.ts, env.ts, gemini-search.ts, google-places.ts, google-maps.ts, plan-encoder.ts, contextual-pr.ts, features.ts, db.ts, schema.ts, i18n.ts, weekly-feature-generator.ts, admin-auth.ts
 src/data/ — features.json（特集データ）
 
 ## Data Flow
@@ -52,10 +52,12 @@ src/data/ — features.json（特集データ）
 
 1. Contextual PR取得
 2. AI API呼び出し（リトライ最大2回）— SYSTEM_PROMPTは「日本全国のデートプランニングの専門家」
-3. タイムライン店舗名でGoogle Places検索（Post-search）→ ファクトデータ付与
+   - Geminiプランナーは Google Search grounding (google_search ツール) を有効化し、実在店舗を検索しながらプラン生成
+3. タイムライン店舗名で Gemini Search grounding 検索（Post-search）→ ファクトデータ付与
+   - batchSearchVenuesWithGemini() で複数店舗を1回のAPI呼び出しでまとめて検索
 4. 徒歩ルート取得（最初と2番目の店舗間）
 
-注意: 事前検索(preSearch)は廃止済み。AIが生成した店舗名を使ったPost-searchのみ。
+注意: 事前検索(preSearch)は廃止済み。Google Places API は BILLING_DISABLED のため Gemini Google Search grounding に移行済み。
 
 ## Key Design Decisions
 
@@ -64,7 +66,7 @@ src/data/ — features.json（特集データ）
 - レート制限: 10リクエスト/分/IP
 - 入力サニタイズ: HTMLタグ除去 + 文字数制限
 - 結果画面: 服装アドバイス・注意ポイントは表示しない（AI出力のスリム化のため削除済み）
-- Places API: regularOpeningHoursフィールドは取得しない（コスト最適化）
+- 店舗検索: Gemini Google Search grounding で実在店舗データを取得（Google Places API は廃止）
 - 全国10都市対応: 都市マスターデータ(cities.ts) + フォームの都市/エリア2段選択
 - UGC/SNS機能は全削除済み: SocialEmbed, UgcSection, FeatureSpotEmbedは廃止。ユーザー外部流出防止のため（注: src/lib/features.tsはPhase 3週次更新システムで使用中）
 
@@ -88,7 +90,7 @@ src/data/ — features.json（特集データ）
 - ANTHROPIC_MODEL — デフォルト: claude-sonnet-4-6
 - GEMINI_API_KEY — Gemini API（プライマリAIプロバイダー）
 - GEMINI_MODEL — デフォルト: gemini-2.5-flash
-- GOOGLE_PLACES_API_KEY — Google Places API
+- GOOGLE_PLACES_API_KEY — Google Places API（廃止: BILLING_DISABLED。Gemini Search grounding に移行済み）
 - GOOGLE_MAPS_API_KEY — Google Maps Embed + Directions
 - NEXT_PUBLIC_SITE_URL — OGP/canonical URL
 - CONTEXTUAL_PR_ENABLED — PR ON/OFF（未設定）
@@ -130,7 +132,14 @@ GitHub Actions: Lint → Type check → Test → Build
 - 対策: UGC/SNS関連コンポーネント・機能を全削除（PR #84）
 - 禁止: SNS埋め込み・外部リンク導線の再追加。features.jsonのinstagramHashtag/tiktokHashtag/embedsフィールドも削除済み
 
-### 地雷7: GitHub Web Editor の CodeMirror autocomplete
+### 地雷7: Google Places API の BILLING_DISABLED
+- 症状: Google Places API が 403 エラーを返す
+- 原因: Google Cloud の課金が無効化されている (BILLING_DISABLED)
+- 対策: Gemini Google Search grounding (google_search ツール) で店舗データを取得する方式に移行
+- ファイル: src/lib/gemini-search.ts（searchVenueWithGemini, batchSearchVenuesWithGemini, searchTrendingSpotsWithGemini）
+- 禁止: Google Places API への依存を再追加しない。google-places.ts の VenueFactData 型定義のみ参照可
+
+### 地雷8: GitHub Web Editor の CodeMirror autocomplete
 - 症状: JSXの閉じタグが重複する（例: </Link>Link>）
 - 原因: GitHub Web Editor (github.com/.../edit/) でTSXファイルを編集すると、CodeMirrorのautocompleteが閉じタグ名を重複挿入する
 - 対策: (1) execCommand('insertText') で一括挿入 (2) Clipboard API + cmd+v でペースト (3) cmd+a → Backspace で全選択削除してから貼り付け
@@ -160,12 +169,13 @@ B案: リアルタイム週次更新 — 「今週のおすすめデートプラ
 
 ### 仕組み
 - Vercel Cron: 毎週月曜 0:00 UTC (= 9:00 JST) に自動実行
-- Google Places API (New) で各都市の注目スポットを検索
+- Gemini Google Search grounding で各都市の注目スポットを検索
 - Anthropic Claude で特集記事を自動生成
 - Neon Postgres (features table) に保存
 
 ### ファイル構成
-- src/lib/weekly-feature-generator.ts — コア生成ロジック (searchTrendingSpots + generateArticleWithAI + runWeeklyBatch)
+- src/lib/weekly-feature-generator.ts — コア生成ロジック (generateArticleWithAI + runWeeklyBatch)
+- src/lib/gemini-search.ts — Gemini Search grounding による店舗検索 (searchVenueWithGemini, batchSearchVenuesWithGemini, searchTrendingSpotsWithGemini)
 - src/app/api/cron/weekly-features/route.ts — Cron エンドポイント (CRON_SECRET認証)
 - src/lib/features.ts — getWeeklyFeatures(cityName?, limit) + getLatestWeeklyFeatures(limit)
 - vercel.json — cron設定 ("0 0 * * 1")
@@ -204,7 +214,7 @@ B案: リアルタイム週次更新 — 「今週のおすすめデートプラ
 ### 環境変数
 - CRON_SECRET — Cron認証トークン（未設定時は認証なしで動作）
 - ANTHROPIC_API_KEY — 記事生成（未設定時はテンプレートフォールバック）
-- GOOGLE_PLACES_API_KEY — スポット検索（未設定時は空配列）
+- GEMINI_API_KEY — スポット検索（Gemini Search grounding）+ 記事生成フォールバック
 
 ### 手動実行
 Vercel Settings > Cron Jobs > /api/cron/weekly-features > "Run" ボタン

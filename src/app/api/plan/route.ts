@@ -7,7 +7,7 @@ import { saveToHistory } from "@/lib/date-history";
 import { getUserIdFromRequest } from "@/lib/user-auth";
 import type { PlanRequest, DatePlan, Mood, Budget, AgeGroup } from "@/lib/types";
 import { CITY_IDS, getCityById } from "@/lib/cities";
-import { searchVenue } from "@/lib/google-places";
+import { batchSearchVenuesWithGemini } from "@/lib/gemini-search";
 import type { VenueFactData } from "@/lib/google-places";
 import { getWalkingRoute } from "@/lib/google-maps";
 
@@ -53,8 +53,7 @@ function isRateLimited(ip: string): boolean {
 }
 
 /**
- * テンプレートプランのvenue名でGoogle Places検索し、GBPデータを付与する。
- * ai-planner.ts の Step 3 と同等の処理。
+ * テンプレートプランのvenue名でGemini Search grounding検索し、ファクトデータを付与する。
  */
 async function enrichTemplatePlan(plan: DatePlan, request: PlanRequest): Promise<DatePlan> {
   const cityData = getCityById(request.city || "tokyo");
@@ -62,35 +61,28 @@ async function enrichTemplatePlan(plan: DatePlan, request: PlanRequest): Promise
   const area = request.location || cityName;
 
   // venue名の一覧（空文字を除外）
-  const venueNames = [...new Set(
-    plan.timeline.map(t => t.venue).filter(v => v.length > 0)
-  )];
-  if (venueNames.length === 0) return plan;
+  const venueItems = plan.timeline
+    .filter(t => t.venue.length > 0)
+    .map(t => ({ name: t.venue, activity: t.activity }));
+  const uniqueVenues = venueItems.filter(
+    (v, i, arr) => arr.findIndex(a => a.name === v.name) === i,
+  );
+  if (uniqueVenues.length === 0) return plan;
 
   try {
-    // 全店舗を並列検索
-    const searchResults = await Promise.all(
-      venueNames.map(name => {
-        const item = plan.timeline.find(t => t.venue === name);
-        return searchVenue(name, area, item?.activity);
-      })
-    );
+    // Gemini Search grounding でバッチ検索
+    const venueMap = await batchSearchVenuesWithGemini(uniqueVenues, area);
 
-    // venueデータマップ構築
-    const venueMap = new Map<string, VenueFactData>();
     const venues: VenueFactData[] = [];
-    for (let i = 0; i < venueNames.length; i++) {
-      const result = searchResults[i];
-      if (result) {
-        venueMap.set(venueNames[i], result);
-        venues.push(result);
-      }
+    for (const v of uniqueVenues) {
+      const data = venueMap.get(v.name);
+      if (data) venues.push(data);
     }
 
     // タイムラインの description をファクトデータで上書き
     for (const item of plan.timeline) {
       const venueData = venueMap.get(item.venue);
-      if (venueData && venueData.source === "google_places") {
+      if (venueData) {
         const parts: string[] = [];
         if (venueData.rating !== null) parts.push(`★${venueData.rating}`);
         if (venueData.priceLevel !== null) parts.push("¥".repeat(venueData.priceLevel || 1));
@@ -100,18 +92,17 @@ async function enrichTemplatePlan(plan: DatePlan, request: PlanRequest): Promise
     }
 
     // 徒歩ルート取得（最初と2番目の店舗間）
-    const googleVenues = venues.filter(v => v.source === "google_places");
     let walkingRoute = plan.walkingRoute;
-    if (googleVenues.length >= 2 && googleVenues[0].lat !== 0 && googleVenues[1].lat !== 0) {
+    if (venues.length >= 2) {
       walkingRoute = (await getWalkingRoute(
-        { lat: googleVenues[0].lat, lng: googleVenues[0].lng },
-        { lat: googleVenues[1].lat, lng: googleVenues[1].lng },
+        venues[0].name + " " + area,
+        venues[1].name + " " + area,
       )) ?? undefined;
     }
 
     return {
       ...plan,
-      venues: googleVenues.length > 0 ? googleVenues : venues,
+      venues,
       walkingRoute,
     };
   } catch (error) {

@@ -1,27 +1,84 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import type { PlanRequest, DatePlan } from "./types";
 import { env } from "./env";
 import { SYSTEM_PROMPT, buildUserPrompt, robustJsonParse, buildFactDescription } from "./ai-planner";
-import { searchVenue, searchAreaVenues } from "./google-places";
+import { batchSearchVenuesWithGemini } from "./gemini-search";
 import type { VenueFactData } from "./google-places";
 import { getWalkingRoute } from "./google-maps";
 import type { WalkingRoute } from "./google-maps";
 import { findRelevantPR, formatPRForPrompt } from "./contextual-pr";
 import { getCityById } from "./cities";
 
-let genAI: GoogleGenerativeAI | null = null;
+// ============================================================
+// Gemini REST API 型定義（Google Search grounding 対応）
+// ============================================================
 
-function getClient(): GoogleGenerativeAI {
-  if (!genAI) {
-    const apiKey = env().GEMINI_API_KEY;
-    if (!apiKey) throw new Error("GEMINI_API_KEY is not configured");
-    genAI = new GoogleGenerativeAI(apiKey);
-  }
-  return genAI;
+interface GeminiResponse {
+  candidates?: Array<{
+    content?: {
+      parts?: Array<{ text?: string }>;
+    };
+    groundingMetadata?: {
+      groundingChunks?: Array<{
+        web?: { uri?: string; title?: string };
+      }>;
+      webSearchQueries?: string[];
+    };
+  }>;
 }
+
+const GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta";
 
 function generateId(): string {
   return Math.random().toString(36).substring(2, 10);
+}
+
+/**
+ * Gemini REST API を直接呼び出す（Google Search grounding 対応）。
+ * SDK の generateContent() は google_search ツールの型定義がないため REST API を使用。
+ */
+async function callGeminiWithGrounding(
+  systemPrompt: string,
+  userPrompt: string,
+): Promise<string> {
+  const apiKey = env().GEMINI_API_KEY;
+  if (!apiKey) throw new Error("GEMINI_API_KEY is not configured");
+
+  const model = env().GEMINI_MODEL;
+  const url = `${GEMINI_API_BASE}/models/${model}:generateContent?key=${apiKey}`;
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      system_instruction: {
+        parts: [{ text: systemPrompt }],
+      },
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: userPrompt }],
+        },
+      ],
+      tools: [{ google_search: {} }],
+      generationConfig: {
+        temperature: 1.0,
+        maxOutputTokens: 2048,
+      },
+    }),
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Gemini API failed ${res.status}: ${errText}`);
+  }
+
+  const data = (await res.json()) as GeminiResponse;
+  const candidate = data.candidates?.[0];
+  const text = candidate?.content?.parts
+    ?.map((p) => p.text ?? "")
+    .join("") ?? "";
+
+  return text;
 }
 
 export async function generateGeminiPlan(request: PlanRequest): Promise<DatePlan> {
@@ -38,16 +95,12 @@ export async function generateGeminiPlan(request: PlanRequest): Promise<DatePlan
   const prItems = findRelevantPR(request.activities[0] || "dinner", request.mood, area);
   const prText = formatPRForPrompt(prItems);
 
-  // Step 1.5: エリア事前検索
-  const preSearchVenues = await searchAreaVenues(area, cityName, request.activities, request.mood);
-  console.log(`[gemini-planner] Pre-search returned ${preSearchVenues.length} venues`);
+  // Note: Pre-search (searchAreaVenues) を廃止。
+  // Gemini の Google Search grounding により、AI が直接 Google 検索して
+  // 実在する店舗を見つけるため、事前検索は不要。
+  const preSearchVenues: VenueFactData[] = [];
 
-  // Step 2: Gemini AI生成
-  const model = getClient().getGenerativeModel({
-    model: env().GEMINI_MODEL,
-    systemInstruction: SYSTEM_PROMPT,
-  });
-
+  // Step 2: Gemini AI 生成（Google Search grounding 有効）
   let lastError: Error | null = null;
   let walkingRoute: WalkingRoute | null = null;
 
@@ -55,62 +108,47 @@ export async function generateGeminiPlan(request: PlanRequest): Promise<DatePlan
     try {
       const userPrompt = buildUserPrompt(request, preSearchVenues, walkingRoute, prText);
 
-      const result = await model.generateContent(userPrompt);
-      const text = result.response.text();
+      // Google Search grounding 付きで Gemini を呼び出し
+      const text = await callGeminiWithGrounding(SYSTEM_PROMPT, userPrompt);
 
       console.log(`[gemini-planner] Response (attempt ${attempt + 1}, first 300 chars):`, text.slice(0, 300));
 
       const parsed = robustJsonParse(text);
 
-      // Step 2.5: venue名バリデーション
+      // Step 2.5: venue名バリデーション（一般名の検出のみ、pre-search 置換なし）
       const genericPatterns = /^(待ち合わせ|集合|移動|ランチ|ディナー|カフェ|バー|レストラン|散歩|休憩|居酒屋|ショッピング)$/;
       const areaGenericPattern = /^.{2,5}(で|の)(待ち合わせ|ランチ|ディナー|カフェ|バー|休憩|集合|散歩|食事|買い物)/;
       const adjectiveGenericPattern = /^(おしゃれな|人気の|素敵な|有名な|話題の|隠れ家的な)(カフェ|レストラン|バー|イタリアン|フレンチ|居酒屋|ダイニング|ビストロ)/;
-      const usedVenueNames = new Set<string>();
       const timelineItems = parsed.timeline as Array<{ venue?: string; activity?: string }>;
-      for (const item of timelineItems) {
-        if (item.venue) usedVenueNames.add(item.venue);
-      }
       for (const item of timelineItems) {
         const isGeneric = !item.venue
           || genericPatterns.test(item.venue)
           || areaGenericPattern.test(item.venue)
           || adjectiveGenericPattern.test(item.venue);
         if (isGeneric) {
-          console.warn(`[gemini-planner] Generic venue: "${item.venue}" for "${item.activity}"`);
-          const replacement = preSearchVenues.find(v => !usedVenueNames.has(v.name));
-          if (replacement) {
-            console.log(`[gemini-planner] Replacing "${item.venue}" with "${replacement.name}"`);
-            item.venue = replacement.name;
-            usedVenueNames.add(replacement.name);
-          }
+          console.warn(`[gemini-planner] Generic venue detected: "${item.venue}" for "${item.activity}"`);
         }
       }
 
-      // Step 3: Google Places enrichment
-      const timelineVenues = (parsed.timeline as Array<{ venue?: string }>)
-        .map(t => t.venue)
-        .filter((v): v is string => !!v && v.length > 0);
-      const uniqueVenueNames = [...new Set(timelineVenues)];
-
-      const venueSearchResults = await Promise.all(
-        uniqueVenueNames.map(name => {
-          const item = (parsed.timeline as Array<{ venue?: string; activity?: string }>).find(t => t.venue === name);
-          return searchVenue(name, area, item?.activity);
-        })
+      // Step 3: Gemini Search grounding で店舗ファクトデータ取得（Google Places API 代替）
+      const timelineVenues = (parsed.timeline as Array<{ venue?: string; activity?: string }>)
+        .filter((t): t is { venue: string; activity?: string } => !!t.venue && t.venue.length > 0)
+        .map(t => ({ name: t.venue, activity: t.activity }));
+      const uniqueVenues = timelineVenues.filter(
+        (v, i, arr) => arr.findIndex(a => a.name === v.name) === i,
       );
-      const enrichedVenues = venueSearchResults.filter((v): v is VenueFactData => v !== null);
-      const googleVenues = enrichedVenues.filter(v => v.source === "google_places");
-      const finalVenues = googleVenues.length > 0 ? googleVenues : enrichedVenues;
+
+      // バッチ検索で全店舗のファクトデータを1回のAPI呼び出しで取得
+      const venueDataMap = await batchSearchVenuesWithGemini(uniqueVenues, area);
+
+      const enrichedVenues: VenueFactData[] = [];
+      for (const v of uniqueVenues) {
+        const data = venueDataMap.get(v.name);
+        if (data) enrichedVenues.push(data);
+      }
+      const finalVenues = enrichedVenues;
 
       // Step 3.5: description をファクトデータで上書き
-      const venueDataMap = new Map<string, VenueFactData>();
-      for (let i = 0; i < uniqueVenueNames.length; i++) {
-        const r = venueSearchResults[i];
-        if (r && r.source === "google_places") {
-          venueDataMap.set(uniqueVenueNames[i], r);
-        }
-      }
       const timeline = parsed.timeline as Array<{ venue?: string; description?: string }>;
       for (const item of timeline) {
         if (item.venue && venueDataMap.has(item.venue)) {
@@ -119,12 +157,7 @@ export async function generateGeminiPlan(request: PlanRequest): Promise<DatePlan
       }
 
       // Step 4: 徒歩ルート取得
-      if (finalVenues.length >= 2 && finalVenues[0].lat !== 0 && finalVenues[1].lat !== 0) {
-        walkingRoute = await getWalkingRoute(
-          { lat: finalVenues[0].lat, lng: finalVenues[0].lng },
-          { lat: finalVenues[1].lat, lng: finalVenues[1].lng },
-        );
-      } else if (finalVenues.length >= 2) {
+      if (finalVenues.length >= 2) {
         walkingRoute = await getWalkingRoute(
           finalVenues[0].name + " " + area,
           finalVenues[1].name + " " + area,

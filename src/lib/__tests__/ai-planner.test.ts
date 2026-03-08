@@ -63,7 +63,7 @@ describe("buildUserPrompt", () => {
     const prompt = buildUserPrompt(mockRequest, mockVenues, null, "");
     expect(prompt).toContain("テストカフェ");
     expect(prompt).toContain("★4.5");
-    expect(prompt).toContain("実在店舗データ");
+    expect(prompt).toContain("実在が確認済みの店舗データ");
   });
 
   it("should include opening hours when venue has them", () => {
