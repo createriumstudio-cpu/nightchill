@@ -478,7 +478,7 @@ export default function ResultsPage() {
   const [timelineExpanded, setTimelineExpanded] = useState(false);
   const [historySaved, setHistorySaved] = useState(false);
   const [historySaving, setHistorySaving] = useState(false);
-  const [planContext] = useState<{ occasion: string; mood: string; budget: string } | null>(() => {
+  const [planContext] = useState<{ occasion: string; mood: string; budget: string; city?: string } | null>(() => {
     if (typeof window === "undefined") return null;
     const raw = sessionStorage.getItem("futatabito-context");
     if (!raw) return null;
@@ -778,9 +778,9 @@ export default function ResultsPage() {
         )}
 
         {/* Reservation Affiliate - 予約アフィリエイトレコメンド */}
-        {planContext && !isSharedView && location && (
+        {planContext && !isSharedView && (planContext.city || location) && (
           <ReservationAffiliate
-            city={location}
+            city={planContext.city || location}
             occasion={planContext.occasion}
             mood={planContext.mood}
           />
