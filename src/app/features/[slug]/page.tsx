@@ -8,6 +8,8 @@ import Header from "@/components/Header";
 import SpotImage from "@/components/SpotImage";
 import ContextualPRSection from "@/components/ContextualPRSection";
 import Footer from "@/components/Footer";
+import BlogAffiliate from "@/components/BlogAffiliate";
+import { CITIES } from "@/lib/cities";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.futatabito.com";
 
@@ -18,6 +20,16 @@ export const dynamicParams = true;
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
+
+/** エリア名から都市IDを推定 */
+function inferCityFromArea(area: string): string {
+  for (const city of CITIES) {
+    if (city.areas.includes(area) || city.name === area) {
+      return city.id;
+    }
+  }
+  return "tokyo";
+}
 
 /** Rate-limit helper: 2sec delay between API calls */
 function delay(ms: number) {
@@ -399,6 +411,10 @@ export default async function FeatureDetailPage({ params }: PageProps) {
               ✨ {feature.area}のデートプランを作る
             </Link>
           </div>
+        </section>
+        {/* Affiliate Recommendations */}
+        <section className="max-w-3xl mx-auto px-4 pb-12">
+          <BlogAffiliate tags={feature.tags} category="feature" city={inferCityFromArea(feature.area)} />
         </section>
       </main>
       <Footer />

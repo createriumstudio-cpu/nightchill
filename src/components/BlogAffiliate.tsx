@@ -20,6 +20,8 @@ interface AffiliateVenueData {
 interface Props {
   tags: string[];
   category: string;
+  /** 都市ID（例: "tokyo"）。未指定時は "tokyo" をデフォルト使用 */
+  city?: string;
 }
 
 function inferOccasion(tags: string[]): string {
@@ -41,14 +43,14 @@ function inferMood(tags: string[]): string {
   return "romantic";
 }
 
-export default function BlogAffiliate({ tags, category }: Props) {
+export default function BlogAffiliate({ tags, category, city = "tokyo" }: Props) {
   const [venues, setVenues] = useState<AffiliateVenueData[]>([]);
 
   useEffect(() => {
     const occasion = inferOccasion(tags);
     const mood = inferMood(tags);
     const params = new URLSearchParams({
-      city: "tokyo",
+      city,
       occasion,
       mood,
       limit: "2",
