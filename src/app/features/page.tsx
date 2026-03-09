@@ -205,7 +205,7 @@ export default async function FeaturesPage() {
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                     </div>
                   ) : feature.spots[0]?.photoUrl ? (
                     <div className="relative w-full aspect-[16/9] overflow-hidden">
