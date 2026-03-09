@@ -485,6 +485,24 @@ export default function ResultsPage() {
     try { return JSON.parse(raw); } catch { return null; }
   });
 
+  // メールが登録されていればプラン完成時にメール送信
+  const emailSentRef = useRef(false);
+  useEffect(() => {
+    if (!plan || emailSentRef.current || isSharedView) return;
+    const email = sessionStorage.getItem("futatabito-email");
+    if (!email) return;
+    emailSentRef.current = true;
+    fetch("/api/send-plan-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, plan }),
+    })
+      .catch(() => {})
+      .finally(() => {
+        sessionStorage.removeItem("futatabito-email");
+      });
+  }, [plan, isSharedView]);
+
   // URLハッシュからプランを読み込み
   useEffect(() => {
     const hash = getPlanHashFromUrl();

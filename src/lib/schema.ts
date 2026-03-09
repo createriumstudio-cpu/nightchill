@@ -181,6 +181,19 @@ export interface TikTokContent {
 
 export type SnsContentJson = InstagramContent | XContent | TikTokContent;
 
+// ── Email Signups (リード獲得) ──
+
+export const emailSignups = pgTable("email_signups", {
+  id: serial("id").primaryKey(),
+  email: varchar("email", { length: 255 }).notNull(),
+  planData: jsonb("plan_data"),
+  location: varchar("location", { length: 200 }),
+  city: varchar("city", { length: 50 }),
+  status: varchar("status", { length: 20 }).notNull().default("pending"), // "pending" | "sent" | "failed"
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  sentAt: timestamp("sent_at", { withTimezone: true }),
+});
+
 // ── Phase 5: リピーター獲得 ──
 
 // Users (匿名ユーザー — Cookie-based)
