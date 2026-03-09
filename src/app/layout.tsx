@@ -64,6 +64,9 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION,
+  },
   alternates: {
     canonical: siteUrl,
     languages: {
