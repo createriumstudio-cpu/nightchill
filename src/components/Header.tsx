@@ -48,7 +48,7 @@ export default function Header() {
           </Link>
           <Link
             href="/plan"
-            className="rounded-full bg-primary px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
+            className="rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-dark"
           >
             デートを計画する
           </Link>
@@ -112,7 +112,7 @@ export default function Header() {
             </Link>
             <Link
               href="/plan"
-              className="rounded-full bg-primary px-5 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-primary-dark"
+              className="rounded-full bg-primary px-5 py-2 text-center text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-dark"
               onClick={() => setMenuOpen(false)}
             >
               デートを計画する

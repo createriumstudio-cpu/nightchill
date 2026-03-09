@@ -4,6 +4,7 @@
   --background: #faf8f5;
   --foreground: #1a1a2e;
   --primary: #1a1a2e;
+  --primary-foreground: #ffffff;
   --primary-light: #3d5a80;
   --primary-dark: #0f0f1a;
   --accent: #c9a96e;
@@ -20,6 +21,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
   --color-primary-light: var(--primary-light);
   --color-primary-dark: var(--primary-dark);
   --color-accent: var(--accent);
@@ -39,6 +41,7 @@
     --background: #0f0f1a;
     --foreground: #f0ebe5;
     --primary: #dbc49b;
+    --primary-foreground: #1a1a2e;
     --primary-light: #e8d5b3;
     --primary-dark: #c9a96e;
     --accent: #c9a96e;

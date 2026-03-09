@@ -14,7 +14,7 @@ export default function NotFound() {
         <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row">
           <Link
             href="/"
-            className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-dark"
+            className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-dark"
           >
             トップに戻る
           </Link>

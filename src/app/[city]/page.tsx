@@ -217,7 +217,7 @@ export default async function CityLandingPage({ params }: PageProps) {
                   <span className="text-xs font-semibold text-primary tracking-wider uppercase">
                     {city.name} Weekly
                   </span>
-                  <span className="inline-block bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                  <span className="inline-block bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-full">
                     NEW
                   </span>
                 </div>
