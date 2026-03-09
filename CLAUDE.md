@@ -327,3 +327,116 @@ POST /api/admin/partner-venues に以下を追加:
 ### 環境変数
 - STRIPE_SECRET_KEY — Stripe決済（未設定時は決済機能無効）
 - STRIPE_WEBHOOK_SECRET — Stripe Webhook署名検証
+
+## 📊 運用モニタリング（GA4 + アフィリエイト確認方法）
+
+URL: https://analytics.google.com/analytics/web/#/p{プロパティID}/reports/
+
+測定ID: G-272CBN32K5
+
+#### 見るべき指標（週1回程度）
+
+1. **ユーザー数・セッション数**: レポート > リアルタイム or ユーザー > 概要
+1. **プラン生成数**: レポート > エンゲージメント > イベント → `page_view` で `/results` ページのビュー数を確認
+1. **流入元**: レポート > 集客 > トラフィック獲得 → どこからユーザーが来ているか
+1. **離脱ページ**: レポート > エンゲージメント > ページとスクリーン → 直帰率が高いページを確認
+
+#### アフィリエイトクリック確認
+
+* アフィリエイトリンクのUTMパラメータ: `utm_source=futatabito&utm_medium=referral&utm_campaign=date-plan`
+* GA4では現状イベントトラッキング未設定のため、クリック数はホットペッパー側で確認
+* 将来的にGA4へのクリックイベント送信を追加すると計測可能
+
+### ホットペッパーアフィリエイトのレポート確認
+
+* partner_venuesテーブルに登録済み店舗（6件）のaff URLへのクリックが計測される
+* ホットペッパーグルメアフィリエイト管理画面でクリック数・成約数を確認
+* 成約（予約完了）があると報酬が発生
+
+### Vercelのエラー確認
+
+URL: https://vercel.com/createriumstudio-cpus-projects/nightchill-sr5g/logs
+
+* `Functions` タブ → API Route のエラーログ
+* `/api/plan` のエラーが多い場合はGemini/Anthropic APIキーや残高を確認
+
+---
+
+## 🏁 現在のサイト状態（2026-03-10 時点）
+
+### スコアサマリー
+
+| 視点 | スコア | 状態 |
+|------|--------|------|
+| UX | 8/10 | 短期タスク全完了 |
+| 管理・運用 | 8/10 | 短期タスク全完了 |
+| マネタイズ | 6/10 | 短期タスク全完了 |
+
+### 稼働中の収益化機能
+
+* **ReservationAffiliateコンポーネント**: プラン結果画面でhotpepper提携6店舗を表示
+* **partner_venuesテーブル**: 6件登録済み（銀座レカン, ポール・ボキューズ ミュゼ, ナチュラルハーモニーの農レストラン, XEX TOKYO, 鉄板焼銀水, クレール表参道）
+
+### 自動化済みの運用
+
+* **BlogAffiliateコンポーネント**: ブログ記事末尾 + 特集ページ末尾でアフィリエイト表示
+* **週次コンテンツ自動更新**: 毎週月曜 9:00 JST に Cron で全国2-3都市の特集記事を自動生成・DB保存
+* **GA4計測**: layout.tsx で NEXT_PUBLIC_GA4_ID=G-272CBN32K5 を使いページビュー自動計測
+* **コストアラート**: Anthropic $30/$50、Gemini ¥1,500 でメール通知
+
+---
+
+## 🔮 今後の開発方針（中期・長期）
+
+### 中期（次に着手すべき順）
+
+1. **partner_venues追加** — hotpepper提携店舗を追加登録するだけで収益機会が増える。コード変更不要。Neon SQL Editorで INSERT するだけ。
+1. **GA4クリックイベント実装** — アフィリエイトリンクのクリックをGA4に送信する（BlogAffiliate.tsx / ReservationAffiliate.tsx に onClick で gtag('event', 'affiliate_click') を追加）
+1. **簡易ログイン（Google OAuth）** — /api/auth にNextAuth.js追加。プラン保存履歴でリピート利用を促進
+1. **フリーミアム化** — 月額480〜980円のプレミアムプラン（PDF保存・予約リンク付き）
+
+### 長期
+
+1. **スポンサー直接契約** — 飲食店・ホテルとの直接契約（営業・交渉が必要）
+1. **Google Maps連携ルート表示** — 徒歩ルートの可視化（現在は静的地図のみ）
+
+---
+
+## 🚨 バグ対応フロー
+
+### よくある症状と対処法
+
+| 症状 | 確認場所 | 対処 |
+|------|---------|------|
+| プランが生成されずテンプレートになる | Vercel Logs > /api/plan | Gemini/Anthropic APIキー・残高確認 |
+| 店舗写真が表示されない | Vercel Logs > /api/place-photo | Google Places APIキー・課金確認 |
+| アフィリエイトが表示されない | /api/affiliate-venues?city=tokyo&occasion=anniversary&mood=romantic で直接確認 | partner_venuesテーブルのデータ・city IDの一致確認 |
+| 週次記事が生成されない | Vercel > Settings > Cron Jobs | CRON_SECRET / ANTHROPIC_API_KEY 確認 |
+| 特集ページが古いまま | ISRキャッシュ（1時間）なので待つ | 急ぎなら Vercel > Deployments > Redeploy |
+| TypeScriptエラー | npx tsc --noEmit | エラー内容に従って修正 |
+
+### 緊急時の連絡先・ダッシュボード
+
+* Vercel: https://vercel.com/createriumstudio-cpus-projects/nightchill-sr5g
+* Neon DB: https://console.neon.tech/app/projects/twilight-darkness-40445586
+* Google Cloud: https://console.cloud.google.com/home/dashboard?project=cobalt-broker-488519-c5
+* Anthropic Console: https://console.anthropic.com/settings/limits
+* GA4: https://analytics.google.com/analytics/web/
+
+---
+
+## 🗝️ 重要データ一覧
+
+| 項目 | 値 |
+|------|-----|
+| ドメイン | futatabito.com（有効期限: 2027/03/08） |
+| Vercelプロジェクト | nightchill-sr5g |
+| GA4測定ID | G-272CBN32K5 |
+| Vercel環境変数（GA4） | NEXT_PUBLIC_GA4_ID と NEXT_PUBLIC_GA_MEASUREMENT_ID（両方設定済み） |
+| Neon DB project | twilight-darkness-40445586 (futatabito-db) |
+| Google Cloud project | cobalt-broker-488519-c5 |
+| Anthropicアラート閾値 | $30 / $50 |
+| AIプライマリ | Gemini 2.5 Flash |
+| AIフォールバック | Claude Sonnet 4.6 |
+| Geminiアラート閾値 | ¥1,500（50%/90%/100%通知） |
+| partner_venues登録数 | 6件（hotpepper、東京） |
