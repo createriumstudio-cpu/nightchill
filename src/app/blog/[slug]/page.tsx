@@ -5,6 +5,7 @@ import Image from "next/image";
 import { getPostBySlug, getLatestPosts, BLOG_CATEGORIES } from "@/lib/blog";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import BlogAffiliate from "@/components/BlogAffiliate";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL || "https://www.futatabito.com";
@@ -268,6 +269,11 @@ export default async function BlogPostPage({ params }: PageProps) {
         <article className="max-w-3xl mx-auto px-4 pb-12">
           <div className="prose-equivalent">{renderContent(post.content)}</div>
         </article>
+
+        {/* Blog Affiliate */}
+        <div className="max-w-3xl mx-auto px-4">
+          <BlogAffiliate tags={post.tags} category={post.category} />
+        </div>
 
         {/* Related Posts */}
         {filteredRelated.length > 0 && (
