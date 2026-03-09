@@ -212,12 +212,10 @@ export default function Home() {
         </div>
         <div className="relative mx-auto max-w-4xl text-center drop-shadow-lg">
           <p className="mb-2 md:mb-4 text-xs md:text-sm font-semibold tracking-widest text-[#c9a96e] uppercase [text-shadow:_0_1px_6px_rgba(0,0,0,0.6)]">
-            &ldquo;どこ行く？&rdquo;を迷わない。AIが、ふたりだけのプランを30秒で。
+            ふたりが楽しめる場所を、AIが30秒で見つける。
           </p>
           <h1 className="text-3xl sm:text-5xl font-bold leading-tight tracking-tight text-white md:text-7xl [text-shadow:_0_2px_12px_rgba(0,0,0,0.8)]">
-            &ldquo;失敗しない&rdquo;を、
-            <br />
-            ふたりの自信に。
+            また&ldquo;どこでもいい&rdquo;って言わせたくない。
           </h1>
           <p className="mx-auto mt-4 md:mt-6 max-w-2xl text-sm md:text-lg leading-relaxed text-white/90 [text-shadow:_0_1px_8px_rgba(0,0,0,0.7)]">
             お店選び、時間配分、移動ルート——全部まるっとAIが提案。
