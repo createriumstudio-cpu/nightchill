@@ -96,7 +96,8 @@ export default function MyPage() {
             {recommendations && (
               <section className="mb-12">
                 <h2 className="text-xl font-bold mb-4">あなたへのおすすめ</h2>
-                <p className="text-sm text-muted mb-4">{recommendations.message}</p>
+                <p className="text-sm text-muted mb-1">{recommendations.message}</p>
+                <p className="text-xs text-muted/70 mb-4">デートの記録を保存すると、あなた好みのおすすめが届きます。</p>
 
                 {recommendations.recommendedFeatures.length > 0 && (
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -122,7 +123,7 @@ export default function MyPage() {
               {history.length === 0 ? (
                 <div className="rounded-2xl border border-border bg-surface p-8 text-center">
                   <p className="text-4xl mb-3">📝</p>
-                  <p className="text-muted mb-4">まだデート履歴がありません</p>
+                  <p className="text-muted mb-4">プランを作って、ふたりの記録を残そう。</p>
                   <Link
                     href="/plan"
                     className="inline-block rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"

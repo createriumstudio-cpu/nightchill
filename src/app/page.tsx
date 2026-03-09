@@ -212,7 +212,7 @@ export default function Home() {
         </div>
         <div className="relative mx-auto max-w-4xl text-center drop-shadow-lg">
           <p className="mb-2 md:mb-4 text-xs md:text-sm font-semibold tracking-widest text-[#c9a96e] uppercase [text-shadow:_0_1px_6px_rgba(0,0,0,0.6)]">
-            デートの&ldquo;どこ行く？&rdquo;を、30秒で解決。
+            &ldquo;どこ行く？&rdquo;を迷わない。AIが、ふたりだけのプランを30秒で。
           </p>
           <h1 className="text-3xl sm:text-5xl font-bold leading-tight tracking-tight text-white md:text-7xl [text-shadow:_0_2px_12px_rgba(0,0,0,0.8)]">
             &ldquo;失敗しない&rdquo;を、
@@ -241,7 +241,7 @@ export default function Home() {
             </a>
           </div>
           <p className="mt-4 md:mt-6 text-xs text-white/60 [text-shadow:_0_1px_4px_rgba(0,0,0,0.5)]">
-            登録不要・完全無料・30秒で完成
+            無料で試せる・30秒で完成
           </p>
         </div>
       </section>
@@ -351,7 +351,7 @@ export default function Home() {
               How It Works
             </p>
             <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
-              迷ったら、30秒だけください
+              ふたりの答えを、30秒で。
             </h2>
           </div>
           <div className="mt-16 space-y-12">
@@ -431,7 +431,7 @@ export default function Home() {
             30秒でプランをつくる
           </Link>
           <p className="mt-4 text-xs text-white/60">
-            登録不要・完全無料
+            今すぐ無料で試す
           </p>
         </div>
       </section>
