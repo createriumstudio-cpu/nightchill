@@ -11,6 +11,7 @@ import { CITIES, type CityData } from "./cities";
 import { getDb } from "./db";
 import { blogPosts } from "./schema";
 import Anthropic from "@anthropic-ai/sdk";
+import { generateBlogImage } from "./generateBlogImage";
 
 // ============================================================
 // 型定義
@@ -309,6 +310,19 @@ export async function saveBlogPostAsDraft(
   }
 
   try {
+    // heroImage を自動生成
+    let heroImage: string | null = null;
+    try {
+      heroImage = await generateBlogImage({
+        title: post.title,
+        category: post.category,
+        excerpt: post.excerpt,
+        city: post.city,
+      });
+    } catch (imgErr) {
+      console.warn("[blog-gen] heroImage generation failed, saving without:", imgErr);
+    }
+
     const now = new Date();
     await db.insert(blogPosts).values({
       slug: post.slug,
@@ -318,6 +332,7 @@ export async function saveBlogPostAsDraft(
       category: post.category,
       tags: post.tags,
       city: post.city,
+      heroImage,
       isPublished: false,
       createdAt: now,
       updatedAt: now,
@@ -328,11 +343,12 @@ export async function saveBlogPostAsDraft(
         excerpt: post.excerpt,
         content: post.content,
         tags: post.tags,
+        heroImage: heroImage ?? undefined,
         updatedAt: now,
       },
     });
 
-    console.log(`[blog-gen] Saved draft: ${post.slug}`);
+    console.log(`[blog-gen] Saved draft: ${post.slug}${heroImage ? " (with heroImage)" : ""}`);
     return { success: true, slug: post.slug };
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
