@@ -4,7 +4,7 @@ import { getAllPublishedSlugs } from "@/lib/blog";
 import { getRecentPlanSlugs } from "@/lib/plans";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = "https://nightchill-sr5g.vercel.app";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.futatabito.com";
 
   const features = [
     "ebisu-night-date",

@@ -9,7 +9,7 @@ import { getCityById, CITIES } from "@/lib/cities";
 import { Metadata } from "next";
 
 const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://nightchill-sr5g.vercel.app";
+  process.env.NEXT_PUBLIC_SITE_URL || "https://www.futatabito.com";
 
 export const revalidate = 3600;
 

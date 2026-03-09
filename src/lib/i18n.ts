@@ -2,7 +2,7 @@ export const locales = ["ja", "en"] as const;
 export type Locale = (typeof locales)[number];
 export const defaultLocale: Locale = "ja";
 
-export const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://nightchill-sr5g.vercel.app";
+export const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.futatabito.com";
 
 export interface FeatureTranslation {
   title: string;
@@ -59,8 +59,8 @@ export const featureTranslations: Record<string, FeatureTranslation> = {
 export const uiTranslations = {
   ja: {
     siteName: "futatabito",
-    tagline: "デート視点の東京カルチャーガイド",
-    catchphrase: "ふたりの時間を もっとおもしろく",
+    tagline: "「失敗しない」を、ふたりの自信に。",
+    catchphrase: "デートの\"どこ行く？\"を、30秒で解決。",
     features: "特集",
     backToFeatures: "← 特集一覧に戻る",
     spots: "スポット",
@@ -73,8 +73,8 @@ export const uiTranslations = {
   },
   en: {
     siteName: "futatabito",
-    tagline: "Tokyo Culture Guide for Date Planning",
-    catchphrase: "Make your time together more exciting",
+    tagline: "Turn 'no fails' into confidence for two.",
+    catchphrase: "Solve 'where to go?' in 30 seconds.",
     features: "Features",
     backToFeatures: "← Back to Features",
     spots: "Spots",
