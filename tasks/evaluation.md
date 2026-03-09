@@ -53,7 +53,7 @@
 
 * [x] **短期**: 生成プランのLINE共有ボタン追加（results/page.tsxに実装済み）
 * [x] **短期**: プラン結果のURL共有機能（buildShareUrl使用で実装済み）
-* [x] **中期**: 特集カード画像の補完（/api/og生成画像でフォールバック置換、PR #153）
+* [x] **中期**: 特集カード画像の補完（/api/og生成画像でフォールバック置換、PR #153 + PR #159で都市LP・WeeklyPicksSectionも対応完了）
 * [ ] **中期**: 簡易ログイン機能（Google/LINE OAuth）→ プラン保存履歴
 * [ ] **長期**: Google Maps連携のルート表示
 
@@ -95,3 +95,4 @@
 | 2026-03-10 | 特集カードの絵文字フォールバックを/api/og生成画像に置換（FeatureCard + weeklyFeatures両方）、LINE共有・URL共有はresults/page.tsxに実装済みと確認 | UX 7→8 |
 | 2026-03-10 | CIバグ修正（TextDecoder/TextEncoder polyfill をjest.setup.tsに追加、PR #156） | - |
 | 2026-03-10 | GA4アフィリエイトクリックイベントトラッキング実装（trackAffiliateClick関数、BlogAffiliate・ReservationAffiliate両方、PR #157） | マネタイズ 6→7 |
+| 2026-03-10 | 都市LP WeeklyPicksSection + [city]/features FeatureCard の絵文字フォールバックを/api/og画像に置換（PR #159） | - |
