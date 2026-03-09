@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getProviderLabel } from "@/lib/affiliate";
+import { trackAffiliateClick } from "@/lib/gtag";
 
 interface AffiliateVenueData {
   id: number;
@@ -90,6 +91,13 @@ export default function ReservationAffiliate({ city, occasion, mood }: Props) {
                 target="_blank"
                 rel="sponsored noopener noreferrer"
                 className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-amber-500 px-4 py-2 text-xs font-semibold text-black transition-all hover:bg-amber-400"
+                onClick={() =>
+                  trackAffiliateClick(
+                    venue.name,
+                    venue.affiliateUrl,
+                    "reservation_affiliate"
+                  )
+                }
               >
                 {getProviderLabel(venue.affiliateProvider)}
               </a>
