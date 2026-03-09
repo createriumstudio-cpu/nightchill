@@ -215,7 +215,9 @@ export default function Home() {
             ふたりが楽しめる場所を、AIが30秒で見つける。
           </p>
           <h1 className="text-3xl sm:text-5xl font-bold leading-tight tracking-tight text-white md:text-7xl [text-shadow:_0_2px_12px_rgba(0,0,0,0.8)]">
-            ふたりの時間を、<br className="hidden sm:block" />もっと特別に。
+            <span className="whitespace-nowrap">ふたりの時間を、</span>
+            <br />
+            <span className="whitespace-nowrap">もっと特別に。</span>
           </h1>
           <p className="mx-auto mt-4 md:mt-6 max-w-2xl text-sm md:text-lg leading-relaxed text-white/90 [text-shadow:_0_1px_8px_rgba(0,0,0,0.7)]">
             お店選び、時間配分、移動ルート——全部まるっとAIが提案。
