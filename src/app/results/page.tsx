@@ -218,7 +218,7 @@ function VenueCard({
               href={venue.website}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary-dark hover:shadow-md"
+              className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary-dark hover:shadow-md"
             >
               予約・詳細を見る
             </a>
@@ -420,7 +420,7 @@ function OverviewMap({ venues }: { venues: VenueFactData[] }) {
               href={googleMapsUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+              className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
             >
               📍 Google Maps でルートを確認
             </a>
@@ -441,7 +441,7 @@ function OverviewMap({ venues }: { venues: VenueFactData[] }) {
       <div className="mt-2 flex flex-wrap gap-2 justify-center">
         {validVenues.map((v, i) => (
           <span key={i} className="inline-flex items-center gap-1 text-xs text-muted">
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
               {i + 1}
             </span>
             {v.name}
@@ -700,7 +700,7 @@ export default function ResultsPage() {
                         <div className="flex gap-4">
                           {/* Time badge */}
                           <div className="flex flex-col items-center">
-                            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
+                            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
                               {item.time.split(":")[0]}
                             </span>
                             <span className="text-xs text-muted mt-0.5">{item.time}</span>
@@ -755,7 +755,7 @@ export default function ResultsPage() {
                     <div className="pointer-events-none absolute -top-16 left-0 right-0 h-16 bg-gradient-to-t from-background to-transparent" />
                     <button
                       onClick={() => setTimelineExpanded(true)}
-                      className="group mt-2 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-4 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition-all hover:bg-primary-dark hover:shadow-xl"
+                      className="group mt-2 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-4 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-primary-dark hover:shadow-xl"
                     >
                       続きを見る（残り{plan.timeline.length - INITIAL_COUNT}件）
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-y-1"><polyline points="6 9 12 15 18 9" /></svg>
@@ -810,7 +810,7 @@ export default function ResultsPage() {
               />
               <button
                 onClick={handleCopyUrl}
-                className="shrink-0 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-white transition-opacity hover:opacity-90"
+                className="shrink-0 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-opacity hover:opacity-90"
               >
                 {urlCopied ? "コピー済み ✓" : "URLをコピー"}
               </button>
@@ -860,7 +860,7 @@ export default function ResultsPage() {
         <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
           <Link
             href="/plan"
-            className="rounded-full bg-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-primary/25 transition-all hover:bg-primary-dark"
+            className="rounded-full bg-primary px-8 py-3.5 text-base font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-primary-dark"
           >
             {isSharedView ? "自分のプランを作成" : "別のプランを作成"}
           </Link>

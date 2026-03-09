@@ -291,7 +291,7 @@ export default async function FeaturesPage() {
           </p>
           <Link
             href="/plan"
-            className="mt-4 inline-block rounded-full bg-primary px-8 py-3.5 font-semibold text-white shadow-lg shadow-primary/25 transition-all hover:bg-primary-dark hover:shadow-xl"
+            className="mt-4 inline-block rounded-full bg-primary px-8 py-3.5 font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-primary-dark hover:shadow-xl"
           >
             ✨ あなただけのプランを作る
           </Link>

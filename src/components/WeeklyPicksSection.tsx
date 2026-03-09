@@ -26,7 +26,7 @@ export default async function WeeklyPicksSection() {
             <span className="text-xs font-semibold text-primary tracking-wider uppercase">
               Weekly Update
             </span>
-            <span className="inline-block bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+            <span className="inline-block bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-full">
               NEW
             </span>
           </div>
@@ -57,7 +57,7 @@ export default async function WeeklyPicksSection() {
                       unoptimized
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                    <span className="absolute top-2 left-2 inline-block text-[10px] font-semibold text-white bg-primary rounded-full px-2 py-0.5">
+                    <span className="absolute top-2 left-2 inline-block text-[10px] font-semibold text-primary-foreground bg-primary rounded-full px-2 py-0.5">
                       {article.area}
                     </span>
                   </div>
@@ -72,7 +72,7 @@ export default async function WeeklyPicksSection() {
                       unoptimized
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                    <span className="absolute top-2 left-2 inline-block text-[10px] font-semibold text-white bg-primary rounded-full px-2 py-0.5">
+                    <span className="absolute top-2 left-2 inline-block text-[10px] font-semibold text-primary-foreground bg-primary rounded-full px-2 py-0.5">
                       {article.area}
                     </span>
                   </div>

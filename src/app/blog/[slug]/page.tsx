@@ -308,7 +308,7 @@ export default async function BlogPostPage({ params }: PageProps) {
           </p>
           <Link
             href="/plan"
-            className="inline-block rounded-full bg-primary px-8 py-3.5 font-semibold text-white shadow-lg shadow-primary/25 transition-all hover:bg-primary-dark hover:shadow-xl"
+            className="inline-block rounded-full bg-primary px-8 py-3.5 font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-primary-dark hover:shadow-xl"
           >
             デートを計画する
           </Link>

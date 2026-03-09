@@ -126,7 +126,7 @@ export default function MyPage() {
                   <p className="text-muted mb-4">プランを作って、ふたりの記録を残そう。</p>
                   <Link
                     href="/plan"
-                    className="inline-block rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                    className="inline-block rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
                   >
                     デートプランを作る
                   </Link>
@@ -181,7 +181,7 @@ export default function MyPage() {
             <div className="mt-12 text-center">
               <Link
                 href="/plan"
-                className="inline-block rounded-full bg-primary px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-primary/25 transition-all hover:bg-primary-dark"
+                className="inline-block rounded-full bg-primary px-8 py-3.5 text-base font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-primary-dark"
               >
                 新しいデートプランを作成
               </Link>
