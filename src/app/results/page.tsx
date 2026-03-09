@@ -750,13 +750,17 @@ export default function ResultsPage() {
                   })}
                 </div>
                 {hasMore && !timelineExpanded && (
-                  <button
-                    onClick={() => setTimelineExpanded(true)}
-                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl border border-border py-3 text-sm font-medium text-primary transition-colors hover:bg-primary/5"
-                  >
-                    続きを見る（残り{plan.timeline.length - INITIAL_COUNT}件）
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
-                  </button>
+                  <div className="relative mt-0">
+                    {/* Gradient fade hint */}
+                    <div className="pointer-events-none absolute -top-16 left-0 right-0 h-16 bg-gradient-to-t from-background to-transparent" />
+                    <button
+                      onClick={() => setTimelineExpanded(true)}
+                      className="group mt-2 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-4 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition-all hover:bg-primary-dark hover:shadow-xl"
+                    >
+                      続きを見る（残り{plan.timeline.length - INITIAL_COUNT}件）
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-y-1"><polyline points="6 9 12 15 18 9" /></svg>
+                    </button>
+                  </div>
                 )}
               </>
             );
