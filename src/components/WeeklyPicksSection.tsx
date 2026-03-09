@@ -62,16 +62,22 @@ export default async function WeeklyPicksSection() {
                     </span>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-center h-40 bg-primary/5">
-                    <span className="text-5xl">{article.heroEmoji}</span>
+                  <div className="relative h-40 w-full">
+                    <Image
+                      src={`/api/og?${new URLSearchParams({ title: article.title, subtitle: article.area + 'エリア' }).toString()}`}
+                      alt={article.title}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      unoptimized
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                    <span className="absolute top-2 left-2 inline-block text-[10px] font-semibold text-white bg-primary rounded-full px-2 py-0.5">
+                      {article.area}
+                    </span>
                   </div>
                 )}
                 <div className="p-4">
-                  {!imageUrl && (
-                    <span className="inline-block text-[10px] font-semibold text-primary bg-primary/10 rounded-full px-2 py-0.5 mb-1.5">
-                      {article.area}
-                    </span>
-                  )}
                   <h3 className="text-base font-bold leading-snug line-clamp-2 group-hover:text-primary transition-colors">
                     {article.title}
                   </h3>

@@ -212,8 +212,20 @@ function FeatureCard({ feature }: { feature: FeaturedArticle }) {
           />
         </div>
       ) : (
-        <div className="flex aspect-[16/9] items-center justify-center bg-surface-alt">
-          <span className="text-6xl">{feature.heroEmoji}</span>
+        <div className="relative w-full aspect-[16/9] overflow-hidden">
+          <Image
+            src={`/api/og?${new URLSearchParams({ title: feature.title, subtitle: feature.area + 'エリア' }).toString()}`}
+            alt={feature.title}
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            fill
+            unoptimized
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+          <div className="absolute bottom-4 left-4">
+            <span className="text-xs font-medium text-primary-light bg-black/40 px-2 py-1 rounded-full">
+              {feature.area}エリア
+            </span>
+          </div>
         </div>
       )}
       <div className="p-5">
