@@ -230,25 +230,63 @@ export default async function CityLandingPage({ params }: PageProps) {
                   <Link
                     key={article.slug}
                     href={`/features/${article.slug}`}
-                    className="group block rounded-2xl border border-border bg-surface p-5 transition-all hover:border-primary/40 hover:shadow-lg"
+                    className="group overflow-hidden rounded-2xl border border-border bg-surface transition-all hover:shadow-xl hover:border-primary/30"
                   >
-                    <div className="flex items-start gap-3 mb-3">
-                      <span className="text-2xl shrink-0">{article.heroEmoji}</span>
-                      <h3 className="text-sm font-bold leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+                    {article.heroImage ? (
+                      <div className="relative w-full aspect-[16/9] overflow-hidden">
+                        <Image
+                          src={article.heroImage}
+                          alt={article.title}
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                      </div>
+                    ) : article.spots[0]?.photoUrl ? (
+                      <div className="relative w-full aspect-[16/9] overflow-hidden">
+                        <Image
+                          src={article.spots[0].photoUrl}
+                          alt={article.spots[0].name}
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      </div>
+                    ) : (
+                      <div className="relative w-full aspect-[16/9] overflow-hidden">
+                        <Image
+                          src={`/api/og?${new URLSearchParams({ title: article.title, subtitle: article.area + 'エリア' }).toString()}`}
+                          alt={article.title}
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                          fill
+                          unoptimized
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                      </div>
+                    )}
+                    <div className="p-4">
+                      <div className="mb-1 flex items-center gap-1.5">
+                        <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-primary">
+                          {article.area}
+                        </span>
+                      </div>
+                      <h3 className="text-sm font-bold leading-tight group-hover:text-primary transition-colors line-clamp-2">
                         {article.title}
                       </h3>
-                    </div>
-                    <p className="text-xs text-muted line-clamp-2 mb-2">
-                      {article.subtitle || article.description}
-                    </p>
-                    {article.spots && article.spots.length > 0 && (
-                      <p className="text-[11px] text-muted/70 line-clamp-1">
-                        📍 {article.spots.map((s) => s.name).join(" → ")}
+                      <p className="mt-1 text-xs text-muted line-clamp-1">
+                        {article.subtitle || article.description}
                       </p>
-                    )}
-                    <span className="inline-block mt-2 text-xs font-semibold text-primary group-hover:translate-x-1 transition-transform">
-                      詳しく見る →
-                    </span>
+                      {article.spots && article.spots.length > 0 && (
+                        <div className="mt-2 flex items-center gap-1 text-[10px] text-muted">
+                          <span>📍</span>
+                          <span className="line-clamp-1">
+                            {article.spots.slice(0, 3).map((s) => s.name).join(" → ")}
+                          </span>
+                        </div>
+                      )}
+                      <div className="mt-2 text-right text-xs font-medium text-primary group-hover:translate-x-1 transition-transform">
+                        詳しく見る →
+                      </div>
+                    </div>
                   </Link>
                 ))}
               </div>
