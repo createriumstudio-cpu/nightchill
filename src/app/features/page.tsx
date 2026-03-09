@@ -15,7 +15,7 @@ export const revalidate = 3600;
 export const metadata: Metadata = {
   title: "デート特集",
   description:
-    "今話題のデートスポットを、プロの視点で厳選したデートスポットを紹介。恵比寿・渋谷・表参道・六本木・銀座・中目黒・代官山のエリア別デートガイド。",
+    "今週のトレンドスポットから、実際に予約できるおすすめプランまで。恵比寿・渋谷・表参道・六本木・銀座・中目黒・代官山のエリア別デートガイド。",
   keywords: [
     "東京 デート特集",
     "デートスポット まとめ",
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "デート特集一覧",
     description:
-      "今話題のデートスポットを、プロの視点で厳選したデートスポットを紹介。エリア別デートガイド。",
+      "今週のトレンドスポットから、実際に予約できるおすすめプランまで。エリア別デートガイド。",
     url: `${siteUrl}/features`,
     siteName: "futatabito",
     locale: "ja_JP",
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "デート特集一覧",
     description:
-      "今話題のデートスポットを、プロの視点で厳選したデートスポットを紹介",
+      "今週のトレンドスポットから、実際に予約できるおすすめプランまで",
     images: [
       `${siteUrl}/api/og?${new URLSearchParams({ title: "デート特集一覧", subtitle: "エリア別の厳選デートスポットガイド" }).toString()}`,
     ],
@@ -174,7 +174,7 @@ export default async function FeaturesPage() {
             <span className="mr-2">🔥</span>デート特集
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-muted">
-            今話題のデートスポットを、プロの視点で厳選したデートスポットを紹介
+            今週のトレンドスポットから、実際に予約できるおすすめプランまで。
           </p>
         </section>
 

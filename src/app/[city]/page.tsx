@@ -173,7 +173,7 @@ export default async function CityLandingPage({ params }: PageProps) {
             </Link>
           </div>
           <p className="mt-4 text-xs text-white/50">
-            登録不要・完全無料・30秒で完成
+            無料で試せる・30秒で完成
           </p>
         </div>
       </section>
@@ -368,7 +368,7 @@ export default async function CityLandingPage({ params }: PageProps) {
           >
             {city.name}でプランをつくる
           </Link>
-          <p className="mt-4 text-xs text-white/50">登録不要・完全無料</p>
+          <p className="mt-4 text-xs text-white/50">今すぐ無料で試す</p>
         </div>
       </section>
 
