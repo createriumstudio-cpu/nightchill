@@ -3,7 +3,7 @@ import { NextRequest } from "next/server";
 
 export const runtime = "edge";
 
-const BRAND_TAGLINE = "「失敗しない」を、ふたりの自信に。";
+const BRAND_TAGLINE = "ふたりの時間を、もっと特別に。";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;

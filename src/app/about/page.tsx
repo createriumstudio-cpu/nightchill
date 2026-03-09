@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 export const metadata: Metadata = {
   title: "運営者情報",
   description:
-    "futatabito（ふたたびと）は、全国10都市対応のデートプランAI。「失敗しない」を、ふたりの自信に。運営者情報・コンセプト・お問い合わせ先をご紹介します。",
+    "futatabito（ふたたびと）は、全国10都市対応のデートプランAI。ふたりの時間を、もっと特別に。運営者情報・コンセプト・お問い合わせ先をご紹介します。",
   openGraph: {
     title: "運営者情報",
     description:
@@ -29,7 +29,7 @@ export default function AboutPage() {
             </h2>
             <div className="text-gray-300 space-y-4 leading-relaxed">
               <p>
-                futatabito（ふたたびと）は、全国10都市対応のデートプランAIです。「失敗しない」を、ふたりの自信に。デートの&quot;どこ行く？&quot;を、30秒で解決します。
+                futatabito（ふたたびと）は、全国10都市対応のデートプランAIです。ふたりの時間を、もっと特別に。デートの&quot;どこ行く？&quot;を、30秒で解決します。
               </p>
               <p>
                 「どこに行くか」ではなく「どうデートするか」。スポット情報だけでなく、1軒目から2軒目への動線、会話のきっかけ、事前準備まで。ふたりの時間をもっとおもしろくするための「線」の情報をお届けします。

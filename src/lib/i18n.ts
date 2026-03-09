@@ -59,7 +59,7 @@ export const featureTranslations: Record<string, FeatureTranslation> = {
 export const uiTranslations = {
   ja: {
     siteName: "futatabito",
-    tagline: "「失敗しない」を、ふたりの自信に。",
+    tagline: "ふたりの時間を、もっと特別に。",
     catchphrase: "デートの\"どこ行く？\"を、30秒で解決。",
     features: "特集",
     backToFeatures: "← 特集一覧に戻る",
