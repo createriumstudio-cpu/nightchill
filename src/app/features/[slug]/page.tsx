@@ -9,7 +9,7 @@ import SpotImage from "@/components/SpotImage";
 import ContextualPRSection from "@/components/ContextualPRSection";
 import Footer from "@/components/Footer";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://nightchill-sr5g.vercel.app";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.futatabito.com";
 
 /** ISR: 1時間ごとに再生成（週次記事の反映用） */
 export const revalidate = 3600;

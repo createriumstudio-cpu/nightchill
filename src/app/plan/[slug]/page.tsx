@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import PlanDetailClient from "./PlanDetailClient";
 
 const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://nightchill-sr5g.vercel.app";
+  process.env.NEXT_PUBLIC_SITE_URL || "https://www.futatabito.com";
 
 export const revalidate = false;
 export const dynamicParams = true;
