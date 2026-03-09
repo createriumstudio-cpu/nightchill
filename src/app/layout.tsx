@@ -108,6 +108,8 @@ export default function RootLayout({
         height: 630,
       },
     },
+    datePublished: "2026-02-21",
+    dateModified: "2026-03-09",
     potentialAction: {
       "@type": "SearchAction",
       target: {
@@ -115,12 +117,6 @@ export default function RootLayout({
         urlTemplate: `${siteUrl}/plan?city={city}`,
       },
       "query-input": "required name=city",
-    },
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: "4.5",
-      ratingCount: "100",
-      bestRating: "5",
     },
   };
 
