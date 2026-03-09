@@ -7,6 +7,7 @@ import JsonLd from "@/components/JsonLd";
 import FeaturedPicks from "@/components/FeaturedPicks";
 import WeeklyPicksSection from "@/components/WeeklyPicksSection";
 import { CITIES } from "@/lib/cities";
+import { getLatestPosts, BLOG_CATEGORIES, type BlogPost } from "@/lib/blog";
 
 export const revalidate = 3600;
 
@@ -87,6 +88,69 @@ const occasions = [
   { label: "カジュアル", emoji: "☕" },
   { label: "仲直り", emoji: "🤝" },
 ];
+
+function getCategoryLabel(categoryId: string): string {
+  const cat = BLOG_CATEGORIES.find((c) => c.id === categoryId);
+  return cat?.label ?? categoryId;
+}
+
+function formatDate(dateStr: string | null): string {
+  if (!dateStr) return "";
+  const d = new Date(dateStr);
+  return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")}`;
+}
+
+async function LatestBlogPosts() {
+  const posts = await getLatestPosts(3);
+  if (posts.length === 0) return null;
+
+  return (
+    <section className="px-6 py-16">
+      <div className="mx-auto max-w-6xl">
+        <div className="text-center">
+          <p className="text-sm font-semibold tracking-widest text-[#c9a96e] uppercase">
+            Blog
+          </p>
+          <h2 className="mt-2 text-2xl font-bold tracking-tight md:text-3xl">
+            最新のブログ記事
+          </h2>
+          <p className="mx-auto mt-3 max-w-xl text-sm text-muted">
+            デートに役立つ情報やコツをお届けします。
+          </p>
+        </div>
+        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {posts.map((post: BlogPost) => (
+            <Link
+              key={post.slug}
+              href={`/blog/${post.slug}`}
+              className="group rounded-2xl border border-border bg-surface p-6 transition-all hover:border-primary/50 hover:shadow-lg"
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <span className="inline-block rounded-full bg-primary/10 px-3 py-0.5 text-xs font-semibold text-primary">
+                  {getCategoryLabel(post.category)}
+                </span>
+                {post.publishedAt && (
+                  <span className="text-xs text-muted">
+                    {formatDate(post.publishedAt)}
+                  </span>
+                )}
+              </div>
+              <h3 className="text-lg font-semibold leading-snug group-hover:text-primary transition-colors line-clamp-2">
+                {post.title}
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted line-clamp-3">
+                {post.excerpt}
+              </p>
+              <span className="mt-4 inline-block text-sm font-semibold text-primary">
+                続きを読む &rarr;
+              </span>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
 
 function WeeklyPicksLoading() {
   return (
@@ -242,6 +306,11 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Latest Blog Posts */}
+      <Suspense fallback={null}>
+        <LatestBlogPosts />
+      </Suspense>
 
       {/* Features */}
       <section id="features" className="px-6 py-24">
