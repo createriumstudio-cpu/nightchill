@@ -370,7 +370,7 @@ URL: https://vercel.com/createriumstudio-cpus-projects/nightchill-sr5g/logs
 |------|--------|------|
 | UX | 8/10 | 短期タスク全完了 |
 | 管理・運用 | 8/10 | 短期タスク全完了 |
-| マネタイズ | 6/10 | 短期タスク全完了 |
+| マネタイズ | 7/10 | 短期タスク全完了 |
 
 ### 稼働中の収益化機能
 
@@ -391,7 +391,7 @@ URL: https://vercel.com/createriumstudio-cpus-projects/nightchill-sr5g/logs
 ### 中期（次に着手すべき順）
 
 1. **partner_venues追加** — hotpepper提携店舗を追加登録するだけで収益機会が増える。コード変更不要。Neon SQL Editorで INSERT するだけ。
-1. **GA4クリックイベント実装** — アフィリエイトリンクのクリックをGA4に送信する（BlogAffiliate.tsx / ReservationAffiliate.tsx に onClick で gtag('event', 'affiliate_click') を追加）
+1. ~~**GA4クリックイベント実装**~~ ✅ 完了（PR #157）— trackAffiliateClick関数でaffiliate_clickイベント送信（venue_name/affiliate_url/click_locationパラメータ）
 1. **簡易ログイン（Google OAuth）** — /api/auth にNextAuth.js追加。プラン保存履歴でリピート利用を促進
 1. **フリーミアム化** — 月額480〜980円のプレミアムプラン（PDF保存・予約リンク付き）
 
