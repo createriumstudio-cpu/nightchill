@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     title: "ブログ | futatabito",
     description:
       "デートのコツ、季節のおすすめプラン、エリアガイドなど",
-    site: "@nightchill_date",
+    site: "@futatabito_date",
   },
 };
 

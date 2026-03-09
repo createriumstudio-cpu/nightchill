@@ -55,7 +55,7 @@ export const metadata: Metadata = {
     images: [
       `${siteUrl}/api/og?${new URLSearchParams({ title: "デート特集一覧", subtitle: "エリア別の厳選デートスポットガイド" }).toString()}`,
     ],
-    site: "@nightchill_date",
+    site: "@futatabito_date",
   },
 };
 

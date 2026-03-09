@@ -68,7 +68,7 @@ export async function generateMetadata({
       title: saved.title,
       description,
       images: [ogImageUrl],
-      site: "@nightchill_date",
+      site: "@futatabito_date",
     },
   };
 }

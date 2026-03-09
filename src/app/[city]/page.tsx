@@ -72,7 +72,7 @@ export async function generateMetadata({
           area: city.name,
         }).toString()}`,
       ],
-      site: "@nightchill_date",
+      site: "@futatabito_date",
     },
   };
 }
