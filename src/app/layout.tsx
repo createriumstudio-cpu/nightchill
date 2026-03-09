@@ -1,7 +1,10 @@
 import { Noto_Sans_JP } from "next/font/google";
+import Script from "next/script";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/react";
+
+const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID;
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://futatabito.com";
 
@@ -137,6 +140,22 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <head>
+        {GA4_ID && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA4_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="ga4-init" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${GA4_ID}');
+              `}
+            </Script>
+          </>
+        )}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppLd) }}
