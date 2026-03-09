@@ -32,9 +32,7 @@ export default function JsonLd({ type = "website", title, description, url, imag
         height: 630,
       },
       description: "デートの\"どこ行く？\"を30秒で解決。全国10都市対応のデートプランAI。",
-      sameAs: [
-        "https://x.com/nightchill_date",
-      ],
+      sameAs: [],
     };
   } else if (type === "article") {
     data = {

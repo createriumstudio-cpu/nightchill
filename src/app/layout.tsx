@@ -57,8 +57,8 @@ export const metadata: Metadata = {
     title: "futatabito - デートプランAI | 全国10都市対応",
     description:
       "デートの\"どこ行く？\"を30秒で解決。お店選び・時間配分・移動ルートまでAIがまるっと提案。",
-    site: "@nightchill_date",
-    creator: "@nightchill_date",
+    site: "@futatabito_date",
+    creator: "@futatabito_date",
   },
   robots: {
     index: true,
@@ -132,9 +132,7 @@ export default function RootLayout({
       width: 1200,
       height: 630,
     },
-    sameAs: [
-      "https://x.com/nightchill_date",
-    ],
+    sameAs: [],
   };
 
   return (

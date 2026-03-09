@@ -60,7 +60,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       images: [ogImageUrl],
-      site: "@nightchill_date",
+      site: "@futatabito_date",
     },
   };
 }
