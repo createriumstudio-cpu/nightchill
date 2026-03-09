@@ -8,9 +8,9 @@
 |------|--------|-----------------|
 | UX | 8/10 | プラン生成後のLINE共有・保存機能を追加 |
 | 管理・運用 | 8/10 | Analytics設定 + APIコストアラートを今週中に |
-| マネタイズ | 6/10 | 特集ページへの予約リンク（アフィリエイト）を即設置 |
+| マネタイズ | 7/10 | 特集ページへの予約リンク（アフィリエイト）を即設置 |
 
-## 1. マネタイズ視点（6/10）
+## 1. マネタイズ視点（7/10）
 
 ---
 
@@ -27,6 +27,7 @@
 * [x] **短期**: ブログ記事に関連アフィリエイト追加（BlogAffiliateコンポーネント稼働中）
 * [x] **短期**: プラン結果の店舗にアフィリエイトリンク設置（hotpepper 6店舗投入済み、ReservationAffiliateコンポーネント稼働中）
 * [x] **短期**: 特集ページ・プラン結果の店舗にアフィリエイトリンク設置（BlogAffiliate + inferCityFromArea）
+* [x] **中期**: GA4アフィリエイトクリックイベント計測（PR #157、affiliate_clickイベント、venue_name/affiliate_url/click_locationパラメータ）
 * [ ] **中期**: フリーミアム化（プレミアム月額480〜980円、PDF保存・予約リンク付き）
 * [ ] **長期**: 飲食店・ホテルとの直接スポンサー契約
 
@@ -78,6 +79,7 @@
 * [x] **今週**: Vercel Analytics を有効化（Speed Insightsは有料$10/月のためスキップ）
 * [x] **今週**: Google Analytics 4 設定（GA4）（測定ID: G-272CBN32K5）
 * [x] **今週**: Anthropic/Gemini APIコストアラート設定完了（Anthropic $30/$50、Gemini ¥1,500）
+* [x] **短期**: CIバグ修正（TextDecoder polyfill、PR #156、GitHub Actions全通過）
 * [ ] **月次**: 週次コンテンツのサンプル品質チェックを運用フロー化
 
 ---
@@ -91,3 +93,5 @@
 | 2026-03-10 | Anthropicコストアラート設定（$30/$50メール通知）、Gemini APIコストアラート設定（¥1,500上限、50%/90%/100%通知）、BlogAffiliateコンポーネント本番稼働 | 管理・運用 7→8 |
 | 2026-03-10 | 特集詳細ページ（features/[slug]）にBlogAffiliateコンポーネント追加、エリア→都市ID自動推定（inferCityFromArea）、BlogAffiliate.tsxにcity propを追加 | マネタイズ 5→6 |
 | 2026-03-10 | 特集カードの絵文字フォールバックを/api/og生成画像に置換（FeatureCard + weeklyFeatures両方）、LINE共有・URL共有はresults/page.tsxに実装済みと確認 | UX 7→8 |
+| 2026-03-10 | CIバグ修正（TextDecoder/TextEncoder polyfill をjest.setup.tsに追加、PR #156） | - |
+| 2026-03-10 | GA4アフィリエイトクリックイベントトラッキング実装（trackAffiliateClick関数、BlogAffiliate・ReservationAffiliate両方、PR #157） | マネタイズ 6→7 |
