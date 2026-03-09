@@ -62,6 +62,11 @@ function PlanPageContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // Email signup during loading
+  const [signupEmail, setSignupEmail] = useState("");
+  const [emailRegistered, setEmailRegistered] = useState(false);
+  const [emailSubmitting, setEmailSubmitting] = useState(false);
+
   // ステップ切り替え時に画面トップへスクロール
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -110,6 +115,25 @@ function PlanPageContent() {
   };
   const handleBack = () => {
     if (step > 1) setStep(step - 1);
+  };
+
+  const handleEmailSignup = async () => {
+    const trimmed = signupEmail.trim();
+    if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) return;
+    setEmailSubmitting(true);
+    try {
+      await fetch("/api/email-signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: trimmed }),
+      });
+      sessionStorage.setItem("futatabito-email", trimmed);
+      setEmailRegistered(true);
+    } catch {
+      // silent fail
+    } finally {
+      setEmailSubmitting(false);
+    }
   };
 
   const handleSubmit = async () => {
@@ -607,6 +631,57 @@ function PlanPageContent() {
           完全無料・登録不要で利用できます
         </p>
       </main>
+
+      {/* Loading overlay with email signup */}
+      {isLoading && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white/95 backdrop-blur-sm">
+          <div className="max-w-sm mx-auto px-6 text-center">
+            <div className="mb-6">
+              <svg className="animate-spin h-10 w-10 mx-auto text-orange-500" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-bold text-gray-900 mb-2">
+              プランを生成しています...
+            </h2>
+            <p className="text-sm text-gray-500 mb-8">
+              AIがあなたにぴったりのデートプランを考えています
+            </p>
+
+            <div className="rounded-2xl border border-orange-200 bg-orange-50 p-5">
+              {emailRegistered ? (
+                <p className="text-sm font-medium text-orange-700">
+                  ✅ 完成したらお送りします
+                </p>
+              ) : (
+                <>
+                  <p className="text-sm font-medium text-gray-700 mb-3">
+                    📧 完成したらメールで受け取る（任意）
+                  </p>
+                  <div className="flex gap-2">
+                    <input
+                      type="email"
+                      value={signupEmail}
+                      onChange={(e) => setSignupEmail(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === "Enter") handleEmailSignup(); }}
+                      placeholder="example@email.com"
+                      className="flex-1 min-w-0 rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:border-orange-500 focus:ring-orange-500 focus:outline-none"
+                    />
+                    <button
+                      onClick={handleEmailSignup}
+                      disabled={emailSubmitting || !signupEmail.trim()}
+                      className="shrink-0 rounded-xl bg-orange-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-orange-600 transition-colors disabled:opacity-40"
+                    >
+                      {emailSubmitting ? "..." : "登録"}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
