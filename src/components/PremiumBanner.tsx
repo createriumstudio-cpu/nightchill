@@ -7,21 +7,20 @@ import Link from "next/link";
 export default function PremiumBanner() {
   const { data: session } = useSession();
   const [isPremium, setIsPremium] = useState(false);
-  const [checked, setChecked] = useState(false);
+  const [fetchDone, setFetchDone] = useState(false);
 
   useEffect(() => {
-    if (session?.user) {
-      fetch("/api/premium")
-        .then((r) => r.json())
-        .then((data) => {
-          setIsPremium(data.isPremium ?? false);
-          setChecked(true);
-        })
-        .catch(() => setChecked(true));
-    } else {
-      setChecked(true);
-    }
+    if (!session?.user) return;
+    fetch("/api/premium")
+      .then((r) => r.json())
+      .then((data) => {
+        setIsPremium(data.isPremium ?? false);
+        setFetchDone(true);
+      })
+      .catch(() => setFetchDone(true));
   }, [session]);
+
+  const checked = !session?.user || fetchDone;
 
   // プレミアム会員には表示しない
   if (!checked || isPremium) return null;
