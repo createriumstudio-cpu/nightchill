@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useSession, signIn } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import Header from "@/components/Header";
@@ -28,11 +29,15 @@ interface Recommendations {
 
 export default function MyPage() {
   const { data: session, status: sessionStatus } = useSession();
+  const searchParams = useSearchParams();
+  const upgraded = searchParams.get("upgraded") === "true";
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [recommendations, setRecommendations] = useState<Recommendations | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isPremium, setIsPremium] = useState(false);
+  const [portalLoading, setPortalLoading] = useState(false);
 
-  // 初期化: アカウントリンク → 履歴 + パーソナライズ取得
+  // 初期化: アカウントリンク → 履歴 + パーソナライズ + プレミアムステータス取得
   useEffect(() => {
     async function init() {
       try {
@@ -45,9 +50,10 @@ export default function MyPage() {
         }
 
         // 並列取得
-        const [historyRes, personalizeRes] = await Promise.all([
+        const [historyRes, personalizeRes, premiumRes] = await Promise.all([
           fetch("/api/history"),
           fetch("/api/personalize"),
+          session?.user ? fetch("/api/premium") : Promise.resolve(null),
         ]);
 
         if (historyRes.ok) {
@@ -57,6 +63,10 @@ export default function MyPage() {
         if (personalizeRes.ok) {
           const data = await personalizeRes.json();
           setRecommendations(data);
+        }
+        if (premiumRes && premiumRes.ok) {
+          const data = await premiumRes.json();
+          setIsPremium(data.isPremium ?? false);
         }
       } catch {
         // silent fail
@@ -101,28 +111,79 @@ export default function MyPage() {
           </div>
         ) : (
           <>
+            {/* アップグレード完了メッセージ */}
+            {upgraded && (
+              <section className="mb-6 rounded-2xl border border-primary/30 bg-primary/5 p-5 text-center">
+                <p className="text-lg font-bold mb-1">
+                  プレミアムへようこそ!
+                </p>
+                <p className="text-sm text-muted">
+                  アップグレードが完了しました。全ての機能をお楽しみください。
+                </p>
+              </section>
+            )}
+
             {/* Google ユーザー情報 or ログイン誘導 */}
             {session?.user ? (
-              <section className="mb-8 rounded-2xl border border-border bg-surface p-5 flex items-center gap-4">
-                {session.user.image ? (
-                  <Image
-                    src={session.user.image}
-                    alt=""
-                    width={48}
-                    height={48}
-                    className="rounded-full shrink-0"
-                  />
-                ) : (
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/20 text-lg font-bold text-primary shrink-0">
-                    {session.user.name?.charAt(0) || "U"}
+              <section className="mb-8 rounded-2xl border border-border bg-surface p-5">
+                <div className="flex items-center gap-4">
+                  {session.user.image ? (
+                    <Image
+                      src={session.user.image}
+                      alt=""
+                      width={48}
+                      height={48}
+                      className="rounded-full shrink-0"
+                    />
+                  ) : (
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/20 text-lg font-bold text-primary shrink-0">
+                      {session.user.name?.charAt(0) || "U"}
+                    </div>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold truncate">{session.user.name}</p>
+                      {isPremium && (
+                        <span className="shrink-0 rounded-full bg-primary/15 text-primary text-xs font-semibold px-2.5 py-0.5">
+                          Premium
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted truncate">{session.user.email}</p>
+                    <p className="text-xs text-muted/70 mt-0.5">
+                      Googleアカウントでログイン中 — 別のデバイスでも履歴が同期されます
+                    </p>
                   </div>
-                )}
-                <div className="min-w-0">
-                  <p className="font-semibold truncate">{session.user.name}</p>
-                  <p className="text-sm text-muted truncate">{session.user.email}</p>
-                  <p className="text-xs text-muted/70 mt-0.5">
-                    Googleアカウントでログイン中 — 別のデバイスでも履歴が同期されます
-                  </p>
+                </div>
+                {/* プレミアム管理 or アップグレード */}
+                <div className="mt-4 pt-4 border-t border-border flex items-center justify-between">
+                  {isPremium ? (
+                    <button
+                      onClick={async () => {
+                        setPortalLoading(true);
+                        try {
+                          const res = await fetch("/api/stripe/portal", { method: "POST" });
+                          const data = await res.json();
+                          if (data.url) window.location.href = data.url;
+                        } catch {
+                          // silent
+                        } finally {
+                          setPortalLoading(false);
+                        }
+                      }}
+                      disabled={portalLoading}
+                      className="text-sm text-muted hover:text-foreground transition-colors disabled:opacity-50"
+                    >
+                      {portalLoading ? "読み込み中..." : "プランを管理"}
+                    </button>
+                  ) : (
+                    <Link
+                      href="/premium"
+                      className="text-sm text-primary hover:underline"
+                    >
+                      プレミアムにアップグレード
+                    </Link>
+                  )}
                 </div>
               </section>
             ) : (

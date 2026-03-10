@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { PremiumEmailForm } from "@/components/PremiumBanner";
+import { PremiumCheckoutButton } from "./PremiumCheckoutButton";
 
 export const metadata: Metadata = {
   title: "プレミアムプラン | futatabito",
@@ -87,7 +87,7 @@ export default function PremiumPage() {
               <span className="text-sm font-normal text-muted"> / 月</span>
             </p>
             <p className="text-xs text-muted mb-6">デートの全てをサポート</p>
-            <ul className="space-y-3">
+            <ul className="space-y-3 mb-6">
               {PREMIUM_FEATURES.map((f) => (
                 <li key={f.label} className="flex items-center gap-2 text-sm">
                   <span className="text-primary">&#x2713;</span>
@@ -95,16 +95,8 @@ export default function PremiumPage() {
                 </li>
               ))}
             </ul>
+            <PremiumCheckoutButton />
           </div>
-        </div>
-
-        {/* CTA: Email Collection */}
-        <div className="max-w-xl mx-auto text-center mb-8">
-          <h2 className="text-xl font-bold mb-2">近日公開</h2>
-          <p className="text-sm text-muted mb-6">
-            メールアドレスを登録すると、プレミアムプランの開始時にお知らせします。
-          </p>
-          <PremiumEmailForm />
         </div>
       </main>
       <Footer />

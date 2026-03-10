@@ -203,6 +203,11 @@ export const users = pgTable("users", {
   googleId: varchar("google_id", { length: 255 }).unique(),
   email: varchar("email", { length: 255 }),
   name: varchar("name", { length: 200 }),
+  // Stripe サブスクリプション
+  isPremium: boolean("is_premium").default(false),
+  stripeCustomerId: varchar("stripe_customer_id", { length: 255 }),
+  stripeSubscriptionId: varchar("stripe_subscription_id", { length: 255 }),
+  premiumExpiresAt: timestamp("premium_expires_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   lastSeenAt: timestamp("last_seen_at", { withTimezone: true }).defaultNow(),
 });

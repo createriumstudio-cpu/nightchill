@@ -1,15 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 
 export default function PremiumBanner() {
+  const { data: session } = useSession();
+  const [isPremium, setIsPremium] = useState(false);
+  const [checked, setChecked] = useState(false);
+
+  useEffect(() => {
+    if (session?.user) {
+      fetch("/api/premium")
+        .then((r) => r.json())
+        .then((data) => {
+          setIsPremium(data.isPremium ?? false);
+          setChecked(true);
+        })
+        .catch(() => setChecked(true));
+    } else {
+      setChecked(true);
+    }
+  }, [session]);
+
+  // プレミアム会員には表示しない
+  if (!checked || isPremium) return null;
+
   return (
     <section className="mt-12 rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/10 via-background to-accent/5 p-6 sm:p-8">
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
         <div className="flex-1 min-w-0">
           <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-1">
-            Coming Soon
+            Premium
           </p>
           <h3 className="text-lg font-bold mb-2">
             プレミアムプランで、もっと便利に
@@ -38,7 +60,7 @@ export default function PremiumBanner() {
             href="/premium"
             className="inline-block rounded-full border border-primary bg-primary/10 px-6 py-2.5 text-sm font-semibold text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
           >
-            詳しく見る
+            月額&yen;480で始める
           </Link>
         </div>
       </div>
