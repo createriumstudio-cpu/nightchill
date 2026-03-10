@@ -107,3 +107,4 @@
 | 2026-03-10 | PR #171 Stripe課金フロー実装（/api/stripe/checkout・webhook・portal、プレミアムバッジ、マイページ統合、PremiumBanner出し分け） | マネタイズ 8→8（課金基盤完成、Stripe有効化待ち） |
 | 2026-03-10 | PR #172 Stripe課金フロー完成（stripeパッケージ追加、Lintエラー修正、Suspense境界追加でビルドエラー解消） | マネタイズ 8→9（課金フロー完全稼働可能） |
 | 2026-03-10 | PR #174 週次コンテンツ品質チェック自動化（scripts/quality-check.ts + GitHub Actions毎週月曜実行 + Resendメール通知） | 管理・運用 8→9（品質チェック運用フロー確立） |
+| 2026-03-10 | PR #175 quality-check.ts の imageUrl 検証緩和・description 閾値を80文字に修正（GitHub Actions 全件パス確認済み） | - |
