@@ -2,7 +2,6 @@
  * GA4 イベント送信ユーティリティ
  */
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare global {
   interface Window {
     gtag?: (...args: unknown[]) => void;

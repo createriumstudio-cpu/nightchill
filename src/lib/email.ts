@@ -5,7 +5,7 @@ const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
   : null;
 
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "noreply@futatabito.com";
 
 function buildPlanEmailHtml(plan: DatePlan, siteUrl: string): string {
   const timelineHtml = plan.timeline
