@@ -8,9 +8,9 @@
 |------|--------|-----------------|
 | UX | 8/10 | プラン生成後のLINE共有・保存機能を追加 |
 | 管理・運用 | 8/10 | Analytics設定 + APIコストアラートを今週中に |
-| マネタイズ | 7/10 | 特集ページへの予約リンク（アフィリエイト）を即設置 |
+| マネタイズ | 8/10 | 特集ページへの予約リンク（アフィリエイト）を即設置 |
 
-## 1. マネタイズ視点（7/10）
+## 1. マネタイズ視点（8/10）
 
 ---
 
@@ -96,3 +96,4 @@
 | 2026-03-10 | CIバグ修正（TextDecoder/TextEncoder polyfill をjest.setup.tsに追加、PR #156） | - |
 | 2026-03-10 | GA4アフィリエイトクリックイベントトラッキング実装（trackAffiliateClick関数、BlogAffiliate・ReservationAffiliate両方、PR #157） | マネタイズ 6→7 |
 | 2026-03-10 | 都市LP WeeklyPicksSection + [city]/features FeatureCard の絵文字フォールバックを/api/og画像に置換（PR #159） | - |
+| 2026-03-10 | メールリード獲得機能追加（PR #163）、Resend futatabito.comドメイン認証DNS設定完了 | マネタイズ 7→8 |
