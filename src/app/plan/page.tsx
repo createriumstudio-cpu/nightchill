@@ -260,7 +260,7 @@ function PlanPageContent() {
                           value={dateStr}
                           onChange={(e) => { setDateStr(e.target.value); if (!e.target.value) setEndDateStr(""); }}
                           min={today}
-                          className="w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
+                          className={`w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500 [color-scheme:light] ${dateStr ? 'text-gray-900' : 'text-gray-400'}`}
                         />
                       </div>
                       <div>
@@ -269,7 +269,8 @@ function PlanPageContent() {
                           type="time"
                           value={startTime}
                           onChange={(e) => setStartTime(e.target.value)}
-                          className="w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
+                          step={900}
+                          className="w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500 [color-scheme:light]"
                         />
                       </div>
                     </div>
@@ -286,7 +287,7 @@ function PlanPageContent() {
                           value={endDateStr}
                           onChange={(e) => setEndDateStr(e.target.value)}
                           min={dateStr}
-                          className="w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
+                          className={`w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500 [color-scheme:light] ${endDateStr ? 'text-gray-900' : 'text-gray-400'}`}
                         />
                       </div>
                       <div>
@@ -295,7 +296,8 @@ function PlanPageContent() {
                           type="time"
                           value={endTime}
                           onChange={(e) => setEndTime(e.target.value)}
-                          className="w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
+                          step={900}
+                          className="w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500 [color-scheme:light]"
                         />
                       </div>
                     </div>
@@ -310,7 +312,7 @@ function PlanPageContent() {
                       value={dateStr}
                       onChange={(e) => { setDateStr(e.target.value); if (!e.target.value) setEndDateStr(""); }}
                       min={today}
-                      className="w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
+                      className={`w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500 [color-scheme:light] ${dateStr ? 'text-gray-900' : 'text-gray-400'}`}
                     />
                   </div>
 
@@ -323,7 +325,7 @@ function PlanPageContent() {
                         value={endDateStr}
                         onChange={(e) => setEndDateStr(e.target.value)}
                         min={dateStr}
-                        className="w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
+                        className={`w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500 [color-scheme:light] ${endDateStr ? 'text-gray-900' : 'text-gray-400'}`}
                       />
                     </div>
                   )}
@@ -335,7 +337,8 @@ function PlanPageContent() {
                         type="time"
                         value={startTime}
                         onChange={(e) => setStartTime(e.target.value)}
-                        className="w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
+                        step={900}
+                        className="w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500 [color-scheme:light]"
                       />
                     </div>
                     <div>
@@ -344,7 +347,8 @@ function PlanPageContent() {
                         type="time"
                         value={endTime}
                         onChange={(e) => setEndTime(e.target.value)}
-                        className="w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
+                        step={900}
+                        className="w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500 [color-scheme:light]"
                       />
                     </div>
                   </div>
