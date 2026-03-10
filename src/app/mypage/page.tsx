@@ -28,15 +28,12 @@ export default function MyPage() {
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [recommendations, setRecommendations] = useState<Recommendations | null>(null);
   const [loading, setLoading] = useState(true);
-  const [authed, setAuthed] = useState(false);
-
   // 初期化: 認証 → 履歴 + パーソナライズ取得
   useEffect(() => {
     async function init() {
       try {
         // 匿名認証
         await fetch("/api/auth");
-        setAuthed(true);
 
         // 並列取得
         const [historyRes, personalizeRes] = await Promise.all([

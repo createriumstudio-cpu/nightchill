@@ -64,7 +64,7 @@ export default function BlogAffiliate({ tags, category, city = "tokyo" }: Props)
         }
       })
       .catch(() => {});
-  }, [tags, category]);
+  }, [tags, category, city]);
 
   if (venues.length === 0) return null;
 
