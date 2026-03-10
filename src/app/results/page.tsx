@@ -9,9 +9,11 @@ import Footer from "@/components/Footer";
 import ProductRecommendation from "@/components/ProductRecommendation";
 import ReservationAffiliate from "@/components/ReservationAffiliate";
 import PremiumBanner from "@/components/PremiumBanner";
+import RouteMapEmbed from "@/components/RouteMapEmbed";
 import { type DatePlan } from "@/lib/types";
 import { decodePlan, buildShareUrl } from "@/lib/plan-encoder";
 import type { VenueFactData } from "@/lib/google-places";
+import { getCityById } from "@/lib/cities";
 
 // ============================================================
 // sessionStorage ヘルパー
@@ -608,11 +610,16 @@ export default function ResultsPage() {
 
   const handleShareX = useCallback(() => {
     if (!plan) return;
-    const text = `${plan.title}\n\nデートプランを作ってみた！\n#futatabito #デートプラン`;
-    const xUrl = shareUrl || (typeof window !== "undefined" ? window.location.origin : "");
-    const url = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(xUrl)}`;
+    const cityId = planContext?.city || location || "";
+    const cityData = getCityById(cityId);
+    const cityName = cityData?.name || cityId;
+    const text = cityName
+      ? `ふたたびとで${cityName}のデートプランを作ったよ✨ #futatabito #デートプラン`
+      : `ふたたびとでデートプランを作ったよ✨ #futatabito #デートプラン`;
+    const xUrl = shareUrl || (typeof window !== "undefined" ? window.location.href : "");
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(xUrl)}`;
     window.open(url, "_blank", "noopener,noreferrer");
-  }, [plan, shareUrl]);
+  }, [plan, shareUrl, planContext, location]);
 
   if (!plan) {
     return (
@@ -789,6 +796,27 @@ export default function ResultsPage() {
         {/* Overview Map - 全ヴェニュー俯瞰マップ */}
         {plan.venues && plan.venues.length > 0 && (
           <OverviewMap venues={plan.venues} />
+        )}
+
+        {/* Route Map Embed - 周辺マップ */}
+        {plan.timeline && plan.timeline.length > 0 && (
+          <RouteMapEmbed
+            city={(() => {
+              const cId = planContext?.city || location || "";
+              const cData = getCityById(cId);
+              return cData?.name || cId;
+            })()}
+            spots={plan.timeline
+              .filter((item) => item.venue)
+              .slice(0, 3)
+              .map((item) => {
+                const matched = findMatchingVenue(item.venue, venueIndexMap.get(item.venue) ?? 0);
+                return {
+                  name: item.venue,
+                  address: matched?.address || undefined,
+                };
+              })}
+          />
         )}
 
         {/* Product Recommendations - 文脈連動型商品レコメンド */}
