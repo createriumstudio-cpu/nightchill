@@ -23,10 +23,10 @@ export default function SponsoredSpotCard({ spot, locale = "ja" }: Props) {
       href={spot.url || "#"}
       target="_blank"
       rel="noopener noreferrer sponsored"
-      className="block rounded-xl overflow-hidden border border-gray-800 hover:border-orange-500/50 transition-all duration-300 group bg-gray-900/50 hover:bg-gray-900/80"
+      className="block rounded-xl overflow-hidden border border-border hover:border-accent/50 transition-all duration-300 group bg-surface hover:shadow-md"
     >
       <div className="relative">
-        <span className="absolute top-2 left-2 z-10 bg-[#c9485b]/90 text-white text-xs font-bold px-2 py-0.5 rounded">
+        <span className="absolute top-2 left-2 z-10 bg-rose/90 text-white text-xs font-bold px-2 py-0.5 rounded">
           {label}
         </span>
         {spot.imageUrl && (
@@ -50,21 +50,21 @@ export default function SponsoredSpotCard({ spot, locale = "ja" }: Props) {
           )
         )}
         {!spot.imageUrl && (
-          <div className="h-20 bg-gradient-to-r from-[#c9a96e]/10 to-[#1a1a2e]/10 flex items-center justify-center">
+          <div className="h-20 bg-gradient-to-r from-accent/10 to-primary/10 flex items-center justify-center">
             <span className="text-2xl">✨</span>
           </div>
         )}
       </div>
       <div className="p-3">
-        <h4 className="text-base font-bold mb-1 group-hover:text-orange-400 transition-colors">
+        <h4 className="text-base font-bold mb-1 group-hover:text-accent transition-colors">
           {spot.title}
         </h4>
         {spot.description && (
-          <p className="text-sm text-gray-400 line-clamp-2">
+          <p className="text-sm text-muted line-clamp-2">
             {spot.description}
           </p>
         )}
-        <span className="inline-block mt-2 text-xs text-orange-400 group-hover:text-orange-300 transition-colors">
+        <span className="inline-block mt-2 text-xs text-accent group-hover:text-accent-light transition-colors">
           {locale === "en" ? "Learn more →" : "詳しく見る →"}
         </span>
       </div>

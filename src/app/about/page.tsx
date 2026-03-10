@@ -24,7 +24,7 @@ export default function AboutPage() {
           </h1>
 
           <section className="mb-12">
-            <h2 className="text-xl font-semibold text-amber-400 mb-4">
+            <h2 className="text-xl font-semibold text-accent mb-4">
               コンセプト
             </h2>
             <div className="text-gray-300 space-y-4 leading-relaxed">
@@ -41,7 +41,7 @@ export default function AboutPage() {
           </section>
 
           <section className="mb-12">
-            <h2 className="text-xl font-semibold text-amber-400 mb-4">
+            <h2 className="text-xl font-semibold text-accent mb-4">
               提供コンテンツ
             </h2>
             <div className="text-gray-300 space-y-4 leading-relaxed">
@@ -55,7 +55,7 @@ export default function AboutPage() {
           </section>
 
           <section className="mb-12">
-            <h2 className="text-xl font-semibold text-amber-400 mb-4">
+            <h2 className="text-xl font-semibold text-accent mb-4">
               運営者情報
             </h2>
             <div className="text-gray-300 space-y-3 leading-relaxed">
@@ -70,7 +70,7 @@ export default function AboutPage() {
                 <span className="text-gray-400">メール:</span>{" "}
                 <a
                   href="mailto:createriumstudio@gmail.com"
-                  className="text-amber-400 hover:text-amber-300 underline"
+                  className="text-accent hover:text-accent-light underline"
                 >
                   createriumstudio@gmail.com
                 </a>
@@ -79,7 +79,7 @@ export default function AboutPage() {
           </section>
 
           <section className="mb-12">
-            <h2 className="text-xl font-semibold text-amber-400 mb-4">
+            <h2 className="text-xl font-semibold text-accent mb-4">
               情報の正確性について
             </h2>
             <div className="text-gray-300 space-y-4 leading-relaxed">
@@ -93,7 +93,7 @@ export default function AboutPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-amber-400 mb-4">
+            <h2 className="text-xl font-semibold text-accent mb-4">
               広告・PR表記について
             </h2>
             <div className="text-gray-300 space-y-4 leading-relaxed">

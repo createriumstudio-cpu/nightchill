@@ -108,7 +108,7 @@ async function LatestBlogPosts() {
     <section className="px-6 py-16">
       <div className="mx-auto max-w-6xl">
         <div className="text-center">
-          <p className="text-sm font-semibold tracking-widest text-[#c9a96e] uppercase">
+          <p className="text-sm font-semibold tracking-widest text-accent uppercase">
             Blog
           </p>
           <h2 className="mt-2 text-2xl font-bold tracking-tight md:text-3xl">
@@ -211,7 +211,7 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/50 to-black/80" />
         </div>
         <div className="relative mx-auto max-w-4xl text-center drop-shadow-lg">
-          <p className="mb-2 md:mb-4 text-xs md:text-sm font-semibold tracking-widest text-[#c9a96e] uppercase [text-shadow:_0_1px_6px_rgba(0,0,0,0.6)]">
+          <p className="mb-2 md:mb-4 text-xs md:text-sm font-semibold tracking-widest text-accent uppercase [text-shadow:_0_1px_6px_rgba(0,0,0,0.6)]">
             ふたりが楽しめる場所を、AIが30秒で見つける。
           </p>
           <h1 className="text-3xl sm:text-5xl font-bold leading-tight tracking-tight text-white md:text-7xl [text-shadow:_0_2px_12px_rgba(0,0,0,0.8)]">
@@ -278,7 +278,7 @@ export default function Home() {
       <section className="px-6 py-16">
         <div className="mx-auto max-w-4xl">
           <div className="text-center">
-            <p className="text-sm font-semibold tracking-widest text-[#c9a96e] uppercase">
+            <p className="text-sm font-semibold tracking-widest text-accent uppercase">
               Cities
             </p>
             <h2 className="mt-2 text-2xl font-bold tracking-tight md:text-3xl">
@@ -316,7 +316,7 @@ export default function Home() {
       <section id="features" className="px-6 py-24">
         <div className="mx-auto max-w-6xl">
           <div className="text-center">
-            <p className="text-sm font-semibold tracking-widest text-[#c9a96e] uppercase">
+            <p className="text-sm font-semibold tracking-widest text-accent uppercase">
               Features
             </p>
             <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
@@ -347,7 +347,7 @@ export default function Home() {
       <section id="how-it-works" className="bg-surface px-6 py-24">
         <div className="mx-auto max-w-4xl">
           <div className="text-center">
-            <p className="text-sm font-semibold tracking-widest text-[#c9a96e] uppercase">
+            <p className="text-sm font-semibold tracking-widest text-accent uppercase">
               How It Works
             </p>
             <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
@@ -382,7 +382,7 @@ export default function Home() {
       <section className="px-6 py-24">
         <div className="mx-auto max-w-6xl">
           <div className="text-center">
-            <p className="text-sm font-semibold tracking-widest text-[#c9a96e] uppercase">
+            <p className="text-sm font-semibold tracking-widest text-accent uppercase">
               Voice
             </p>
             <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">

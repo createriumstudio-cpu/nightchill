@@ -32,8 +32,8 @@ export function SpotPhoto({ spotName, area }: SpotPhotoProps) {
 
   if (loading) {
     return (
-      <div className="w-full h-48 bg-gray-100 rounded-lg animate-pulse flex items-center justify-center">
-        <span className="text-gray-400 text-sm">写真を読み込み中...</span>
+      <div className="w-full h-48 bg-surface-alt rounded-lg animate-pulse flex items-center justify-center">
+        <span className="text-muted text-sm">写真を読み込み中...</span>
       </div>
     );
   }

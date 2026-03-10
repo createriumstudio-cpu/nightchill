@@ -198,11 +198,11 @@ function PlanPageContent() {
   const locationPresets = selectedCity?.areas ?? [];
 
   return (
-    <div className="min-h-screen bg-white">
-      <header className="border-b border-gray-100 bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+    <div className="min-h-screen bg-background">
+      <header className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
-          <button onClick={() => router.push("/")} className="text-lg font-bold text-gray-900">
-            futa<span className="text-orange-500">tabito</span>
+          <button onClick={() => router.push("/")} className="text-lg font-bold text-foreground">
+            futa<span className="text-accent">tabito</span>
           </button>
         </div>
       </header>
@@ -211,7 +211,7 @@ function PlanPageContent() {
         <h1 className="text-2xl sm:text-3xl font-bold text-center mb-2">
           デートプランを作成
         </h1>
-        <p className="text-gray-500 text-center mb-8 text-sm">
+        <p className="text-muted text-center mb-8 text-sm">
           あなたの理想のデートを教えてください。AIが最適なプランを提案します。
         </p>
 
@@ -221,12 +221,12 @@ function PlanPageContent() {
             <div key={s} className="flex items-center">
               <div
                 className={`h-2 w-8 sm:w-12 rounded-full transition-colors ${
-                  s <= step ? "bg-orange-500" : "bg-gray-200"
+                  s <= step ? "bg-interactive" : "bg-border"
                 }`}
               />
             </div>
           ))}
-          <span className="ml-2 text-xs text-gray-400">{step}/{TOTAL_STEPS}</span>
+          <span className="ml-2 text-xs text-muted">{step}/{TOTAL_STEPS}</span>
         </div>
 
         {/* ── Step Content (min-height to prevent layout shift) ── */}
@@ -236,11 +236,11 @@ function PlanPageContent() {
           {step === 1 && (
             <div className="space-y-6 animate-fadeIn">
               <h2 className="text-xl font-bold">📅 いつデートする？</h2>
-              <p className="text-sm text-gray-500">決まっていなければ空欄でOK</p>
+              <p className="text-sm text-muted">決まっていなければ空欄でOK</p>
 
               {endDateStr && dateStr && endDateStr > dateStr ? (
                 <>
-                  <p className="text-sm text-orange-600 font-medium mb-4">
+                  <p className="text-sm text-interactive font-medium mb-4">
                     {(() => {
                       const start = new Date(dateStr);
                       const end = new Date(endDateStr);
@@ -251,26 +251,26 @@ function PlanPageContent() {
 
                   {/* Day 1: 日付 + 合流時間 */}
                   <div className="space-y-2 mb-4">
-                    <p className="text-sm font-semibold text-orange-600">Day 1</p>
+                    <p className="text-sm font-semibold text-interactive">Day 1</p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">日付</label>
+                        <label className="block text-sm font-medium text-foreground mb-1">日付</label>
                         <input
                           type="date"
                           value={dateStr}
                           onChange={(e) => { setDateStr(e.target.value); if (!e.target.value) setEndDateStr(""); }}
                           min={today}
-                          className={`w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500 [color-scheme:light] ${dateStr ? 'text-gray-900' : 'text-gray-400'}`}
+                          className={`w-full max-w-xs rounded-xl border border-border bg-surface px-4 py-3 text-base focus:border-interactive focus:ring-interactive [color-scheme:light] ${dateStr ? 'text-foreground' : 'text-muted'}`}
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">合流時間</label>
+                        <label className="block text-sm font-medium text-foreground mb-1">合流時間</label>
                         <input
                           type="time"
                           value={startTime}
                           onChange={(e) => setStartTime(e.target.value)}
                           step={900}
-                          className="w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500 [color-scheme:light]"
+                          className="w-full max-w-xs rounded-xl border border-border bg-surface px-4 py-3 text-base focus:border-interactive focus:ring-interactive [color-scheme:light]"
                         />
                       </div>
                     </div>
@@ -278,26 +278,26 @@ function PlanPageContent() {
 
                   {/* Day 2: 帰りの日 + 解散時間 */}
                   <div className="space-y-2">
-                    <p className="text-sm font-semibold text-orange-600">Day 2</p>
+                    <p className="text-sm font-semibold text-interactive">Day 2</p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">帰りの日</label>
+                        <label className="block text-sm font-medium text-foreground mb-1">帰りの日</label>
                         <input
                           type="date"
                           value={endDateStr}
                           onChange={(e) => setEndDateStr(e.target.value)}
                           min={dateStr}
-                          className={`w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500 [color-scheme:light] ${endDateStr ? 'text-gray-900' : 'text-gray-400'}`}
+                          className={`w-full max-w-xs rounded-xl border border-border bg-surface px-4 py-3 text-base focus:border-interactive focus:ring-interactive [color-scheme:light] ${endDateStr ? 'text-foreground' : 'text-muted'}`}
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">解散時間</label>
+                        <label className="block text-sm font-medium text-foreground mb-1">解散時間</label>
                         <input
                           type="time"
                           value={endTime}
                           onChange={(e) => setEndTime(e.target.value)}
                           step={900}
-                          className="w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500 [color-scheme:light]"
+                          className="w-full max-w-xs rounded-xl border border-border bg-surface px-4 py-3 text-base focus:border-interactive focus:ring-interactive [color-scheme:light]"
                         />
                       </div>
                     </div>
@@ -306,49 +306,49 @@ function PlanPageContent() {
               ) : (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">日付</label>
+                    <label className="block text-sm font-medium text-foreground mb-1">日付</label>
                     <input
                       type="date"
                       value={dateStr}
                       onChange={(e) => { setDateStr(e.target.value); if (!e.target.value) setEndDateStr(""); }}
                       min={today}
-                      className={`w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500 [color-scheme:light] ${dateStr ? 'text-gray-900' : 'text-gray-400'}`}
+                      className={`w-full max-w-xs rounded-xl border border-border bg-surface px-4 py-3 text-base focus:border-interactive focus:ring-interactive [color-scheme:light] ${dateStr ? 'text-foreground' : 'text-muted'}`}
                     />
                   </div>
 
                   {/* 帰りの日（宿泊プラン用） */}
                   {dateStr && (
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">帰りの日<span className="text-gray-400 text-xs ml-1">（宿泊する場合）</span></label>
+                      <label className="block text-sm font-medium text-foreground mb-1">帰りの日<span className="text-muted text-xs ml-1">（宿泊する場合）</span></label>
                       <input
                         type="date"
                         value={endDateStr}
                         onChange={(e) => setEndDateStr(e.target.value)}
                         min={dateStr}
-                        className={`w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500 [color-scheme:light] ${endDateStr ? 'text-gray-900' : 'text-gray-400'}`}
+                        className={`w-full max-w-xs rounded-xl border border-border bg-surface px-4 py-3 text-base focus:border-interactive focus:ring-interactive [color-scheme:light] ${endDateStr ? 'text-foreground' : 'text-muted'}`}
                       />
                     </div>
                   )}
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">合流時間</label>
+                      <label className="block text-sm font-medium text-foreground mb-1">合流時間</label>
                       <input
                         type="time"
                         value={startTime}
                         onChange={(e) => setStartTime(e.target.value)}
                         step={900}
-                        className="w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500 [color-scheme:light]"
+                        className="w-full max-w-xs rounded-xl border border-border bg-surface px-4 py-3 text-base focus:border-interactive focus:ring-interactive [color-scheme:light]"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">解散時間</label>
+                      <label className="block text-sm font-medium text-foreground mb-1">解散時間</label>
                       <input
                         type="time"
                         value={endTime}
                         onChange={(e) => setEndTime(e.target.value)}
                         step={900}
-                        className="w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500 [color-scheme:light]"
+                        className="w-full max-w-xs rounded-xl border border-border bg-surface px-4 py-3 text-base focus:border-interactive focus:ring-interactive [color-scheme:light]"
                       />
                     </div>
                   </div>
@@ -364,7 +364,7 @@ function PlanPageContent() {
 
               {/* 都市選択 */}
               <fieldset>
-                <legend className="text-sm font-medium text-gray-700 mb-2">都市を選択</legend>
+                <legend className="text-sm font-medium text-foreground mb-2">都市を選択</legend>
                 <div className="flex flex-wrap gap-2">
                   {CITIES.map((city) => (
                     <button
@@ -377,8 +377,8 @@ function PlanPageContent() {
                       }}
                       className={`px-4 py-2 rounded-full text-sm border transition-colors ${
                         cityId === city.id
-                          ? "bg-orange-500 text-white border-orange-500"
-                          : "bg-white text-gray-700 border-gray-300 hover:border-orange-300"
+                          ? "bg-interactive text-interactive-foreground border-interactive"
+                          : "bg-surface text-foreground border-border hover:border-interactive/50"
                       }`}
                     >
                       {city.name}
@@ -386,14 +386,14 @@ function PlanPageContent() {
                   ))}
                 </div>
                 {selectedCity && (
-                  <p className="mt-2 text-xs text-gray-400">{selectedCity.description}</p>
+                  <p className="mt-2 text-xs text-muted">{selectedCity.description}</p>
                 )}
               </fieldset>
 
               {/* エリア選択 */}
               <fieldset>
-                <legend className="text-sm font-medium text-gray-700 mb-2">
-                  エリアを選択<span className="text-gray-400 text-xs ml-1">（複数選択OK）</span>
+                <legend className="text-sm font-medium text-foreground mb-2">
+                  エリアを選択<span className="text-muted text-xs ml-1">（複数選択OK）</span>
                 </legend>
                 <div className="flex flex-wrap gap-2">
                   {locationPresets.map((area) => (
@@ -403,8 +403,8 @@ function PlanPageContent() {
                       onClick={() => toggleLocation(area)}
                       className={`px-4 py-2 rounded-full text-sm border transition-colors ${
                         locations.includes(area)
-                          ? "bg-orange-500 text-white border-orange-500"
-                          : "bg-white text-gray-700 border-gray-300 hover:border-orange-300"
+                          ? "bg-interactive text-interactive-foreground border-interactive"
+                          : "bg-surface text-foreground border-border hover:border-interactive/50"
                       }`}
                     >
                       {area}
@@ -414,13 +414,13 @@ function PlanPageContent() {
               </fieldset>
 
               {locations.length > 0 && (
-                <p className="text-sm text-orange-600 font-medium">
+                <p className="text-sm text-interactive font-medium">
                   選択中: {locations.join(", ")}
                 </p>
               )}
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-foreground mb-1">
                   その他のエリア（任意）
                 </label>
                 <input
@@ -428,7 +428,7 @@ function PlanPageContent() {
                   value={customLocation}
                   onChange={(e) => setCustomLocation(e.target.value)}
                   placeholder="例: 駅前周辺"
-                  className="w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500"
+                  className="w-full max-w-xs rounded-xl border border-border bg-surface px-4 py-3 text-base focus:border-interactive focus:ring-interactive"
                 />
               </div>
             </div>
@@ -448,8 +448,8 @@ function PlanPageContent() {
                       onClick={() => setRelationship(value)}
                       className={`w-full px-4 py-4 rounded-xl border text-left transition-colors ${
                         relationship === value
-                          ? "bg-orange-50 border-orange-500 text-orange-700"
-                          : "bg-white border-gray-300 text-gray-700 hover:border-orange-300"
+                          ? "bg-interactive-light border-interactive text-foreground"
+                          : "bg-surface border-border text-foreground hover:border-interactive/50"
                       }`}
                     >
                       <span className="text-base font-medium">{label}</span>
@@ -464,10 +464,10 @@ function PlanPageContent() {
           {step === 4 && (
             <div className="space-y-6 animate-fadeIn">
               <h2 className="text-xl font-bold">✨ 何をしたい？</h2>
-              <p className="text-sm text-gray-500">複数選択OK（1つ以上選んでください）</p>
+              <p className="text-sm text-muted">複数選択OK（1つ以上選んでください）</p>
 
               <fieldset>
-                <legend className="text-sm font-medium text-gray-700 mb-2">やりたいこと</legend>
+                <legend className="text-sm font-medium text-foreground mb-2">やりたいこと</legend>
                 <div className="flex flex-wrap gap-2">
                   {(Object.entries(activityLabels) as [Activity, string][]).map(
                     ([value, label]) => (
@@ -477,8 +477,8 @@ function PlanPageContent() {
                         onClick={() => toggleActivity(value)}
                         className={`px-4 py-2 rounded-full text-sm border transition-colors ${
                           activities.includes(value)
-                            ? "bg-orange-500 text-white border-orange-500"
-                            : "bg-white text-gray-700 border-gray-300 hover:border-orange-300"
+                            ? "bg-interactive text-interactive-foreground border-interactive"
+                            : "bg-surface text-foreground border-border hover:border-interactive/50"
                         }`}
                       >
                         {label}
@@ -489,7 +489,7 @@ function PlanPageContent() {
               </fieldset>
 
               <fieldset>
-                <legend className="text-sm font-medium text-gray-700 mb-2">雰囲気 *</legend>
+                <legend className="text-sm font-medium text-foreground mb-2">雰囲気 *</legend>
                 <div className="flex flex-wrap gap-2">
                   {(Object.entries(moodLabels) as [Mood, string][]).map(
                     ([value, label]) => (
@@ -499,8 +499,8 @@ function PlanPageContent() {
                         onClick={() => setMood(value)}
                         className={`px-4 py-2 rounded-full text-sm border transition-colors ${
                           mood === value
-                            ? "bg-orange-500 text-white border-orange-500"
-                            : "bg-white text-gray-700 border-gray-300 hover:border-orange-300"
+                            ? "bg-interactive text-interactive-foreground border-interactive"
+                            : "bg-surface text-foreground border-border hover:border-interactive/50"
                         }`}
                       >
                         {label}
@@ -518,7 +518,7 @@ function PlanPageContent() {
               <h2 className="text-xl font-bold">⚙️ 詳細設定</h2>
 
               <fieldset>
-                <legend className="text-sm font-medium text-gray-700 mb-2">予算 *</legend>
+                <legend className="text-sm font-medium text-foreground mb-2">予算 *</legend>
                 <div className="grid grid-cols-2 gap-2">
                   {(Object.entries(budgetLabels) as [Budget, string][]).map(
                     ([value, label]) => (
@@ -528,8 +528,8 @@ function PlanPageContent() {
                         onClick={() => setBudget(value)}
                         className={`px-4 py-3 rounded-xl text-sm border transition-colors ${
                           budget === value
-                            ? "bg-orange-50 border-orange-500 text-orange-700"
-                            : "bg-white border-gray-300 text-gray-700 hover:border-orange-300"
+                            ? "bg-interactive-light border-interactive text-foreground"
+                            : "bg-surface border-border text-foreground hover:border-interactive/50"
                         }`}
                       >
                         {label}
@@ -540,9 +540,9 @@ function PlanPageContent() {
               </fieldset>
 
               <fieldset>
-                <legend className="text-sm font-medium text-gray-700 mb-2">
+                <legend className="text-sm font-medium text-foreground mb-2">
                   年齢確認 *
-                  <span className="text-xs text-gray-400 ml-1">
+                  <span className="text-xs text-muted ml-1">
                     （アルコール・シーシャ提供店の推薦に必要）
                   </span>
                 </legend>
@@ -555,8 +555,8 @@ function PlanPageContent() {
                         onClick={() => setAgeGroup(value)}
                         className={`px-4 py-3 rounded-xl text-sm border transition-colors ${
                           ageGroup === value
-                            ? "bg-orange-50 border-orange-500 text-orange-700"
-                            : "bg-white border-gray-300 text-gray-700 hover:border-orange-300"
+                            ? "bg-interactive-light border-interactive text-foreground"
+                            : "bg-surface border-border text-foreground hover:border-interactive/50"
                         }`}
                       >
                         {label}
@@ -567,7 +567,7 @@ function PlanPageContent() {
               </fieldset>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-foreground mb-1">
                   その他のリクエスト（任意）
                 </label>
                 <textarea
@@ -575,7 +575,7 @@ function PlanPageContent() {
                   onChange={(e) => setAdditionalNotes(e.target.value)}
                   placeholder="例: 相手はカフェ好き、写真映えする場所がいい"
                   rows={3}
-                  className="w-full max-w-xs rounded-xl border border-gray-300 px-4 py-3 text-base focus:border-orange-500 focus:ring-orange-500 resize-none"
+                  className="w-full max-w-xs rounded-xl border border-border bg-surface px-4 py-3 text-base focus:border-interactive focus:ring-interactive resize-none"
                 />
               </div>
             </div>
@@ -584,7 +584,7 @@ function PlanPageContent() {
 
         {/* ── Error ── */}
         {error && (
-          <div className="mt-4 p-3 bg-red-50 text-red-700 rounded-xl text-sm">
+          <div className="mt-4 p-3 bg-rose/10 text-rose rounded-xl text-sm">
             {error}
           </div>
         )}
@@ -594,7 +594,7 @@ function PlanPageContent() {
           {step > 1 ? (
             <button
               onClick={handleBack}
-              className="px-6 py-3 text-sm text-gray-600 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors"
+              className="px-6 py-3 text-sm text-muted border border-border rounded-xl hover:bg-surface-alt transition-colors"
             >
               戻る
             </button>
@@ -606,7 +606,7 @@ function PlanPageContent() {
             <button
               onClick={handleNext}
               disabled={!canProceed()}
-              className="px-8 py-3 text-sm font-medium text-white bg-gray-900 rounded-xl hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="px-8 py-3 text-sm font-medium text-primary-foreground bg-primary rounded-xl hover:bg-primary-dark transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               次へ
             </button>
@@ -614,7 +614,7 @@ function PlanPageContent() {
             <button
               onClick={handleSubmit}
               disabled={!canProceed() || isLoading}
-              className="px-8 py-3 text-sm font-medium text-white bg-orange-500 rounded-xl hover:bg-orange-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="px-8 py-3 text-sm font-medium text-interactive-foreground bg-interactive rounded-xl hover:opacity-90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <span className="flex items-center gap-2">
@@ -631,36 +631,36 @@ function PlanPageContent() {
           )}
         </div>
 
-        <p className="text-center text-xs text-gray-400 mb-8">
+        <p className="text-center text-xs text-muted mb-8">
           完全無料・登録不要で利用できます
         </p>
       </main>
 
       {/* Loading overlay with email signup */}
       {isLoading && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white/95 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/95 backdrop-blur-sm">
           <div className="max-w-sm mx-auto px-6 text-center">
             <div className="mb-6">
-              <svg className="animate-spin h-10 w-10 mx-auto text-orange-500" viewBox="0 0 24 24">
+              <svg className="animate-spin h-10 w-10 mx-auto text-interactive" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
             </div>
-            <h2 className="text-xl font-bold text-gray-900 mb-2">
+            <h2 className="text-xl font-bold mb-2">
               プランを生成しています...
             </h2>
-            <p className="text-sm text-gray-500 mb-8">
+            <p className="text-sm text-muted mb-8">
               AIがあなたにぴったりのデートプランを考えています
             </p>
 
-            <div className="rounded-2xl border border-orange-200 bg-orange-50 p-5">
+            <div className="rounded-2xl border border-interactive/30 bg-interactive-light p-5">
               {emailRegistered ? (
-                <p className="text-sm font-medium text-orange-700">
+                <p className="text-sm font-medium text-foreground">
                   ✅ 完成したらお送りします
                 </p>
               ) : (
                 <>
-                  <p className="text-sm font-medium text-gray-700 mb-3">
+                  <p className="text-sm font-medium text-foreground mb-3">
                     📧 完成したらメールで受け取る（任意）
                   </p>
                   <div className="flex gap-2">
@@ -670,12 +670,12 @@ function PlanPageContent() {
                       onChange={(e) => setSignupEmail(e.target.value)}
                       onKeyDown={(e) => { if (e.key === "Enter") handleEmailSignup(); }}
                       placeholder="example@email.com"
-                      className="flex-1 min-w-0 rounded-xl border border-gray-300 px-3 py-2.5 text-sm focus:border-orange-500 focus:ring-orange-500 focus:outline-none"
+                      className="flex-1 min-w-0 rounded-xl border border-border bg-surface px-3 py-2.5 text-sm focus:border-interactive focus:ring-interactive focus:outline-none"
                     />
                     <button
                       onClick={handleEmailSignup}
                       disabled={emailSubmitting || !signupEmail.trim()}
-                      className="shrink-0 rounded-xl bg-orange-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-orange-600 transition-colors disabled:opacity-40"
+                      className="shrink-0 rounded-xl bg-interactive px-4 py-2.5 text-sm font-medium text-interactive-foreground hover:opacity-90 transition-colors disabled:opacity-40"
                     >
                       {emailSubmitting ? "..." : "登録"}
                     </button>

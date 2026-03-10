@@ -169,9 +169,9 @@ function VenueCard({
             <p className="mt-1 text-sm text-muted">{venue.address}</p>
           </div>
           {venue.rating !== null && !photoUrl && (
-            <div className="flex items-center gap-1 rounded-lg bg-amber-50 px-2 py-1 dark:bg-amber-950">
+            <div className="flex items-center gap-1 rounded-lg bg-accent/10 px-2 py-1">
               <span className="text-xs">⭐</span>
-              <span className="text-sm font-semibold text-amber-700 dark:text-amber-300">
+              <span className="text-sm font-semibold text-accent">
                 {venue.rating}
               </span>
             </div>

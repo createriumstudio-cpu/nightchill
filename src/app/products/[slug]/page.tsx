@@ -85,7 +85,7 @@ export default function ProductDetailPage() {
           <p className="text-gray-400">{error || "商品が見つかりませんでした"}</p>
           <button
             onClick={() => router.push("/products")}
-            className="text-amber-400 hover:text-amber-300 text-sm"
+            className="text-accent hover:text-accent-light text-sm"
           >
             商品一覧に戻る
           </button>
@@ -123,7 +123,7 @@ export default function ProductDetailPage() {
                 {product.name}
               </h1>
 
-              <p className="text-3xl font-bold text-amber-400 mb-6">
+              <p className="text-3xl font-bold text-accent mb-6">
                 &yen;{product.price.toLocaleString()}
                 <span className="text-sm text-gray-500 ml-2">税込</span>
               </p>
@@ -141,7 +141,7 @@ export default function ProductDetailPage() {
               <button
                 onClick={handlePurchase}
                 disabled={purchasing || (product.stock !== null && product.stock <= 0)}
-                className="w-full rounded-full bg-amber-500 px-8 py-4 text-lg font-bold text-gray-950 transition-all hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full rounded-full bg-accent px-8 py-4 text-lg font-bold text-accent-foreground transition-all hover:bg-accent-light disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {purchasing ? "処理中..." : "購入する"}
               </button>

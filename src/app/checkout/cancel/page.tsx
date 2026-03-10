@@ -25,7 +25,7 @@ function CancelContent() {
         {productSlug && (
           <Link
             href={`/products/${productSlug}`}
-            className="rounded-full bg-amber-500 px-8 py-3 text-sm font-bold text-gray-950 transition-all hover:bg-amber-400"
+            className="rounded-full bg-accent px-8 py-3 text-sm font-bold text-accent-foreground transition-all hover:bg-accent-light"
           >
             商品ページに戻る
           </Link>

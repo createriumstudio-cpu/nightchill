@@ -151,7 +151,7 @@ export default async function CityLandingPage({ params }: PageProps) {
         />
         <div className="absolute inset-0 bg-black/50" />
         <div className="relative mx-auto max-w-4xl text-center">
-          <p className="mb-3 text-sm font-semibold tracking-widest text-[#c9a96e] uppercase">
+          <p className="mb-3 text-sm font-semibold tracking-widest text-accent uppercase">
             {city.name} Date Plan
           </p>
           <h1 className="text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl md:text-6xl">
@@ -182,7 +182,7 @@ export default async function CityLandingPage({ params }: PageProps) {
       <section className="px-4 py-16 md:py-20">
         <div className="mx-auto max-w-4xl">
           <div className="text-center">
-            <p className="text-sm font-semibold tracking-widest text-[#c9a96e] uppercase">
+            <p className="text-sm font-semibold tracking-widest text-accent uppercase">
               Areas
             </p>
             <h2 className="mt-2 text-2xl font-bold tracking-tight md:text-3xl">
@@ -322,7 +322,7 @@ export default async function CityLandingPage({ params }: PageProps) {
       <section className="bg-surface px-4 py-16 md:py-20">
         <div className="mx-auto max-w-4xl">
           <div className="text-center">
-            <p className="text-sm font-semibold tracking-widest text-[#c9a96e] uppercase">
+            <p className="text-sm font-semibold tracking-widest text-accent uppercase">
               Scenes
             </p>
             <h2 className="mt-2 text-2xl font-bold tracking-tight md:text-3xl">
@@ -352,7 +352,7 @@ export default async function CityLandingPage({ params }: PageProps) {
       <section className="px-4 py-16 md:py-20">
         <div className="mx-auto max-w-3xl">
           <div className="text-center">
-            <p className="text-sm font-semibold tracking-widest text-[#c9a96e] uppercase">
+            <p className="text-sm font-semibold tracking-widest text-accent uppercase">
               How It Works
             </p>
             <h2 className="mt-2 text-2xl font-bold tracking-tight md:text-3xl">
