@@ -6,7 +6,7 @@
 
 | 視点 | スコア | 最優先アクション |
 |------|--------|-----------------|
-| UX | 8/10 | プラン生成後のLINE共有・保存機能を追加 |
+| UX | 9/10 | プラン生成後のLINE共有・保存機能を追加 |
 | 管理・運用 | 8/10 | Analytics設定 + APIコストアラートを今週中に |
 | マネタイズ | 8/10 | 特集ページへの予約リンク（アフィリエイト）を即設置 |
 
@@ -33,7 +33,7 @@
 
 ---
 
-## 2. UX視点（8/10）
+## 2. UX視点（9/10）
 
 ### 強み
 
@@ -54,7 +54,7 @@
 * [x] **短期**: 生成プランのLINE共有ボタン追加（results/page.tsxに実装済み）
 * [x] **短期**: プラン結果のURL共有機能（buildShareUrl使用で実装済み）
 * [x] **中期**: 特集カード画像の補完（/api/og生成画像でフォールバック置換、PR #153 + PR #159で都市LP・WeeklyPicksSectionも対応完了）
-* [ ] **中期**: 簡易ログイン機能（Google/LINE OAuth）→ プラン保存履歴
+* [x] **中期**: 簡易ログイン機能（Google OAuth）→ NextAuth.js v5 (Auth.js) で実装（PR #165）
 * [ ] **長期**: Google Maps連携のルート表示
 
 ---
@@ -97,3 +97,4 @@
 | 2026-03-10 | GA4アフィリエイトクリックイベントトラッキング実装（trackAffiliateClick関数、BlogAffiliate・ReservationAffiliate両方、PR #157） | マネタイズ 6→7 |
 | 2026-03-10 | 都市LP WeeklyPicksSection + [city]/features FeatureCard の絵文字フォールバックを/api/og画像に置換（PR #159） | - |
 | 2026-03-10 | メールリード獲得機能追加（PR #163）、Resend futatabito.comドメイン認証DNS設定完了 | マネタイズ 7→8 |
+| 2026-03-10 | PR #165 Google ログイン実装（NextAuth.js v5 / Auth.js）マージ | UX 8→9 |
