@@ -1,0 +1,25 @@
+name: Content Quality Check
+
+on:
+  schedule:
+    # 毎週月曜 JST 9:00 (UTC 0:00)
+    - cron: '0 0 * * 1'
+  workflow_dispatch:
+
+jobs:
+  quality-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm install
+
+      - name: Run content quality check
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: npx tsx scripts/quality-check.ts
