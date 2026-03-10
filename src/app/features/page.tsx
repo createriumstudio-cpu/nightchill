@@ -80,7 +80,7 @@ function FeatureCard({ feature }: { feature: FeaturedArticle }) {
               {feature.area}エリア
             </span>
             {feature.dateGuide && (
-              <span className="text-xs font-medium text-orange-300 bg-black/40 px-2 py-1 rounded-full ml-1">
+              <span className="text-xs font-medium text-accent-light bg-black/40 px-2 py-1 rounded-full ml-1">
                 {feature.dateGuide.areaTypeLabel}
               </span>
             )}

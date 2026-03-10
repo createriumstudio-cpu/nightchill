@@ -42,7 +42,7 @@ export default function LanguageSwitcher() {
     return (
       <Link
         href={jaPath}
-        className="text-sm text-gray-400 hover:text-orange-400 transition-colors px-2 py-1 rounded border border-gray-700 hover:border-orange-400"
+        className="text-sm text-muted hover:text-accent transition-colors px-2 py-1 rounded border border-border hover:border-accent"
       >
         日本語
       </Link>
@@ -53,7 +53,7 @@ export default function LanguageSwitcher() {
   return (
     <Link
       href={enPath}
-      className="text-sm text-gray-400 hover:text-orange-400 transition-colors px-2 py-1 rounded border border-gray-700 hover:border-orange-400"
+      className="text-sm text-muted hover:text-accent transition-colors px-2 py-1 rounded border border-border hover:border-accent"
     >
       English
     </Link>

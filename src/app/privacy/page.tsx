@@ -27,7 +27,7 @@ export default function PrivacyPage() {
 
           <div className="text-gray-300 space-y-10 leading-relaxed">
             <section>
-              <h2 className="text-xl font-semibold text-amber-400 mb-4">
+              <h2 className="text-xl font-semibold text-accent mb-4">
                 1. はじめに
               </h2>
               <p>
@@ -36,7 +36,7 @@ export default function PrivacyPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-amber-400 mb-4">
+              <h2 className="text-xl font-semibold text-accent mb-4">
                 2. 収集する情報
               </h2>
               <div className="space-y-3">
@@ -57,7 +57,7 @@ export default function PrivacyPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-amber-400 mb-4">
+              <h2 className="text-xl font-semibold text-accent mb-4">
                 3. 情報の利用目的
               </h2>
               <div className="space-y-3">
@@ -67,7 +67,7 @@ export default function PrivacyPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-amber-400 mb-4">
+              <h2 className="text-xl font-semibold text-accent mb-4">
                 4. Cookie（クッキー）について
               </h2>
               <div className="space-y-3">
@@ -81,7 +81,7 @@ export default function PrivacyPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-amber-400 mb-4">
+              <h2 className="text-xl font-semibold text-accent mb-4">
                 5. 第三者サービスについて
               </h2>
               <div className="space-y-3">
@@ -93,7 +93,7 @@ export default function PrivacyPage() {
                     href="https://policies.google.com/privacy"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-amber-400 hover:text-amber-300 underline"
+                    className="text-accent hover:text-accent-light underline"
                   >
                     こちら
                   </a>
@@ -106,7 +106,7 @@ export default function PrivacyPage() {
                     href="https://vercel.com/legal/privacy-policy"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-amber-400 hover:text-amber-300 underline"
+                    className="text-accent hover:text-accent-light underline"
                   >
                     こちら
                   </a>
@@ -116,7 +116,7 @@ export default function PrivacyPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-amber-400 mb-4">
+              <h2 className="text-xl font-semibold text-accent mb-4">
                 6. 情報の第三者提供
               </h2>
               <p>
@@ -125,7 +125,7 @@ export default function PrivacyPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-amber-400 mb-4">
+              <h2 className="text-xl font-semibold text-accent mb-4">
                 7. 免責事項
               </h2>
               <div className="space-y-3">
@@ -139,7 +139,7 @@ export default function PrivacyPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-amber-400 mb-4">
+              <h2 className="text-xl font-semibold text-accent mb-4">
                 8. ポリシーの変更
               </h2>
               <p>
@@ -148,7 +148,7 @@ export default function PrivacyPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-amber-400 mb-4">
+              <h2 className="text-xl font-semibold text-accent mb-4">
                 9. お問い合わせ
               </h2>
               <p>
@@ -157,7 +157,7 @@ export default function PrivacyPage() {
               <p className="mt-3">
                 <a
                   href="mailto:createriumstudio@gmail.com"
-                  className="text-amber-400 hover:text-amber-300 underline"
+                  className="text-accent hover:text-accent-light underline"
                 >
                   createriumstudio@gmail.com
                 </a>

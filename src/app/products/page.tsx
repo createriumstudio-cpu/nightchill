@@ -58,7 +58,7 @@ export default async function ProductsPage() {
                     </div>
                   )}
                   <div className="p-5">
-                    <h2 className="text-lg font-bold text-white mb-2 group-hover:text-amber-400 transition-colors">
+                    <h2 className="text-lg font-bold text-white mb-2 group-hover:text-accent transition-colors">
                       {product.name}
                     </h2>
                     {product.shortDescription && (
@@ -66,7 +66,7 @@ export default async function ProductsPage() {
                         {product.shortDescription}
                       </p>
                     )}
-                    <p className="text-xl font-bold text-amber-400">
+                    <p className="text-xl font-bold text-accent">
                       &yen;{product.price.toLocaleString()}
                       <span className="text-xs text-gray-500 ml-1">税込</span>
                     </p>

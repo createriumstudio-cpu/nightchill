@@ -193,9 +193,9 @@ function VenueCard({
             <p className="mt-1 text-sm text-muted">{venue.address}</p>
           </div>
           {venue.rating !== null && !photoUrl && (
-            <div className="flex items-center gap-1 rounded-lg bg-amber-50 px-2 py-1 dark:bg-amber-950">
+            <div className="flex items-center gap-1 rounded-lg bg-accent/10 px-2 py-1">
               <span className="text-xs">⭐</span>
-              <span className="text-sm font-semibold text-amber-700 dark:text-amber-300">
+              <span className="text-sm font-semibold text-accent">
                 {venue.rating}
               </span>
             </div>
@@ -714,7 +714,7 @@ export default function ResultsPage() {
                       <div key={index} className="relative">
                         {/* Timeline connector */}
                         {(!isLastVisible || (hasMore && !timelineExpanded)) && (
-                          <div className="absolute left-5 top-12 bottom-0 w-0.5 bg-gray-200" />
+                          <div className="absolute left-5 top-12 bottom-0 w-0.5 bg-border" />
                         )}
                         <div className="flex gap-4">
                           {/* Time badge */}

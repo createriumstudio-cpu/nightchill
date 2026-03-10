@@ -66,7 +66,7 @@ export default async function EnglishHomePage() {
             <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/50 to-black/80" />
           </div>
           <div className="relative mx-auto max-w-4xl text-center drop-shadow-lg">
-            <p className="mb-2 md:mb-4 text-xs md:text-sm font-semibold tracking-widest text-[#c9a96e] uppercase [text-shadow:_0_1px_6px_rgba(0,0,0,0.6)]">
+            <p className="mb-2 md:mb-4 text-xs md:text-sm font-semibold tracking-widest text-accent uppercase [text-shadow:_0_1px_6px_rgba(0,0,0,0.6)]">
               {t.tagline}
             </p>
             <h1 className="text-3xl sm:text-5xl font-bold leading-tight tracking-tight text-white md:text-7xl [text-shadow:_0_2px_12px_rgba(0,0,0,0.8)]">
@@ -112,7 +112,7 @@ export default async function EnglishHomePage() {
                 <Link
                   key={feature.slug}
                   href={`/en/features/${feature.slug}`}
-                  className="group block rounded-2xl overflow-hidden bg-gray-900 hover:bg-gray-800 transition-colors"
+                  className="group block rounded-2xl overflow-hidden bg-surface-alt border border-border hover:shadow-md transition-all"
                 >
                   {feature.heroImage && (
                     <div className="relative h-48 overflow-hidden">
@@ -126,13 +126,13 @@ export default async function EnglishHomePage() {
                     </div>
                   )}
                   <div className="p-5">
-                    <span className="text-xs text-orange-400 font-medium uppercase tracking-wider">
+                    <span className="text-xs text-accent font-medium uppercase tracking-wider">
                       {en.area}
                     </span>
-                    <h3 className="text-lg font-bold mt-1 mb-2 group-hover:text-orange-400 transition-colors">
+                    <h3 className="text-lg font-bold mt-1 mb-2 group-hover:text-accent transition-colors">
                       {en.title}
                     </h3>
-                    <p className="text-sm text-gray-400 line-clamp-2">
+                    <p className="text-sm text-muted line-clamp-2">
                       {en.description}
                     </p>
                   </div>
@@ -146,7 +146,7 @@ export default async function EnglishHomePage() {
         <section id="features" className="px-6 py-24">
           <div className="mx-auto max-w-6xl">
             <div className="text-center">
-              <p className="text-sm font-semibold tracking-widest text-[#c9a96e] uppercase">
+              <p className="text-sm font-semibold tracking-widest text-accent uppercase">
                 Features
               </p>
               <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
@@ -203,7 +203,7 @@ export default async function EnglishHomePage() {
         <section className="bg-surface px-6 py-24">
           <div className="mx-auto max-w-6xl">
             <div className="text-center">
-              <p className="text-sm font-semibold tracking-widest text-[#c9a96e] uppercase">
+              <p className="text-sm font-semibold tracking-widest text-accent uppercase">
                 Voice
               </p>
               <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
@@ -257,13 +257,13 @@ export default async function EnglishHomePage() {
         </section>
 
         {/* CTA */}
-        <section className="py-12 text-center bg-gray-900">
-          <p className="text-gray-400 mb-4">
+        <section className="py-12 text-center bg-primary-dark">
+          <p className="text-white/70 mb-4">
             Also available in Japanese
           </p>
           <Link
             href="/"
-            className="inline-block px-6 py-3 bg-[#c9485b] hover:bg-orange-600 text-white font-bold rounded-full transition-colors"
+            className="inline-block px-6 py-3 bg-rose hover:bg-rose-light text-white font-bold rounded-full transition-colors"
           >
             日本語版を見る
           </Link>

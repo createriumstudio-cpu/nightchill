@@ -219,7 +219,7 @@ export default async function FeatureDetailPage({ params }: PageProps) {
           <div className="relative max-w-3xl mx-auto text-center">
             <Link
               href="/features"
-              className="inline-block text-sm text-gray-400 hover:text-orange-400 mb-6 transition-colors"
+              className="inline-block text-sm text-gray-400 hover:text-accent mb-6 transition-colors"
             >
               ← 特集一覧に戻る
             </Link>
@@ -237,7 +237,7 @@ export default async function FeatureDetailPage({ params }: PageProps) {
             ) : (
               <div className="text-5xl mb-4">{feature.heroEmoji}</div>
             )}
-            <span className="text-xs text-orange-400 font-medium">
+            <span className="text-xs text-accent font-medium">
               {feature.area}エリア特集
             </span>
             <h1 className="text-3xl md:text-4xl font-bold mt-2 mb-3">
@@ -261,7 +261,7 @@ export default async function FeatureDetailPage({ params }: PageProps) {
         {feature.dateGuide && (
           <section className="max-w-3xl mx-auto px-4 pb-6">
             <div className="bg-gray-900/80 border border-gray-700 rounded-2xl p-5">
-              <h3 className="text-sm font-bold text-orange-400 mb-3">📊 このエリアのデートガイド</h3>
+              <h3 className="text-sm font-bold text-accent mb-3">📊 このエリアのデートガイド</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                 <div>
                   <div className="text-xs text-gray-500">エリアタイプ</div>
@@ -321,7 +321,7 @@ export default async function FeatureDetailPage({ params }: PageProps) {
                             </a>
                           </h2>
                           {resolvedRating !== null && (
-                            <span className="inline-flex items-center gap-1 rounded-lg bg-amber-500/20 px-2 py-0.5 text-xs font-semibold text-amber-300">
+                            <span className="inline-flex items-center gap-1 rounded-lg bg-accent/20 px-2 py-0.5 text-xs font-semibold text-accent-light">
                               ⭐ {resolvedRating}
                             </span>
                           )}
@@ -342,11 +342,11 @@ export default async function FeatureDetailPage({ params }: PageProps) {
                     </p>
 
                     {/* Tip */}
-                    <div className="bg-[#c9485b]/10 border border-orange-500/20 rounded-xl p-4 mb-4">
+                    <div className="bg-rose/10 border border-accent/20 rounded-xl p-4 mb-4">
                       <div className="flex items-start gap-2">
-                        <span className="text-orange-400 text-lg">💡</span>
+                        <span className="text-accent text-lg">💡</span>
                         <div>
-                          <div className="text-xs text-orange-400 font-medium mb-1">
+                          <div className="text-xs text-accent font-medium mb-1">
                             デートのコツ
                           </div>
                           <p className="text-sm text-gray-300">{spot.tip}</p>
@@ -360,7 +360,7 @@ export default async function FeatureDetailPage({ params }: PageProps) {
                         href={resolvedGoogleMapsUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-sm text-orange-400 hover:text-orange-300 transition-colors"
+                        className="inline-flex items-center gap-1.5 text-sm text-accent hover:text-accent-light transition-colors"
                       >
                         📍 Google Maps で見る
                       </a>
@@ -389,7 +389,7 @@ export default async function FeatureDetailPage({ params }: PageProps) {
                 href={`https://www.google.com/maps/dir/${encodeURIComponent(feature.spots[0].name + " " + feature.spots[0].area)}/${encodeURIComponent(feature.spots[1].name + " " + feature.spots[1].area)}/`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block mt-3 text-sm text-orange-400 hover:text-orange-300 transition-colors"
+                className="inline-block mt-3 text-sm text-accent hover:text-accent-light transition-colors"
               >
                 📍 ルートを確認する →
               </a>
