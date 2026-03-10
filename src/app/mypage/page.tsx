@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { Suspense, useEffect, useState, useCallback } from "react";
 import { useSession, signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -28,6 +28,14 @@ interface Recommendations {
 }
 
 export default function MyPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-background"><Header /><main className="mx-auto max-w-3xl px-6 pt-28 pb-16 text-center"><div className="animate-spin inline-block w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /><p className="mt-4 text-muted text-sm">読み込み中...</p></main><Footer /></div>}>
+      <MypageContent />
+    </Suspense>
+  );
+}
+
+function MypageContent() {
   const { data: session, status: sessionStatus } = useSession();
   const searchParams = useSearchParams();
   const upgraded = searchParams.get("upgraded") === "true";
