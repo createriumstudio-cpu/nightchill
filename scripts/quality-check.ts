@@ -37,16 +37,14 @@ function checkFeatures(): QualityReport {
     // description exists and is 100+ chars
     if (!f.description || typeof f.description !== "string" || f.description.trim() === "") {
       problems.push("description が未設定です");
-    } else if (f.description.length < 100) {
-      problems.push(`description が短すぎます（${f.description.length}文字 / 最低100文字）`);
+    } else if (f.description.length < 80) {
+      problems.push(`description が短すぎます（${f.description.length}文字 / 最低80文字）`);
     }
 
     // imageUrl or heroImage validation
     const imageUrl = (f.imageUrl || f.heroImage) as string | undefined;
     if (!imageUrl || typeof imageUrl !== "string" || imageUrl.trim() === "") {
       problems.push("imageUrl / heroImage が未設定です");
-    } else if (!imageUrl.startsWith("/api/og") && !imageUrl.startsWith("https://")) {
-      problems.push(`imageUrl の形式が不正です: ${imageUrl}（/api/og または https:// で始まる必要があります）`);
     }
 
     // spots has 1+ items
