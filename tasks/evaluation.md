@@ -59,6 +59,7 @@
 * [x] **短期**: 配色システムの統一（semantic design tokens、WCAG AA準拠、PR #170）
 * [x] **中期**: Stripe課金実装（月額480円、checkout + webhook + portal、PR #171）
 * [x] **長期**: Google Maps連携のルート表示（RouteMapEmbedコンポーネント、APIキー不要のiframe埋め込み、PR #177）
+* [x] **短期**: アクセシビリティ改善（aria-pressed、aria-current、role=dialog、focus-visible、sr-only、PR #179）
 
 ---
 
@@ -84,6 +85,7 @@
 * [x] **今週**: Anthropic/Gemini APIコストアラート設定完了（Anthropic $30/$50、Gemini ¥1,500）
 * [x] **短期**: CIバグ修正（TextDecoder polyfill、PR #156、GitHub Actions全通過）
 * [x] **月次**: 週次コンテンツのサンプル品質チェックを運用フロー化（PR #174、scripts/quality-check.ts + GitHub Actions毎週月曜自動実行 + Resendメール通知）
+* [x] **短期**: SEO構造化データ強化（FAQPage JSON-LD、Article schema改善、BreadcrumbList 3層、PR #179）
 
 ---
 
@@ -109,3 +111,4 @@
 | 2026-03-10 | PR #174 週次コンテンツ品質チェック自動化（scripts/quality-check.ts + GitHub Actions毎週月曜実行 + Resendメール通知） | 管理・運用 8→9（品質チェック運用フロー確立） |
 | 2026-03-10 | PR #175 quality-check.ts の imageUrl 検証緩和・description 閾値を80文字に修正（GitHub Actions 全件パス確認済み） | - |
 | 2026-03-10 | PR #177 X共有テキストに都市名追加（#city形式）、RouteMapEmbedコンポーネント追加（Google Maps iframe、APIキー不要）、partner_venues 6件追加（東京2・大阪2・名古屋2、計12件） | UX スコア現状維持（Google Maps連携ロードマップ完了） |
+| 2026-03-10 | PR #179 SEO構造化データ強化（FAQPage JSON-LD・Article schema・BreadcrumbList 3層）、UXアクセシビリティ改善（aria-pressed/current/dialog/modal、focus-visible、sr-only） | 管理・運用・UX 品質向上（スコア現状維持） |
