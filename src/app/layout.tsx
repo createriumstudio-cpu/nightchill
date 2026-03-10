@@ -3,6 +3,7 @@ import Script from "next/script";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/react";
+import SessionProvider from "@/components/SessionProvider";
 
 const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID;
 
@@ -165,8 +166,12 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgLd) }}
         />
       </head>
-      <body className={`antialiased ${notoSansJP.className}`}>{children}
-          <Analytics /></body>
+      <body className={`antialiased ${notoSansJP.className}`}>
+        <SessionProvider>
+          {children}
+        </SessionProvider>
+        <Analytics />
+      </body>
     </html>
   );
 }
