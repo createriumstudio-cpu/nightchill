@@ -6,6 +6,13 @@ jest.mock("next/navigation", () => ({
   usePathname: () => "/",
 }));
 
+jest.mock("next-auth/react", () => ({
+  useSession: () => ({ data: null, status: "unauthenticated" }),
+  signIn: jest.fn(),
+  signOut: jest.fn(),
+  SessionProvider: ({ children }: { children: React.ReactNode }) => children,
+}));
+
 jest.mock("@/components/WeeklyPicksSection", () => {
   return function MockWeeklyPicksSection() {
     return null;
