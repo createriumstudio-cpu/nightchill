@@ -8,6 +8,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductRecommendation from "@/components/ProductRecommendation";
 import ReservationAffiliate from "@/components/ReservationAffiliate";
+import PremiumBanner from "@/components/PremiumBanner";
 import { type DatePlan } from "@/lib/types";
 import { decodePlan, buildShareUrl } from "@/lib/plan-encoder";
 import type { VenueFactData } from "@/lib/google-places";
@@ -895,6 +896,9 @@ export default function ResultsPage() {
             トップに戻る
           </Link>
         </div>
+
+        {/* Premium Banner — 共有ビューでは非表示 */}
+        {!isSharedView && <PremiumBanner />}
 
       </main>
       <Footer />
