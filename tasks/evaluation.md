@@ -28,7 +28,7 @@
 * [x] **短期**: プラン結果の店舗にアフィリエイトリンク設置（hotpepper 6店舗投入済み、ReservationAffiliateコンポーネント稼働中）
 * [x] **短期**: 特集ページ・プラン結果の店舗にアフィリエイトリンク設置（BlogAffiliate + inferCityFromArea）
 * [x] **中期**: GA4アフィリエイトクリックイベント計測（PR #157、affiliate_clickイベント、venue_name/affiliate_url/click_locationパラメータ）
-* [ ] **中期**: フリーミアム化（プレミアム月額480〜980円、PDF保存・予約リンク付き）
+* [x] **中期**: フリーミアム化（プレミアム月額480円、/premiumページ + PremiumBannerコンポーネント + メール収集、PR #169）
 * [ ] **長期**: 飲食店・ホテルとの直接スポンサー契約
 
 ---
@@ -98,3 +98,5 @@
 | 2026-03-10 | 都市LP WeeklyPicksSection + [city]/features FeatureCard の絵文字フォールバックを/api/og画像に置換（PR #159） | - |
 | 2026-03-10 | メールリード獲得機能追加（PR #163）、Resend futatabito.comドメイン認証DNS設定完了 | マネタイズ 7→8 |
 | 2026-03-10 | PR #165 Google ログイン実装（NextAuth.js v5 / Auth.js）マージ | UX 8→9 |
+| 2026-03-10 | PR #168 Googleログイン×マイページ統合（resolveUserId、アカウントリンク、クロスデバイス履歴同期）、Neon DBマイグレーション完了 | UX スコアは現状維持 |
+| 2026-03-10 | PR #169 フリーミアム化準備（/premiumページ、PremiumBannerコンポーネント、結果画面にバナー追加、メール収集フォーム） | マネタイズ 8→8（準備完了、課金実装待ち） |
