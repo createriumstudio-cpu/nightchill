@@ -58,7 +58,7 @@
 * [x] **中期**: 簡易ログイン機能（Google OAuth）→ NextAuth.js v5 (Auth.js) で実装（PR #165）
 * [x] **短期**: 配色システムの統一（semantic design tokens、WCAG AA準拠、PR #170）
 * [x] **中期**: Stripe課金実装（月額480円、checkout + webhook + portal、PR #171）
-* [ ] **長期**: Google Maps連携のルート表示
+* [x] **長期**: Google Maps連携のルート表示（RouteMapEmbedコンポーネント、APIキー不要のiframe埋め込み、PR #177）
 
 ---
 
@@ -108,3 +108,4 @@
 | 2026-03-10 | PR #172 Stripe課金フロー完成（stripeパッケージ追加、Lintエラー修正、Suspense境界追加でビルドエラー解消） | マネタイズ 8→9（課金フロー完全稼働可能） |
 | 2026-03-10 | PR #174 週次コンテンツ品質チェック自動化（scripts/quality-check.ts + GitHub Actions毎週月曜実行 + Resendメール通知） | 管理・運用 8→9（品質チェック運用フロー確立） |
 | 2026-03-10 | PR #175 quality-check.ts の imageUrl 検証緩和・description 閾値を80文字に修正（GitHub Actions 全件パス確認済み） | - |
+| 2026-03-10 | PR #177 X共有テキストに都市名追加（#city形式）、RouteMapEmbedコンポーネント追加（Google Maps iframe、APIキー不要）、partner_venues 6件追加（東京2・大阪2・名古屋2、計12件） | UX スコア現状維持（Google Maps連携ロードマップ完了） |
