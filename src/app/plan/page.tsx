@@ -216,9 +216,15 @@ function PlanPageContent() {
         </p>
 
         {/* ── Progress Bar ── */}
-        <div className="flex items-center justify-center gap-1 mb-8">
+        <nav aria-label="プラン作成の進捗" className="flex items-center justify-center gap-1 mb-8">
           {[1, 2, 3, 4, 5].map((s) => (
-            <div key={s} className="flex items-center">
+            <div
+              key={s}
+              className="flex items-center"
+              role="listitem"
+              aria-current={s === step ? "step" : undefined}
+              aria-label={`ステップ${s}${s === step ? "（現在）" : s < step ? "（完了）" : ""}`}
+            >
               <div
                 className={`h-2 w-8 sm:w-12 rounded-full transition-colors ${
                   s <= step ? "bg-interactive" : "bg-border"
@@ -226,8 +232,8 @@ function PlanPageContent() {
               />
             </div>
           ))}
-          <span className="ml-2 text-xs text-muted">{step}/{TOTAL_STEPS}</span>
-        </div>
+          <span className="ml-2 text-xs text-muted" aria-live="polite">{step}/{TOTAL_STEPS}</span>
+        </nav>
 
         {/* ── Step Content (min-height to prevent layout shift) ── */}
         <div className="min-h-[420px]">
@@ -375,6 +381,8 @@ function PlanPageContent() {
                         setLocations([]);
                         setCustomLocation("");
                       }}
+                      aria-pressed={cityId === city.id}
+                      aria-label={`都市: ${city.name}`}
                       className={`px-4 py-2 rounded-full text-sm border transition-colors ${
                         cityId === city.id
                           ? "bg-interactive text-interactive-foreground border-interactive"
@@ -401,6 +409,8 @@ function PlanPageContent() {
                       key={area}
                       type="button"
                       onClick={() => toggleLocation(area)}
+                      aria-pressed={locations.includes(area)}
+                      aria-label={`エリア: ${area}`}
                       className={`px-4 py-2 rounded-full text-sm border transition-colors ${
                         locations.includes(area)
                           ? "bg-interactive text-interactive-foreground border-interactive"
@@ -446,6 +456,7 @@ function PlanPageContent() {
                       key={value}
                       type="button"
                       onClick={() => setRelationship(value)}
+                      aria-pressed={relationship === value}
                       className={`w-full px-4 py-4 rounded-xl border text-left transition-colors ${
                         relationship === value
                           ? "bg-interactive-light border-interactive text-foreground"
@@ -475,6 +486,7 @@ function PlanPageContent() {
                         key={value}
                         type="button"
                         onClick={() => toggleActivity(value)}
+                        aria-pressed={activities.includes(value)}
                         className={`px-4 py-2 rounded-full text-sm border transition-colors ${
                           activities.includes(value)
                             ? "bg-interactive text-interactive-foreground border-interactive"
@@ -497,6 +509,7 @@ function PlanPageContent() {
                         key={value}
                         type="button"
                         onClick={() => setMood(value)}
+                        aria-pressed={mood === value}
                         className={`px-4 py-2 rounded-full text-sm border transition-colors ${
                           mood === value
                             ? "bg-interactive text-interactive-foreground border-interactive"
@@ -526,6 +539,7 @@ function PlanPageContent() {
                         key={value}
                         type="button"
                         onClick={() => setBudget(value)}
+                        aria-pressed={budget === value}
                         className={`px-4 py-3 rounded-xl text-sm border transition-colors ${
                           budget === value
                             ? "bg-interactive-light border-interactive text-foreground"
@@ -553,6 +567,7 @@ function PlanPageContent() {
                         key={value}
                         type="button"
                         onClick={() => setAgeGroup(value)}
+                        aria-pressed={ageGroup === value}
                         className={`px-4 py-3 rounded-xl text-sm border transition-colors ${
                           ageGroup === value
                             ? "bg-interactive-light border-interactive text-foreground"
@@ -638,15 +653,21 @@ function PlanPageContent() {
 
       {/* Loading overlay with email signup */}
       {isLoading && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/95 backdrop-blur-sm">
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-background/95 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="loading-title"
+        >
           <div className="max-w-sm mx-auto px-6 text-center">
             <div className="mb-6">
-              <svg className="animate-spin h-10 w-10 mx-auto text-interactive" viewBox="0 0 24 24">
+              <svg className="animate-spin h-10 w-10 mx-auto text-interactive" viewBox="0 0 24 24" aria-hidden="true">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
+              <span className="sr-only">読み込み中</span>
             </div>
-            <h2 className="text-xl font-bold mb-2">
+            <h2 id="loading-title" className="text-xl font-bold mb-2">
               プランを生成しています...
             </h2>
             <p className="text-sm text-muted mb-8">

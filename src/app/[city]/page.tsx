@@ -108,6 +108,12 @@ export default async function CityLandingPage({ params }: PageProps) {
       {
         "@type": "ListItem",
         position: 2,
+        name: "都市一覧",
+        item: `${siteUrl}/#cities`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
         name: `${city.name}のデートプラン`,
         item: pageUrl,
       },

@@ -190,12 +190,52 @@ function WeeklyPicksLoading() {
   );
 }
 
+const faqs = [
+  {
+    question: "futatabitoとは何ですか？",
+    answer:
+      "futatabitoは、AIがデートプランを自動生成するサービスです。全国10都市に対応し、実在する店舗のみを使った時間配分付きのプランを30秒で提案します。",
+  },
+  {
+    question: "利用料金はかかりますか？",
+    answer:
+      "基本機能は完全無料でご利用いただけます。登録も不要で、すぐにデートプランを作成できます。",
+  },
+  {
+    question: "どの都市に対応していますか？",
+    answer:
+      "東京、横浜、大阪、京都、名古屋、福岡、金沢、神戸、仙台、広島の全国10都市に対応しています。",
+  },
+  {
+    question: "プラン生成にどのくらい時間がかかりますか？",
+    answer:
+      "約30秒で完成します。AIがお店選び・時間配分・移動ルートまでまるっと提案します。",
+  },
+];
+
 export default function Home() {
+  const faqLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer,
+      },
+    })),
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <JsonLd type="website" />
       <JsonLd type="organization" />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
+      />
 
       {/* Hero */}
       <section className="relative flex min-h-[80vh] md:min-h-screen items-end justify-center overflow-hidden px-4 md:px-6 pb-12 md:pb-24">
@@ -412,6 +452,33 @@ export default function Home() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="bg-surface px-6 py-24">
+        <div className="mx-auto max-w-3xl">
+          <div className="text-center">
+            <p className="text-sm font-semibold tracking-widest text-accent uppercase">
+              FAQ
+            </p>
+            <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
+              よくある質問
+            </h2>
+          </div>
+          <dl className="mt-12 space-y-6">
+            {faqs.map((faq) => (
+              <div
+                key={faq.question}
+                className="rounded-2xl border border-border bg-background p-6"
+              >
+                <dt className="text-base font-semibold">{faq.question}</dt>
+                <dd className="mt-2 text-sm leading-relaxed text-muted">
+                  {faq.answer}
+                </dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </section>
 

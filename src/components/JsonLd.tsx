@@ -10,9 +10,11 @@ interface JsonLdProps {
   description?: string;
   url?: string;
   image?: string;
+  datePublished?: string;
+  dateModified?: string;
 }
 
-export default function JsonLd({ type = "website", title, description, url, image }: JsonLdProps) {
+export default function JsonLd({ type = "website", title, description, url, image, datePublished, dateModified }: JsonLdProps) {
   const baseData = {
     "@context": "https://schema.org",
   };
@@ -43,6 +45,13 @@ export default function JsonLd({ type = "website", title, description, url, imag
       url: url || siteUrl,
       image: image || `${siteUrl}/api/og`,
       inLanguage: "ja",
+      ...(datePublished && { datePublished }),
+      ...(dateModified && { dateModified }),
+      author: {
+        "@type": "Organization",
+        name: "futatabito",
+        url: siteUrl,
+      },
       publisher: {
         "@type": "Organization",
         name: "futatabito",
