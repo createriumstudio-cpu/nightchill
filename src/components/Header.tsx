@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import AuthButton from "@/components/AuthButton";
 import { useState } from "react";
 
 export default function Header() {
@@ -41,19 +42,16 @@ export default function Header() {
             使い方
           </Link>
           <Link
-            href="/mypage"
-            className="text-sm text-muted transition-colors hover:text-foreground"
-          >
-            マイページ
-          </Link>
-          <Link
             href="/plan"
             className="rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-dark"
           >
             デートを計画する
           </Link>
         </nav>
-            <div className="hidden md:block"><LanguageSwitcher /></div>
+        <div className="hidden items-center gap-3 md:flex">
+          <LanguageSwitcher />
+          <AuthButton />
+        </div>
 
         <button
           className="flex flex-col gap-1.5 md:hidden"
@@ -104,20 +102,16 @@ export default function Header() {
               使い方
             </Link>
             <Link
-              href="/mypage"
-              className="text-sm text-muted transition-colors hover:text-foreground"
-              onClick={() => setMenuOpen(false)}
-            >
-              マイページ
-            </Link>
-            <Link
               href="/plan"
               className="rounded-full bg-primary px-5 py-2 text-center text-sm font-medium text-primary-foreground transition-colors hover:bg-primary-dark"
               onClick={() => setMenuOpen(false)}
             >
               デートを計画する
-              <div className="mt-4 flex justify-center"><LanguageSwitcher /></div>
             </Link>
+            <div className="flex items-center justify-between pt-2">
+              <AuthButton />
+              <LanguageSwitcher />
+            </div>
           </div>
         </nav>
       )}

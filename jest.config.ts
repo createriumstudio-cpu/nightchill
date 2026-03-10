@@ -13,4 +13,11 @@ const config: Config = {
   },
 };
 
-export default createJestConfig(config);
+export default async () => {
+  const jestConfig = await createJestConfig(config)();
+  // next-auth v5 と @auth/core は ESM なので Jest で変換が必要
+  jestConfig.transformIgnorePatterns = [
+    "/node_modules/(?!(next-auth|@auth)/)",
+  ];
+  return jestConfig;
+};
