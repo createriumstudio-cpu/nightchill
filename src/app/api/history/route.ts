@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { getUserIdFromRequest } from "@/lib/user-auth";
+import { resolveUserId } from "@/lib/user-auth";
 import { saveToHistory, getHistory, deleteHistoryEntry } from "@/lib/date-history";
 
 /**
  * GET /api/history — デート履歴一覧取得
  */
 export async function GET(request: Request) {
-  const anonId = getUserIdFromRequest(request);
+  const anonId = await resolveUserId(request);
   if (!anonId) {
     return NextResponse.json({ error: "未認証" }, { status: 401 });
   }
@@ -24,7 +24,7 @@ export async function GET(request: Request) {
  * POST /api/history — デート履歴を保存
  */
 export async function POST(request: Request) {
-  const anonId = getUserIdFromRequest(request);
+  const anonId = await resolveUserId(request);
   if (!anonId) {
     return NextResponse.json({ error: "未認証" }, { status: 401 });
   }
@@ -56,7 +56,7 @@ export async function POST(request: Request) {
  * DELETE /api/history — 履歴エントリ削除
  */
 export async function DELETE(request: Request) {
-  const anonId = getUserIdFromRequest(request);
+  const anonId = await resolveUserId(request);
   if (!anonId) {
     return NextResponse.json({ error: "未認証" }, { status: 401 });
   }

@@ -196,10 +196,13 @@ export const emailSignups = pgTable("email_signups", {
 
 // ── Phase 5: リピーター獲得 ──
 
-// Users (匿名ユーザー — Cookie-based)
+// Users (匿名ユーザー — Cookie-based + Google OAuth リンク)
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   anonId: varchar("anon_id", { length: 100 }).notNull().unique(),
+  googleId: varchar("google_id", { length: 255 }).unique(),
+  email: varchar("email", { length: 255 }),
+  name: varchar("name", { length: 200 }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   lastSeenAt: timestamp("last_seen_at", { withTimezone: true }).defaultNow(),
 });
