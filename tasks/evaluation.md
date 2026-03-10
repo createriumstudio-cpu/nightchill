@@ -29,6 +29,7 @@
 * [x] **短期**: 特集ページ・プラン結果の店舗にアフィリエイトリンク設置（BlogAffiliate + inferCityFromArea）
 * [x] **中期**: GA4アフィリエイトクリックイベント計測（PR #157、affiliate_clickイベント、venue_name/affiliate_url/click_locationパラメータ）
 * [x] **中期**: フリーミアム化（プレミアム月額480円、/premiumページ + PremiumBannerコンポーネント + メール収集、PR #169）
+* [x] **中期**: Stripe課金フロー実装（月額480円サブスクリプション、checkout + webhook + portal、PR #171）
 * [ ] **長期**: 飲食店・ホテルとの直接スポンサー契約
 
 ---
@@ -56,6 +57,7 @@
 * [x] **中期**: 特集カード画像の補完（/api/og生成画像でフォールバック置換、PR #153 + PR #159で都市LP・WeeklyPicksSectionも対応完了）
 * [x] **中期**: 簡易ログイン機能（Google OAuth）→ NextAuth.js v5 (Auth.js) で実装（PR #165）
 * [x] **短期**: 配色システムの統一（semantic design tokens、WCAG AA準拠、PR #170）
+* [x] **中期**: Stripe課金実装（月額480円、checkout + webhook + portal、PR #171）
 * [ ] **長期**: Google Maps連携のルート表示
 
 ---
@@ -102,3 +104,4 @@
 | 2026-03-10 | PR #168 Googleログイン×マイページ統合（resolveUserId、アカウントリンク、クロスデバイス履歴同期）、Neon DBマイグレーション完了 | UX スコアは現状維持 |
 | 2026-03-10 | PR #169 フリーミアム化準備（/premiumページ、PremiumBannerコンポーネント、結果画面にバナー追加、メール収集フォーム） | マネタイズ 8→8（準備完了、課金実装待ち） |
 | 2026-03-10 | PR #170 配色・視認性の全面見直し（22ファイル変更、テーマシステム拡張、ハードコード色の完全排除、ダークモード対応改善） | UX 9→9（視認性・デザイン品質向上） |
+| 2026-03-10 | PR #171 Stripe課金フロー実装（/api/stripe/checkout・webhook・portal、プレミアムバッジ、マイページ統合、PremiumBanner出し分け） | マネタイズ 8→8（課金基盤完成、Stripe有効化待ち） |
