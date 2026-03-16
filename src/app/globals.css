@@ -176,3 +176,55 @@ html {
 html {
   scroll-behavior: smooth;
 }
+
+/* Print styles */
+@media print {
+  /* Hide non-essential elements */
+  header,
+  footer,
+  nav,
+  .print-hidden,
+  [class*="PremiumBanner"],
+  [class*="ProductRecommendation"],
+  [class*="ReservationAffiliate"] {
+    display: none !important;
+  }
+
+  /* Clean background and text */
+  :root {
+    --background: #ffffff;
+    --foreground: #000000;
+    --surface: #ffffff;
+    --border: #cccccc;
+    --muted: #555555;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 12pt;
+  }
+
+  main {
+    padding-top: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* Remove shadows and decorative elements */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* Ensure links are visible */
+  a {
+    color: #000000 !important;
+    text-decoration: underline;
+  }
+
+  /* Avoid page breaks inside cards */
+  .rounded-2xl,
+  .rounded-xl {
+    break-inside: avoid;
+  }
+}

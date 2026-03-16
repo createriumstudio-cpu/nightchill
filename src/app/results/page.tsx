@@ -864,7 +864,7 @@ export default function ResultsPage() {
             </div>
           )}
 
-          <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+          <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center flex-wrap">
             <button
               onClick={handleCopyText}
               className="flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-medium transition-all hover:border-primary/50 hover:bg-primary/5"
@@ -882,6 +882,12 @@ export default function ResultsPage() {
               className="flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background transition-opacity hover:opacity-90"
             >
               Xでシェア
+            </button>
+            <button
+              onClick={() => window.print()}
+              className="print-hidden flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-medium transition-all hover:border-primary/50 hover:bg-primary/5"
+            >
+              🖨️ プランを印刷
             </button>
           </div>
         </section>
