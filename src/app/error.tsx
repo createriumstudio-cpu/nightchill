@@ -1,13 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
-export default function ErrorPage({
-  reset,
-}: {
-  error: Error & { digest?: string };
-  reset: () => void;
-}) {
+function ErrorContent({ reset }: { reset: () => void }) {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6">
       <div className="text-center">
@@ -22,7 +18,7 @@ export default function ErrorPage({
             onClick={reset}
             className="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-dark"
           >
-            もう一度試す
+            再読み込み
           </button>
           <Link
             href="/"
@@ -33,5 +29,18 @@ export default function ErrorPage({
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ErrorPage({
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  return (
+    <ErrorBoundary>
+      <ErrorContent reset={reset} />
+    </ErrorBoundary>
   );
 }
