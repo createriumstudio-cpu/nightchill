@@ -54,7 +54,7 @@ export default async function WeeklyPicksSection() {
                       fill
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      unoptimized
+                      unoptimized={imageUrl.startsWith("/api/")}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                     <span className="absolute top-2 left-2 inline-block text-[10px] font-semibold text-primary-foreground bg-primary rounded-full px-2 py-0.5">

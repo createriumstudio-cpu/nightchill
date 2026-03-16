@@ -3,24 +3,62 @@
 import Link from "next/link";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import AuthButton from "@/components/AuthButton";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   const closeMenu = useCallback(() => setMenuOpen(false), []);
 
-  // Close mobile menu on Escape key
+  // Close mobile menu on Escape key + focus trap
   useEffect(() => {
     if (!menuOpen) return;
+
+    // Lock body scroll when menu is open
+    document.body.style.overflow = "hidden";
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeMenu();
+      if (e.key === "Escape") {
+        closeMenu();
+        menuButtonRef.current?.focus();
+        return;
+      }
+
+      // Focus trap within mobile menu
+      if (e.key === "Tab" && menuRef.current) {
+        const focusable = menuRef.current.querySelectorAll<HTMLElement>(
+          'a, button, [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     };
     document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
+    };
   }, [menuOpen, closeMenu]);
 
   return (
+    <>
+    {/* Skip to content link */}
+    <a
+      href="#main-content"
+      className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[60] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:text-sm focus:font-medium"
+    >
+      メインコンテンツへスキップ
+    </a>
     <header className="fixed top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <Link href="/" className="text-xl font-bold tracking-tight">
@@ -66,6 +104,7 @@ export default function Header() {
         </div>
 
         <button
+          ref={menuButtonRef}
           className="flex flex-col gap-1.5 md:hidden"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="メニュー"
@@ -85,7 +124,7 @@ export default function Header() {
       </div>
 
       {menuOpen && (
-        <nav id="mobile-nav" className="border-t border-border bg-background px-6 py-4 md:hidden" aria-label="モバイルメニュー">
+        <nav ref={menuRef} id="mobile-nav" className="border-t border-border bg-background px-6 py-4 md:hidden" aria-label="モバイルメニュー">
           <div className="flex flex-col gap-4">
             <Link
               href="/#features"
@@ -130,5 +169,6 @@ export default function Header() {
         </nav>
       )}
     </header>
+    </>
   );
 }

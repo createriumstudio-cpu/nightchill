@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface ProductRec {
   id: number;
@@ -20,6 +21,26 @@ interface Props {
   budget: string;
 }
 
+function ProductSkeleton() {
+  return (
+    <section className="mt-8 rounded-2xl border border-border bg-surface-alt p-6 animate-pulse">
+      <div className="h-4 w-48 rounded bg-muted/20 mb-4" />
+      <div className="grid gap-4 sm:grid-cols-2">
+        {[1, 2].map((i) => (
+          <div key={i} className="flex items-start gap-4 rounded-xl border border-border bg-surface p-4">
+            <div className="w-16 h-16 rounded-lg bg-muted/20 shrink-0" />
+            <div className="flex-1 space-y-2">
+              <div className="h-3 w-20 rounded bg-muted/20" />
+              <div className="h-4 w-full rounded bg-muted/20" />
+              <div className="h-3 w-16 rounded bg-muted/20" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 /**
  * デートプラン結果画面に表示するコンテキスト連動型商品レコメンド
  *
@@ -28,6 +49,7 @@ interface Props {
  */
 export default function ProductRecommendation({ occasion, mood, budget }: Props) {
   const [products, setProducts] = useState<ProductRec[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const params = new URLSearchParams({ occasion, mood, budget, limit: "2" });
@@ -38,9 +60,11 @@ export default function ProductRecommendation({ occasion, mood, budget }: Props)
           setProducts(data);
         }
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, [occasion, mood, budget]);
 
+  if (loading) return <ProductSkeleton />;
   if (products.length === 0) return null;
 
   return (
@@ -56,12 +80,15 @@ export default function ProductRecommendation({ occasion, mood, budget }: Props)
             className="group flex items-start gap-4 rounded-xl border border-border bg-surface p-4 transition-all hover:border-accent/50 hover:shadow-md"
           >
             {product.imageUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={product.imageUrl}
-                alt={product.name}
-                className="w-16 h-16 rounded-lg object-cover shrink-0"
-              />
+              <div className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0">
+                <Image
+                  src={product.imageUrl}
+                  alt={product.name}
+                  fill
+                  className="object-cover"
+                  sizes="64px"
+                />
+              </div>
             ) : (
               <div className="w-16 h-16 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
                 <span className="text-2xl">🎁</span>

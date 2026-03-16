@@ -230,6 +230,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      <main id="main-content">
       <JsonLd type="website" />
       <JsonLd type="organization" />
       <script
@@ -348,7 +349,30 @@ export default function Home() {
       </section>
 
       {/* Latest Blog Posts */}
-      <Suspense fallback={null}>
+      <Suspense fallback={
+        <section className="px-6 py-16">
+          <div className="mx-auto max-w-6xl">
+            <div className="text-center">
+              <p className="text-sm font-semibold tracking-widest text-accent uppercase">Blog</p>
+              <h2 className="mt-2 text-2xl font-bold tracking-tight md:text-3xl">最新のブログ記事</h2>
+            </div>
+            <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="rounded-2xl border border-border bg-surface p-6 animate-pulse">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="h-5 w-16 rounded-full bg-muted/20" />
+                    <div className="h-3 w-20 rounded bg-muted/20" />
+                  </div>
+                  <div className="h-5 w-full rounded bg-muted/20 mb-2" />
+                  <div className="h-5 w-3/4 rounded bg-muted/20 mb-3" />
+                  <div className="h-3 w-full rounded bg-muted/20 mb-1" />
+                  <div className="h-3 w-2/3 rounded bg-muted/20" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      }>
         <LatestBlogPosts />
       </Suspense>
 
@@ -503,6 +527,7 @@ export default function Home() {
         </div>
       </section>
 
+      </main>
       <Footer />
     </div>
   );

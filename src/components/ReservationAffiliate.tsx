@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { getProviderLabel } from "@/lib/affiliate";
 import { trackAffiliateClick } from "@/lib/gtag";
 
@@ -24,6 +25,27 @@ interface Props {
   mood: string;
 }
 
+function AffiliateSkeleton() {
+  return (
+    <section className="mt-8 rounded-2xl border border-border bg-surface-alt p-6 animate-pulse">
+      <div className="h-4 w-44 rounded bg-muted/20 mb-4" />
+      <div className="grid gap-4 sm:grid-cols-2">
+        {[1, 2].map((i) => (
+          <div key={i} className="rounded-xl border border-border bg-surface overflow-hidden">
+            <div className="w-full h-32 bg-muted/20" />
+            <div className="p-4 space-y-2">
+              <div className="h-3 w-24 rounded bg-muted/20" />
+              <div className="h-4 w-full rounded bg-muted/20" />
+              <div className="h-3 w-3/4 rounded bg-muted/20" />
+              <div className="h-8 w-28 rounded-full bg-muted/20 mt-3" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 /**
  * デートプラン結果画面に表示する予約アフィリエイトレコメンド
  *
@@ -32,6 +54,7 @@ interface Props {
  */
 export default function ReservationAffiliate({ city, occasion, mood }: Props) {
   const [venues, setVenues] = useState<AffiliateVenueData[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const params = new URLSearchParams({ city, occasion, mood, limit: "2" });
@@ -42,9 +65,11 @@ export default function ReservationAffiliate({ city, occasion, mood }: Props) {
           setVenues(data);
         }
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, [city, occasion, mood]);
 
+  if (loading) return <AffiliateSkeleton />;
   if (venues.length === 0) return null;
 
   return (
@@ -59,12 +84,15 @@ export default function ReservationAffiliate({ city, occasion, mood }: Props) {
             className="group flex flex-col rounded-xl border border-border bg-surface overflow-hidden transition-all hover:border-accent/50 hover:shadow-md"
           >
             {venue.imageUrl && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={venue.imageUrl}
-                alt={venue.name}
-                className="w-full h-32 object-cover"
-              />
+              <div className="relative w-full h-32">
+                <Image
+                  src={venue.imageUrl}
+                  alt={venue.name}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 640px) 100vw, 50vw"
+                />
+              </div>
             )}
             <div className="flex-1 p-4">
               <p className="text-xs text-accent mb-1">

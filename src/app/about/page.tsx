@@ -17,9 +17,9 @@ export default function AboutPage() {
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950">
+      <main id="main-content" className="min-h-screen bg-gradient-to-b from-primary-dark via-background to-primary-dark">
         <div className="max-w-3xl mx-auto px-4 py-16 sm:py-24">
-          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-8">
+          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-8">
             futatabito について
           </h1>
 
@@ -27,7 +27,7 @@ export default function AboutPage() {
             <h2 className="text-xl font-semibold text-accent mb-4">
               コンセプト
             </h2>
-            <div className="text-gray-300 space-y-4 leading-relaxed">
+            <div className="text-muted space-y-4 leading-relaxed">
               <p>
                 futatabito（ふたたびと）は、全国10都市対応のデートプランAIです。ふたりの時間を、もっと特別に。デートの&quot;どこ行く？&quot;を、30秒で解決します。
               </p>
@@ -44,7 +44,7 @@ export default function AboutPage() {
             <h2 className="text-xl font-semibold text-accent mb-4">
               提供コンテンツ
             </h2>
-            <div className="text-gray-300 space-y-4 leading-relaxed">
+            <div className="text-muted space-y-4 leading-relaxed">
               <p>
                 東京・横浜・大阪・京都・名古屋・福岡・金沢・神戸・仙台・広島の全国10都市に対応。各都市のエリアに最適なデートプランをAIが提案します。
               </p>
@@ -58,16 +58,16 @@ export default function AboutPage() {
             <h2 className="text-xl font-semibold text-accent mb-4">
               運営者情報
             </h2>
-            <div className="text-gray-300 space-y-3 leading-relaxed">
+            <div className="text-muted space-y-3 leading-relaxed">
               <p>
-                <span className="text-gray-400">運営:</span>{" "}
+                <span className="text-muted/70">運営:</span>{" "}
                 createriumstudio
               </p>
               <p>
-                <span className="text-gray-400">所在地:</span> 東京都
+                <span className="text-muted/70">所在地:</span> 東京都
               </p>
               <p>
-                <span className="text-gray-400">メール:</span>{" "}
+                <span className="text-muted/70">メール:</span>{" "}
                 <a
                   href="mailto:createriumstudio@gmail.com"
                   className="text-accent hover:text-accent-light underline"
@@ -82,7 +82,7 @@ export default function AboutPage() {
             <h2 className="text-xl font-semibold text-accent mb-4">
               情報の正確性について
             </h2>
-            <div className="text-gray-300 space-y-4 leading-relaxed">
+            <div className="text-muted space-y-4 leading-relaxed">
               <p>
                 掲載している店舗情報は、Google Places APIから取得したデータに基づいています。営業時間・定休日・価格帯などは変更される可能性がありますので、ご来店前に公式サイト等で最新情報をご確認ください。
               </p>
@@ -96,7 +96,7 @@ export default function AboutPage() {
             <h2 className="text-xl font-semibold text-accent mb-4">
               広告・PR表記について
             </h2>
-            <div className="text-gray-300 space-y-4 leading-relaxed">
+            <div className="text-muted space-y-4 leading-relaxed">
               <p>
                 当サイトでは、記事の文脈に沿った形でのPR情報を掲載する場合があります。その際は必ず「PR」と明記し、読者の皆さまに誤解を与えないよう配慮しています。
               </p>
