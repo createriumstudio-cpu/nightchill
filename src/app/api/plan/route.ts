@@ -5,12 +5,13 @@ import { generateGeminiPlan } from "@/lib/gemini-planner";
 import { savePlan } from "@/lib/plans";
 import { saveToHistory } from "@/lib/date-history";
 import { getUserIdFromRequest } from "@/lib/user-auth";
-import type { PlanRequest, DatePlan, Mood, Budget, AgeGroup } from "@/lib/types";
+import type { PlanRequest, DatePlan, Activity, Mood, Budget, AgeGroup } from "@/lib/types";
 import { CITY_IDS, getCityById } from "@/lib/cities";
 import { batchSearchVenuesWithGemini } from "@/lib/gemini-search";
 import type { VenueFactData } from "@/lib/google-places";
 import { getWalkingRoute } from "@/lib/google-maps";
 
+const validActivities: Activity[] = ["birthday", "anniversary", "lunch", "dinner", "cafe", "shopping", "active", "nightlife", "chill", "travel"];
 const validMoods: Mood[] = ["romantic", "fun", "relaxed", "luxurious", "adventurous"];
 const validBudgets: Budget[] = ["low", "medium", "high", "unlimited"];
 const validAgeGroups: AgeGroup[] = ["under-20", "20-plus"];
@@ -130,6 +131,15 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
+    const sanitizedActivities = (body.activities as string[]).filter(
+      (a): a is Activity => validActivities.includes(a as Activity),
+    );
+    if (sanitizedActivities.length === 0) {
+      return NextResponse.json(
+        { error: "有効なやりたいことを1つ以上選択してください" },
+        { status: 400 },
+      );
+    }
     if (!body.mood || !validMoods.includes(body.mood)) {
       return NextResponse.json(
         { error: "雰囲気を選択してください" },
@@ -160,7 +170,7 @@ export async function POST(request: Request) {
       city: cityId,
       location: sanitizeText(body.location || "", 50),
       relationship: body.relationship || "lover",
-      activities: body.activities,
+      activities: sanitizedActivities,
       mood: body.mood,
       budget: body.budget,
       ageGroup: body.ageGroup,
