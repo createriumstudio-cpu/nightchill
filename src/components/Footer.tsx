@@ -8,8 +8,8 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Brand */}
           <div className="md:col-span-1">
-            <Link href="/" className="text-xl font-bold">
-              <span className="text-accent">futa</span><span className="text-white">tabito</span>
+            <Link href="/" className="text-xl font-bold tracking-tight">
+              <span className="text-[#c9a96e]">futa</span><span className="text-white">tabito</span>
             </Link>
             <p className="mt-2 text-sm text-white/70">
               全国10都市対応のデートプランAI
