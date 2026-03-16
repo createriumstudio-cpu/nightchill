@@ -30,6 +30,7 @@
 * [x] **中期**: GA4アフィリエイトクリックイベント計測（PR #157、affiliate_clickイベント、venue_name/affiliate_url/click_locationパラメータ）
 * [x] **中期**: フリーミアム化（プレミアム月額480円、/premiumページ + PremiumBannerコンポーネント + メール収集、PR #169）
 * [x] **中期**: Stripe課金フロー実装（月額480円サブスクリプション、checkout + webhook + portal、PR #171 + PR #172）
+* [x] **短期**: 特集コンテンツ拡充（北新地ナイトデート・栄カップルディナー・目黒川お花見デート、全国10都市カバー率向上、PR #181）
 * [ ] **長期**: 飲食店・ホテルとの直接スポンサー契約
 
 ---
@@ -60,6 +61,7 @@
 * [x] **中期**: Stripe課金実装（月額480円、checkout + webhook + portal、PR #171）
 * [x] **長期**: Google Maps連携のルート表示（RouteMapEmbedコンポーネント、APIキー不要のiframe埋め込み、PR #177）
 * [x] **短期**: アクセシビリティ改善（aria-pressed、aria-current、role=dialog、focus-visible、sr-only、PR #179）
+* [x] **短期**: プラン結果の印刷機能（@media print、ヘッダー/フッター非表示、背景白・テキスト黒、PR #181）
 
 ---
 
@@ -112,3 +114,4 @@
 | 2026-03-10 | PR #175 quality-check.ts の imageUrl 検証緩和・description 閾値を80文字に修正（GitHub Actions 全件パス確認済み） | - |
 | 2026-03-10 | PR #177 X共有テキストに都市名追加（#city形式）、RouteMapEmbedコンポーネント追加（Google Maps iframe、APIキー不要）、partner_venues 6件追加（東京2・大阪2・名古屋2、計12件） | UX スコア現状維持（Google Maps連携ロードマップ完了） |
 | 2026-03-10 | PR #179 SEO構造化データ強化（FAQPage JSON-LD・Article schema・BreadcrumbList 3層）、UXアクセシビリティ改善（aria-pressed/current/dialog/modal、focus-visible、sr-only） | 管理・運用・UX 品質向上（スコア現状維持） |
+| 2026-03-16 | PR #181 特集3件追加（北新地・栄・目黒川お花見）、プラン結果の印刷機能追加（@media print） | UX・マネタイズ品質向上（スコア現状維持） |
