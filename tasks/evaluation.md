@@ -116,3 +116,4 @@
 | 2026-03-10 | PR #179 SEO構造化データ強化（FAQPage JSON-LD・Article schema・BreadcrumbList 3層）、UXアクセシビリティ改善（aria-pressed/current/dialog/modal、focus-visible、sr-only） | 管理・運用・UX 品質向上（スコア現状維持） |
 | 2026-03-16 | PR #181 特集3件追加（北新地・栄・目黒川お花見）、プラン結果の印刷機能追加（@media print） | UX・マネタイズ品質向上（スコア現状維持） |
 | 2026-03-16 | PR #183 パフォーマンス・品質・UX改善（画像AVIF/WebP最適化、React.lazy遅延読み込み、スケルトンローディングUI、プログレスバー付きローディング、アクセシビリティ改善、prefers-reduced-motion対応、CSS最適化） | UX・管理運用品質向上（スコア現状維持） |
+| 2026-03-16 | PR #185 エラーハンドリング強化（カスタム404ページ、ErrorBoundaryコンポーネント、エラーページ、テスト12件追加） | UX品質向上（スコア現状維持） |
