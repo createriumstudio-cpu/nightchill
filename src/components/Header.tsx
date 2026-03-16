@@ -3,10 +3,22 @@
 import Link from "next/link";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import AuthButton from "@/components/AuthButton";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
+
+  // Close mobile menu on Escape key
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeMenu();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [menuOpen, closeMenu]);
 
   return (
     <header className="fixed top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
@@ -57,6 +69,8 @@ export default function Header() {
           className="flex flex-col gap-1.5 md:hidden"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="メニュー"
+          aria-expanded={menuOpen}
+          aria-controls="mobile-nav"
         >
           <span
             className={`block h-0.5 w-6 bg-foreground transition-transform ${menuOpen ? "translate-y-2 rotate-45" : ""}`}
@@ -71,7 +85,7 @@ export default function Header() {
       </div>
 
       {menuOpen && (
-        <nav className="border-t border-border bg-background px-6 py-4 md:hidden">
+        <nav id="mobile-nav" className="border-t border-border bg-background px-6 py-4 md:hidden" aria-label="モバイルメニュー">
           <div className="flex flex-col gap-4">
             <Link
               href="/#features"

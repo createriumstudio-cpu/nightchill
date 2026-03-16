@@ -1,19 +1,21 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo, lazy, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import ProductRecommendation from "@/components/ProductRecommendation";
-import ReservationAffiliate from "@/components/ReservationAffiliate";
-import PremiumBanner from "@/components/PremiumBanner";
-import RouteMapEmbed from "@/components/RouteMapEmbed";
 import { type DatePlan } from "@/lib/types";
 import { decodePlan, buildShareUrl } from "@/lib/plan-encoder";
 import type { VenueFactData } from "@/lib/google-places";
 import { getCityById } from "@/lib/cities";
+
+// Lazy load below-fold components for faster initial render
+const ProductRecommendation = lazy(() => import("@/components/ProductRecommendation"));
+const ReservationAffiliate = lazy(() => import("@/components/ReservationAffiliate"));
+const PremiumBanner = lazy(() => import("@/components/PremiumBanner"));
+const RouteMapEmbed = lazy(() => import("@/components/RouteMapEmbed"));
 
 // ============================================================
 // sessionStorage ヘルパー
@@ -621,53 +623,67 @@ export default function ResultsPage() {
     window.open(url, "_blank", "noopener,noreferrer");
   }, [plan, shareUrl, planContext, location]);
 
+  // Venue matching: timeline.venue -> VenueFactData (3段階マッチング)
+  // useMemo で毎レンダー時の O(N*M) 再計算を防止
+  const { venueIndexMap, matchedVenueMap } = useMemo(() => {
+    if (!plan) return { venueIndexMap: new Map<string, number>(), matchedVenueMap: new Map<string, VenueFactData | null>() };
+
+    const tokenize = (s: string): string[] =>
+      s.toLowerCase().split(/[\s\-・／/()（）,、。]+/).filter(t => t.length > 0);
+
+    const findMatch = (venueName: string, positionIndex: number, venues: VenueFactData[]): VenueFactData | null => {
+      if (!venueName) return null;
+      const lower = venueName.toLowerCase();
+
+      const includesMatch = venues.find((v) => {
+        const vLower = v.name.toLowerCase();
+        return vLower.includes(lower) || lower.includes(vLower);
+      });
+      if (includesMatch) return includesMatch;
+
+      const nameTokens = tokenize(venueName);
+      const tokenMatch = venues.find((v) => {
+        const vTokens = tokenize(v.name);
+        const common = nameTokens.filter(t => vTokens.includes(t));
+        return common.length >= 2 && (common.length / Math.min(nameTokens.length, vTokens.length)) >= 0.5;
+      });
+      if (tokenMatch) return tokenMatch;
+
+      if (positionIndex < venues.length) return venues[positionIndex];
+      return null;
+    };
+
+    const idxMap = new Map<string, number>();
+    let counter = 0;
+    for (const item of plan.timeline) {
+      if (item.venue && !idxMap.has(item.venue)) {
+        idxMap.set(item.venue, counter++);
+      }
+    }
+
+    const matchMap = new Map<string, VenueFactData | null>();
+    if (plan.venues) {
+      for (const item of plan.timeline) {
+        if (item.venue && !matchMap.has(item.venue)) {
+          const idx = idxMap.get(item.venue) ?? 0;
+          matchMap.set(item.venue, findMatch(item.venue, idx, plan.venues));
+        }
+      }
+    }
+
+    return { venueIndexMap: idxMap, matchedVenueMap: matchMap };
+  }, [plan]);
+
+  const findMatchingVenue = (venueName: string): VenueFactData | null => {
+    return matchedVenueMap.get(venueName) ?? null;
+  };
+
   if (!plan) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <p className="text-muted">読み込み中...</p>
       </div>
     );
-  }
-
-  // Venue matching: timeline.venue -> VenueFactData (3段階マッチング)
-  const tokenize = (s: string): string[] =>
-    s.toLowerCase().split(/[\s\-・／/()（）,、。]+/).filter(t => t.length > 0);
-
-  const findMatchingVenue = (venueName: string, positionIndex?: number): VenueFactData | null => {
-    if (!plan?.venues || !venueName) return null;
-    const lower = venueName.toLowerCase();
-
-    // 1) includes チェック（完全一致含む）
-    const includesMatch = plan.venues.find((v: VenueFactData) => {
-      const vLower = v.name.toLowerCase();
-      return vLower.includes(lower) || lower.includes(vLower);
-    });
-    if (includesMatch) return includesMatch;
-
-    // 2) トークンマッチング: 共通ワード数 >= 2 かつ片方の50%以上
-    const nameTokens = tokenize(venueName);
-    const tokenMatch = plan.venues.find((v: VenueFactData) => {
-      const vTokens = tokenize(v.name);
-      const common = nameTokens.filter(t => vTokens.includes(t));
-      return common.length >= 2 && (common.length / Math.min(nameTokens.length, vTokens.length)) >= 0.5;
-    });
-    if (tokenMatch) return tokenMatch;
-
-    // 3) ポジションフォールバック: タイムラインでの出現順とvenues配列のindexで対応付け
-    if (positionIndex !== undefined && positionIndex < plan.venues.length) {
-      return plan.venues[positionIndex];
-    }
-
-    return null;
-  };
-
-  // 各タイムライン項目にvenueインデックスを割り当て
-  const venueIndexMap = new Map<string, number>();
-  let venueCounter = 0;
-  for (const item of plan.timeline) {
-    if (item.venue && !venueIndexMap.has(item.venue)) {
-      venueIndexMap.set(item.venue, venueCounter++);
-    }
   }
 
   return (
@@ -715,7 +731,7 @@ export default function ResultsPage() {
                 <div className="space-y-6">
                   {visibleItems.map((item, index) => {
                     const venueIdx = venueIndexMap.get(item.venue) ?? index;
-                    const matchedVenue = findMatchingVenue(item.venue, venueIdx);
+                    const matchedVenue = findMatchingVenue(item.venue);
                     const isLastVisible = index === visibleItems.length - 1;
                     return (
                       <div key={index} className="relative">
@@ -800,6 +816,7 @@ export default function ResultsPage() {
 
         {/* Route Map Embed - 周辺マップ */}
         {plan.timeline && plan.timeline.length > 0 && (
+          <Suspense fallback={null}>
           <RouteMapEmbed
             city={(() => {
               const cId = planContext?.city || location || "";
@@ -810,31 +827,36 @@ export default function ResultsPage() {
               .filter((item) => item.venue)
               .slice(0, 3)
               .map((item) => {
-                const matched = findMatchingVenue(item.venue, venueIndexMap.get(item.venue) ?? 0);
+                const matched = findMatchingVenue(item.venue);
                 return {
                   name: item.venue,
                   address: matched?.address || undefined,
                 };
               })}
           />
+          </Suspense>
         )}
 
         {/* Product Recommendations - 文脈連動型商品レコメンド */}
         {planContext && !isSharedView && (
-          <ProductRecommendation
-            occasion={planContext.occasion}
-            mood={planContext.mood}
-            budget={planContext.budget}
-          />
+          <Suspense fallback={null}>
+            <ProductRecommendation
+              occasion={planContext.occasion}
+              mood={planContext.mood}
+              budget={planContext.budget}
+            />
+          </Suspense>
         )}
 
         {/* Reservation Affiliate - 予約アフィリエイトレコメンド */}
         {planContext && !isSharedView && (planContext.city || location) && (
-          <ReservationAffiliate
-            city={planContext.city || location}
-            occasion={planContext.occasion}
-            mood={planContext.mood}
-          />
+          <Suspense fallback={null}>
+            <ReservationAffiliate
+              city={planContext.city || location}
+              occasion={planContext.occasion}
+              mood={planContext.mood}
+            />
+          </Suspense>
         )}
 
         {/* Share */}
@@ -932,7 +954,11 @@ export default function ResultsPage() {
         </div>
 
         {/* Premium Banner — 共有ビューでは非表示 */}
-        {!isSharedView && <PremiumBanner />}
+        {!isSharedView && (
+          <Suspense fallback={null}>
+            <PremiumBanner />
+          </Suspense>
+        )}
 
       </main>
       <Footer />
