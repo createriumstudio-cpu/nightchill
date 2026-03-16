@@ -20,6 +20,111 @@ import { CITIES, getCityById } from "@/lib/cities";
 
 const TOTAL_STEPS = 5;
 
+const LOADING_MESSAGES = [
+  { text: "AIがプランを考案中...", icon: "🧠" },
+  { text: "最適なお店を検索中...", icon: "🔍" },
+  { text: "時間配分を計算中...", icon: "⏰" },
+  { text: "移動ルートを最適化中...", icon: "🗺️" },
+  { text: "最終チェック中...", icon: "✨" },
+];
+
+function LoadingOverlay({
+  signupEmail,
+  setSignupEmail,
+  emailRegistered,
+  emailSubmitting,
+  handleEmailSignup,
+}: {
+  signupEmail: string;
+  setSignupEmail: (v: string) => void;
+  emailRegistered: boolean;
+  emailSubmitting: boolean;
+  handleEmailSignup: () => void;
+}) {
+  const [msgIndex, setMsgIndex] = useState(0);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const msgTimer = setInterval(() => {
+      setMsgIndex((prev) => (prev < LOADING_MESSAGES.length - 1 ? prev + 1 : prev));
+    }, 5000);
+    const progTimer = setInterval(() => {
+      setProgress((prev) => Math.min(prev + 1, 90));
+    }, 300);
+    return () => {
+      clearInterval(msgTimer);
+      clearInterval(progTimer);
+    };
+  }, []);
+
+  const msg = LOADING_MESSAGES[msgIndex];
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-background/95 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="loading-title"
+    >
+      <div className="max-w-sm mx-auto px-6 text-center">
+        <div className="mb-6">
+          <span className="text-4xl block mb-3 animate-pulse" aria-hidden="true">{msg.icon}</span>
+          <span className="sr-only">読み込み中</span>
+        </div>
+        <h2 id="loading-title" className="text-xl font-bold mb-2">
+          プランを生成しています...
+        </h2>
+        <p className="text-sm text-muted mb-4" aria-live="polite">
+          {msg.text}
+        </p>
+
+        {/* Progress bar */}
+        <div className="w-full h-1.5 bg-border rounded-full mb-6 overflow-hidden">
+          <div
+            className="h-full bg-interactive rounded-full transition-all duration-300 ease-out"
+            style={{ width: `${progress}%` }}
+            role="progressbar"
+            aria-valuenow={progress}
+            aria-valuemin={0}
+            aria-valuemax={100}
+          />
+        </div>
+
+        <div className="rounded-2xl border border-interactive/30 bg-interactive-light p-5">
+          {emailRegistered ? (
+            <p className="text-sm font-medium text-foreground">
+              完成したらお送りします
+            </p>
+          ) : (
+            <>
+              <p className="text-sm font-medium text-foreground mb-3">
+                完成したらメールで受け取る（任意）
+              </p>
+              <div className="flex gap-2">
+                <input
+                  type="email"
+                  value={signupEmail}
+                  onChange={(e) => setSignupEmail(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") handleEmailSignup(); }}
+                  placeholder="example@email.com"
+                  className="flex-1 min-w-0 rounded-xl border border-border bg-surface px-3 py-2.5 text-sm focus:border-interactive focus:ring-interactive focus:outline-none"
+                />
+                <button
+                  onClick={handleEmailSignup}
+                  disabled={emailSubmitting || !signupEmail.trim()}
+                  className="shrink-0 rounded-xl bg-interactive px-4 py-2.5 text-sm font-medium text-interactive-foreground hover:opacity-90 transition-colors disabled:opacity-40"
+                >
+                  {emailSubmitting ? "..." : "登録"}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function PlanPage() {
   return (
     <Suspense>
@@ -653,59 +758,13 @@ function PlanPageContent() {
 
       {/* Loading overlay with email signup */}
       {isLoading && (
-        <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-background/95 backdrop-blur-sm"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="loading-title"
-        >
-          <div className="max-w-sm mx-auto px-6 text-center">
-            <div className="mb-6">
-              <svg className="animate-spin h-10 w-10 mx-auto text-interactive" viewBox="0 0 24 24" aria-hidden="true">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
-              <span className="sr-only">読み込み中</span>
-            </div>
-            <h2 id="loading-title" className="text-xl font-bold mb-2">
-              プランを生成しています...
-            </h2>
-            <p className="text-sm text-muted mb-8">
-              AIがあなたにぴったりのデートプランを考えています
-            </p>
-
-            <div className="rounded-2xl border border-interactive/30 bg-interactive-light p-5">
-              {emailRegistered ? (
-                <p className="text-sm font-medium text-foreground">
-                  ✅ 完成したらお送りします
-                </p>
-              ) : (
-                <>
-                  <p className="text-sm font-medium text-foreground mb-3">
-                    📧 完成したらメールで受け取る（任意）
-                  </p>
-                  <div className="flex gap-2">
-                    <input
-                      type="email"
-                      value={signupEmail}
-                      onChange={(e) => setSignupEmail(e.target.value)}
-                      onKeyDown={(e) => { if (e.key === "Enter") handleEmailSignup(); }}
-                      placeholder="example@email.com"
-                      className="flex-1 min-w-0 rounded-xl border border-border bg-surface px-3 py-2.5 text-sm focus:border-interactive focus:ring-interactive focus:outline-none"
-                    />
-                    <button
-                      onClick={handleEmailSignup}
-                      disabled={emailSubmitting || !signupEmail.trim()}
-                      className="shrink-0 rounded-xl bg-interactive px-4 py-2.5 text-sm font-medium text-interactive-foreground hover:opacity-90 transition-colors disabled:opacity-40"
-                    >
-                      {emailSubmitting ? "..." : "登録"}
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
+        <LoadingOverlay
+          signupEmail={signupEmail}
+          setSignupEmail={setSignupEmail}
+          emailRegistered={emailRegistered}
+          emailSubmitting={emailSubmitting}
+          handleEmailSignup={handleEmailSignup}
+        />
       )}
     </div>
   );

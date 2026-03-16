@@ -141,6 +141,10 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <head>
+        <link rel="dns-prefetch" href="https://places.googleapis.com" />
+        <link rel="dns-prefetch" href="https://maps.googleapis.com" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="preconnect" href="https://places.googleapis.com" crossOrigin="anonymous" />
         {GA4_ID && (
           <>
             <Script

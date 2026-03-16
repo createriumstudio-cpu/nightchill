@@ -1,19 +1,21 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, lazy, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import ProductRecommendation from "@/components/ProductRecommendation";
-import ReservationAffiliate from "@/components/ReservationAffiliate";
-import PremiumBanner from "@/components/PremiumBanner";
-import RouteMapEmbed from "@/components/RouteMapEmbed";
 import { type DatePlan } from "@/lib/types";
 import { decodePlan, buildShareUrl } from "@/lib/plan-encoder";
 import type { VenueFactData } from "@/lib/google-places";
 import { getCityById } from "@/lib/cities";
+
+// Lazy load below-fold components for faster initial render
+const ProductRecommendation = lazy(() => import("@/components/ProductRecommendation"));
+const ReservationAffiliate = lazy(() => import("@/components/ReservationAffiliate"));
+const PremiumBanner = lazy(() => import("@/components/PremiumBanner"));
+const RouteMapEmbed = lazy(() => import("@/components/RouteMapEmbed"));
 
 // ============================================================
 // sessionStorage ヘルパー
@@ -800,6 +802,7 @@ export default function ResultsPage() {
 
         {/* Route Map Embed - 周辺マップ */}
         {plan.timeline && plan.timeline.length > 0 && (
+          <Suspense fallback={null}>
           <RouteMapEmbed
             city={(() => {
               const cId = planContext?.city || location || "";
@@ -817,24 +820,29 @@ export default function ResultsPage() {
                 };
               })}
           />
+          </Suspense>
         )}
 
         {/* Product Recommendations - 文脈連動型商品レコメンド */}
         {planContext && !isSharedView && (
-          <ProductRecommendation
-            occasion={planContext.occasion}
-            mood={planContext.mood}
-            budget={planContext.budget}
-          />
+          <Suspense fallback={null}>
+            <ProductRecommendation
+              occasion={planContext.occasion}
+              mood={planContext.mood}
+              budget={planContext.budget}
+            />
+          </Suspense>
         )}
 
         {/* Reservation Affiliate - 予約アフィリエイトレコメンド */}
         {planContext && !isSharedView && (planContext.city || location) && (
-          <ReservationAffiliate
-            city={planContext.city || location}
-            occasion={planContext.occasion}
-            mood={planContext.mood}
-          />
+          <Suspense fallback={null}>
+            <ReservationAffiliate
+              city={planContext.city || location}
+              occasion={planContext.occasion}
+              mood={planContext.mood}
+            />
+          </Suspense>
         )}
 
         {/* Share */}
@@ -932,7 +940,11 @@ export default function ResultsPage() {
         </div>
 
         {/* Premium Banner — 共有ビューでは非表示 */}
-        {!isSharedView && <PremiumBanner />}
+        {!isSharedView && (
+          <Suspense fallback={null}>
+            <PremiumBanner />
+          </Suspense>
+        )}
 
       </main>
       <Footer />

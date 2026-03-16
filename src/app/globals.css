@@ -172,9 +172,35 @@ html {
   border-width: 0;
 }
 
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
+/* Content visibility for off-screen sections — improves rendering perf */
+section {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 500px;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-pulse,
+  .animate-spin,
+  .animate-float,
+  .animate-float-delayed,
+  .animate-float-slow {
+    animation: none !important;
+  }
+}
+
+/* Optimize image rendering */
+img {
+  content-visibility: auto;
 }
 
 /* Print styles */
