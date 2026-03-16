@@ -135,7 +135,7 @@ export default async function CityLandingPage({ params }: PageProps) {
   const otherCities = CITIES.filter((c) => c.id !== city.id);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div id="main-content" className="min-h-screen bg-background">
       <Header />
       <script
         type="application/ld+json"
@@ -146,8 +146,17 @@ export default async function CityLandingPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(placeLd) }}
       />
 
+      {/* Breadcrumb */}
+      <nav aria-label="パンくずリスト" className="relative z-10 mx-auto max-w-6xl px-4 pt-20 pb-0">
+        <ol className="flex items-center gap-1.5 text-xs text-muted">
+          <li><Link href="/" className="hover:text-primary transition-colors">ホーム</Link></li>
+          <li aria-hidden="true">/</li>
+          <li aria-current="page" className="text-foreground font-medium">{city.name}のデートプラン</li>
+        </ol>
+      </nav>
+
       {/* Hero */}
-      <section className="relative flex min-h-[60vh] items-end justify-center overflow-hidden px-4 pb-12 pt-24 md:pb-20">
+      <section className="relative flex min-h-[60vh] items-end justify-center overflow-hidden px-4 pb-12 pt-4 md:pb-20">
         <Image
           src={city.heroImage}
           alt={`${city.name}の街並み`}

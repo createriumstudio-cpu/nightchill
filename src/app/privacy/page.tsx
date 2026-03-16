@@ -16,16 +16,16 @@ export default function PrivacyPage() {
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950">
+      <main id="main-content" className="min-h-screen bg-gradient-to-b from-primary-dark via-background to-primary-dark">
         <div className="max-w-3xl mx-auto px-4 py-16 sm:py-24">
-          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">
+          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-2">
             プライバシーポリシー
           </h1>
-          <p className="text-gray-400 mb-10 text-sm">
+          <p className="text-muted/70 mb-10 text-sm">
             最終更新日: 2026年2月21日
           </p>
 
-          <div className="text-gray-300 space-y-10 leading-relaxed">
+          <div className="text-muted space-y-10 leading-relaxed">
             <section>
               <h2 className="text-xl font-semibold text-accent mb-4">
                 1. はじめに
@@ -42,15 +42,15 @@ export default function PrivacyPage() {
               <div className="space-y-3">
                 <p>当サイトでは、以下の情報を取得する場合があります。</p>
                 <p>
-                  <span className="text-white font-medium">アクセスログ情報:</span>{" "}
+                  <span className="text-foreground font-medium">アクセスログ情報:</span>{" "}
                   IPアドレス、ブラウザの種類、参照元URL、アクセス日時などの情報が、サーバーログとして自動的に記録されます。
                 </p>
                 <p>
-                  <span className="text-white font-medium">デートプラン生成時の入力情報:</span>{" "}
+                  <span className="text-foreground font-medium">デートプラン生成時の入力情報:</span>{" "}
                   プラン生成機能をご利用いただく際に入力されるエリア・シチュエーション・予算などの情報。これらはブラウザのsessionStorageに一時保存され、タブを閉じると自動的に削除されます。サーバーには保存されません。
                 </p>
                 <p>
-                  <span className="text-white font-medium">お問い合わせ情報:</span>{" "}
+                  <span className="text-foreground font-medium">お問い合わせ情報:</span>{" "}
                   メールでお問い合わせいただいた際のメールアドレス・お名前・お問い合わせ内容。
                 </p>
               </div>
@@ -87,7 +87,7 @@ export default function PrivacyPage() {
               <div className="space-y-3">
                 <p>当サイトでは、以下の第三者サービスを利用しています。</p>
                 <p>
-                  <span className="text-white font-medium">Google Maps Platform:</span>{" "}
+                  <span className="text-foreground font-medium">Google Maps Platform:</span>{" "}
                   店舗情報の表示・地図表示のために、Google Maps PlatformのAPIを利用しています。Googleのプライバシーポリシーは{" "}
                   <a
                     href="https://policies.google.com/privacy"
@@ -100,7 +100,7 @@ export default function PrivacyPage() {
                   をご参照ください。
                 </p>
                 <p>
-                  <span className="text-white font-medium">Vercel:</span>{" "}
+                  <span className="text-foreground font-medium">Vercel:</span>{" "}
                   当サイトのホスティングにVercelを利用しています。Vercelのプライバシーポリシーは{" "}
                   <a
                     href="https://vercel.com/legal/privacy-policy"
